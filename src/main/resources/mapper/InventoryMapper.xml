@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cashier.dao.InventoryMapper">
+
+	<!-- 添加单条库存数据 -->
+	<insert id="insertInventory" parameterType="com.cashier.entity.Inventory">
+		insert into t_inventory (
+			product_id ,
+			quantity ,
+			<if test="inventoryWarning!=null">
+            inventory_warning,
+            </if>
+			shop_id
+			
+		)
+		values
+		(
+			#{productId} ,
+			#{quantity} ,
+			<if test="inventoryWarning!=null">
+            #{inventoryWarning},
+            </if>
+			#{shopId}
+			
+		)
+	</insert>
+	
+	<!-- 库存表的显示 -->
+	<select id="listInventory" resultType="com.cashier.entityVo.InventoryVo"
+		parameterType="com.cashier.entityDTO.InventoryDTO">
+		select
+			i.id,
+			i.quantity,
+			p.name productName,
+			p.pleased,
+			pt.product_type productTypeName,
+			i.inventory_warning inventoryWarning
+		from
+			t_inventory i ,
+			t_product p ,
+			t_product_type pt
+		<where>
+			i.product_id = p.id
+			and p.product_type_id = pt.id
+			<if test="shopId!=null">
+			and i.shop_id = #{shopId}
+			</if>
+			<if test=" productTypeId!=null ">
+            and pt.id = #{productTypeId}
+            </if>
+		</where>
+		order by i.id
+		limit #{page},#{limit}
+	</select>
+
+	<!-- 库存表显示的条数 -->
+	<select id="listInventoryCount" resultType="Integer" parameterType="com.cashier.entityDTO.InventoryDTO">
+		select
+		    count(i.id)
+		from
+			t_inventory i ,
+			t_product p ,
+			t_product_type pt
+		<where>
+			i.product_id = p.id
+			and p.product_type_id = pt.id
+			<if test="shopId!=null">
+			and i.shop_id = #{shopId}
+			</if>
+			<if test=" productTypeId!=null ">
+            and pt.id = #{productTypeId}
+            </if>
+		</where>
+	</select>
+    
+    <!-- 库存表的数据单条显示 -->
+    <select id="getInventory" resultType="com.cashier.entity.Inventory"
+    parameterType="com.cashier.entity.Inventory">
+        select
+            id,
+            quantity,
+            inventory_warning inventoryWarning,
+        from
+            t_inventory
+        where
+            id = #{id}
+    </select>
+
+	<!-- 修改单条数据 -->
+	<update id="updateInventory" parameterType="com.cashier.entity.Inventory">
+		update
+		    t_inventory
+		<set>
+		    <if test="quantity!=null">
+            quantity=#{quantity},
+            </if>
+		    <if test="inventoryWarning!=null">
+            inventory_warning=#{inventoryWarning},
+            </if>
+        </set>     
+		where
+		    id = #{id}
+	</update>
+</mapper>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cashier.dao.OrderProductMapper">
+	<!-- 1.1、订单商品列表 -->
+	<select id="listOrderProduct" resultType="com.cashier.entityVo.OrderProductVo">
+		SELECT DISTINCT
+			op.id id,
+			op.product_id productId,
+			p.name productName,
+			p.product_type_id productTypeId,
+			pt.product_type productType,
+			p.sale_price salePrice,
+			p.member_price memberPrice,
+			op.product_count productCount,
+			op.order_number orderNumber,
+			op.so_id soId,
+			op.type type
+		FROM
+			t_order_product op,
+			t_product p,
+			t_product_type pt
+		WHERE
+			op.product_id = p.id
+		AND	
+			p.product_type_id = pt.id
+		ORDER BY
+			op.id DESC
+		limit #{page},#{limit}
+	</select>
+	
+	<!-- 1.2、订单商品列表的数量 -->
+	<select id="countOrderProduct" resultType="com.cashier.entityVo.OrderProductVo">
+		SELECT 
+			COUNT(op.id) count
+		FROM
+			t_order_product op,
+			t_product p,
+			t_product_type pt
+		WHERE
+			op.product_id = p.id
+		AND	
+			p.product_type_id = pt.id
+	</select>
+	
+	<!--  2、新增一条订单商品 -->
+	<insert id="saveOrderProduct"  parameterType="com.cashier.entity.OrderProduct">
+		INSERT INTO t_order_product 
+		(
+			product_id,
+			product_count,
+			order_number,
+			so_id,
+			type,
+			salePrice,
+			member_price,
+			member_pricediscount
+			
+		)
+		VALUES
+		(
+			#{productId},
+			#{productCount},
+			#{orderNumber},
+			#{soId},
+			#{type},
+			#{salePrice},
+			#{memberPrice},
+			#{memberPricediscount}
+		)
+	</insert>
+	
+	
+	<!-- 3、删除一条订单商品  -->
+	<delete id="delOrderProduct"  parameterType="BigInteger">
+		DELETE from t_order_product
+		WHERE 
+			id = #{id}
+	</delete> 
+	
+	<!-- 4.1、通过订单号查询订单商品信息 -->
+	<select id="listOrderProductByOrderNumber" resultType="com.cashier.entityVo.OrderProductVo">
+		SELECT DISTINCT
+			op.id id,
+			op.product_id productId,
+			p.name productName,
+			p.product_type_id productTypeId,
+			pt.product_type productType,
+			p.sale_price salePrice,
+			p.member_price memberPrice,
+			op.product_count productCount,
+			op.order_number orderNumber,
+			op.so_id soId,
+			op.type type
+		FROM
+			t_order_product op,
+			t_product p,
+			t_product_type pt
+		WHERE
+			op.product_id = p.id
+		AND	
+			p.product_type_id = pt.id
+		AND
+			op.order_number = #{orderNumber}
+		ORDER BY
+			op.id DESC
+		limit #{page},#{limit}
+	</select>
+	
+	<!-- 4.2、通过订单号查询订单商品的数量 -->
+	<select id="countOrderProductByOrderNumber" resultType="com.cashier.entityVo.OrderProductVo">
+		SELECT 
+			COUNT(op.id) count
+		FROM
+			t_order_product op,
+			t_product p,
+			t_product_type pt
+		WHERE
+			op.product_id = p.id
+		AND	
+			p.product_type_id = pt.id
+		AND
+			op.order_number = #{orderNumber}
+	</select>
+	
+	<update id="upnumberbyid">
+	
+	update   t_inventory  set quantity=quantity-#{productCount}  where  product_id=#{id}  and shop_id=#{shopId}
+	
+	</update>
+	
+		<!-- 4.2、通过订单号查询订单商品的数量 -->
+	<select id="listorderNumberOrderProduct" resultType="com.cashier.entity.OrderProduct">
+	SELECT DISTINCT
+			op.id id,
+			op.product_id productId,
+			p.name productName,
+			p.product_type_id productTypeId,
+			pt.product_type productType,
+      op.saleprice salePrice,
+			op.member_price memberPrice,
+			op.product_count productCount,
+			op.order_number orderNumber,
+			op.so_id soId,
+			op.type type,
+			op.member_pricediscount memberPricediscount
+		FROM
+			
+      t_order_product op,
+			t_product p,
+			t_product_type pt
+
+where
+			op.product_id = p.id
+		AND	
+			p.product_type_id = pt.id
+	
+		AND
+			op.order_number = #{orderNumber}
+	</select>
+    
+</mapper>

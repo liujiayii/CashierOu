@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cashier.dao.BirthdayMapper">
+
+    <!-- 当天过生日的列表 -->
+	<select id="listBirthday" resultType="com.cashier.entityVo.BirthdayVo">
+		SELECT
+			b.id id,
+			b.member_id memberId,
+			m.birthday birthday,
+			m.name name,
+			m.sex sex,
+			m.phone phone,
+			b.time time	
+		FROM
+			t_member m,
+			t_birthday b
+		WHERE
+			m.id = b.member_id
+		AND
+			b.time like "%"#{time}"%"
+		limit #{page},#{limit}
+	</select>
+	
+	<!-- 当天过生日人数 -->
+	<select id="countBirthday" resultType="com.cashier.entityVo.BirthdayVo">
+		SELECT 
+			COUNT(b.id) count
+		FROM
+			t_member m,
+			t_birthday b
+		WHERE
+			m.id = b.member_id
+		AND
+			b.time like "%"#{time}"%"
+	</select>
+	
+	<!-- 添加会员等级优惠规则 -->
+	<insert id="saveBirthday"  parameterType="Birthday">
+		INSERT INTO t_birthday
+		 (
+		 	member_id,
+			time
+		)
+		VALUES
+		(
+			#{memberId},
+			now()
+		)
+	</insert>
+
+  	<!--  删除一条生日  -->
+	<delete id="removeBirthday"  parameterType="BigInteger">
+		DELETE from t_birthday 
+		WHERE 
+			id = #{id}
+	</delete>
+ 
+</mapper>

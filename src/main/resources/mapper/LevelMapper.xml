@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cashier.dao.LevelMapper">
+
+    <!-- 查询所有会员等级不分页(下拉单使用) -->
+    <select id="allLevel" resultType="com.cashier.entity.Level">
+        SELECT DISTINCT
+            t_level_discount.id id,
+            t_level_discount.minimum minimum,
+            t_level_discount.maximum maximum,
+            t_level_discount.level level
+        FROM
+            t_level_discount
+        ORDER BY
+            t_level_discount.id DESC
+    </select>
+    
+    <!-- 分页显示会员等级列表 -->
+	<select id="listLevel" resultType="com.cashier.entity.Level">
+		SELECT DISTINCT
+			t_level_discount.id id,
+			t_level_discount.minimum minimum,
+			t_level_discount.maximum maximum,
+			t_level_discount.level level
+		FROM
+			t_level_discount
+		ORDER BY
+			t_level_discount.id DESC
+		limit #{page},#{limit}
+	</select>
+	
+	<!-- 查询会员等级的数据条数 -->
+	<select id="countLevel" resultType="com.cashier.entity.Level">
+		SELECT 
+			COUNT(t.id) count
+		FROM
+			t_level_discount t
+	</select>
+	
+	<!-- 添加会员等级优惠规则 -->
+	<insert id="saveLevel"  parameterType="Level">
+		INSERT INTO t_level_discount
+		 (
+		 	minimum,
+			maximum,
+			level
+		)
+		VALUES
+		(
+			#{minimum},
+			#{maximum},
+			#{level}
+		)
+	</insert>
+    
+    <!-- 修改会员等级时查重使用 -->
+    <select id="listLevelForUpdate" resultType="com.cashier.entity.Level">
+        SELECT 
+            t_level_discount.id id,
+            t_level_discount.minimum minimum,
+			t_level_discount.maximum maximum,
+            t_level_discount.level level
+        FROM
+            t_level_discount
+        WHERE
+        	t_level_discount.id != #{id}
+    </select>
+
+	<!-- 修改会员等级 -->
+	<update id="updateLevel"  parameterType="Level">
+		UPDATE t_level_discount t
+		<set>
+            <if test="level != null and level != ''">
+                t.level = #{level}
+            </if>
+        </set>	
+		WHERE
+		 	t.id = #{id}	
+	</update>
+  
+  	<!--  删除会员等级优惠规则 -->
+	<delete id="removeLevel"  parameterType="BigInteger">
+		DELETE from t_level_discount 
+		WHERE 
+			id = #{id}
+	</delete>
+	
+	
+	<!-- （新增会员等级查重判断）查询所有会员等级区间的数字 -->
+	<select id="listLevelNumber" resultType="com.cashier.entity.Level">
+		SELECT DISTINCT
+			t_level_discount.minimum minimum,
+			t_level_discount.maximum maximum,
+			t_level_discount.level level
+		FROM
+			t_level_discount
+	</select>
+	
+	<!-- 查询最低的会员等级和对应的id -->
+	<select id="getMinLevelId" resultType="com.cashier.entity.Level">
+		SELECT DISTINCT
+			ld.id id,
+			MIN(ld.maximum) maximum
+		FROM
+			t_level_discount ld
+	</select>
+ 
+</mapper>

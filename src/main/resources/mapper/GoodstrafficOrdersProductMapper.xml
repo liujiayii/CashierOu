@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cashier.dao.GoodstrafficOrdersProductMapper">
+	<!-- 添加商品 -->
+	<insert id="insertSubscribePurchase" parameterType="com.cashier.entity.GoodstrafficOrdersProduct">
+		insert into t_goodstraffic_orders_product
+		(
+			goodstraffic_management_id ,
+			quantity ,
+			money ,
+			product_id
+		)
+		values
+		(
+			#{goodstrafficManagementId} ,
+			#{quantity} ,
+			#{money} ,
+			#{productId}
+		)
+	</insert>
+
+	<!-- 根据货流管理表id得到货流商品表数据 -->
+	<select id="listGoodstrafficOrdersProduct" resultType="com.cashier.entityVo.GoodstrafficOrdersProductVo"
+		parameterType="BigInteger">
+		select
+			tgop.id,
+			tgop.quantity,
+			tgop.money,
+			p.name           productName,
+			pt.product_type  productTypeName
+		from
+			t_goodstraffic_orders_product gop,
+			t_product p,
+			t_product_type pt
+		where
+			tgop.goodstraffic_management_id = #{id}
+			and gop.product_id = p.id
+			and p.product_type_id = pt.id
+	</select>
+</mapper>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cashier.dao.ProductTypeMapper">
+
+<!-- 查询所有商品类型 -->
+	<select id="listProductType" resultType="com.cashier.entity.ProductType">
+		select
+		id,
+		product_type productTypeName
+		from
+		t_product_type
+		<where>
+		can_use = 1
+		and shop_id=#{shopId}
+		</where>
+		
+	</select>
+	
+	<!-- 查询除去当前商品类型所有的商品类型   不分页（用于判断商品分类是否重复） -->
+    <select id="selectProductTypeListRemoveThis" resultType="com.cashier.entity.ProductType" parameterType="com.cashier.entity.ProductType">
+        select
+        pt.id id,
+        pt.product_type productTypeName,
+        pt.can_use canUse
+        from
+        t_product_type pt
+        <where>
+        pt.can_use = 1
+        <if test="id!=null">
+        and pt.id != #{id}
+        </if>
+        and pt.product_type = #{productTypeName}
+        and pt.shop_id =#{shopId}
+        </where>
+       
+    </select>
+	<!-- 模糊查询商品类型 -->
+	<select id="dimSelectProductType" resultType="com.cashier.entity.ProductType">
+		select
+		id,
+		product_type productTypeName
+		from
+		t_product_type 
+		<where>
+		can_use = 1
+		and	shop_id = #{shopId}
+		<if test="productTypeName != null and productTypeName != ''">
+			and product_type like "%"#{productTypeName}"%"
+		</if>
+		</where>
+		limit #{page},#{limit}
+	</select>
+
+
+	<!-- 根据id查询商品类型 -->
+	<select id="getProductTypeById"
+		resultType="com.cashier.entity.ProductType">
+		select id,product_type productTypeName from t_product_type where id = #{productTypeId}
+
+	</select>
+	<!-- 增加商品类型 -->
+	<insert id="insertProductType" parameterType="ProductType">
+		insert into
+		t_product_type(product_type,shop_id,can_use)
+		values
+		(#{productTypeName},#{shopId},1)
+	</insert>
+<!-- 修改商品类型 -->
+
+    <update id="updateProductType" parameterType="ProductType">
+        update t_product_type
+        <set>
+            <if test="productTypeName != null and productTypeName != ''">
+                product_type = #{productTypeName}
+            </if>
+            
+        </set>
+        where id= #{id}
+    </update>
+    <!-- 软删除 -->
+    <update id="delProductType" >
+       update t_product_type
+        <set>
+            can_use = 2
+        </set>
+        where id= #{productTypeId}
+    </update>
+
+
+
+
+	
+	
+</mapper>

@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "com.cashier.dao.ShopMapper">
+    
+    <!-- 获得各分店铺id和名称 -->
+    <select id="listShopIdAndName" resultType="com.cashier.entity.Shop" >
+        SELECT 
+	        s.id,
+	        s.name
+		FROM t_shop s
+		WHERE s.type=2
+    </select>
+    <!-- 获得各分店铺id和名称 -->
+    <select id="listAllShopId" resultType="int" >
+        SELECT 
+            s.id
+        FROM t_shop s
+        WHERE s.type=1
+    </select>
+    <!-- 获得各分店铺id和名称(除了登陆当前店) -->
+    <select id="listShopIdButMe" resultType="com.cashier.entity.Shop" parameterType="Integer">
+        SELECT
+			s.id,
+			s.name
+		FROM
+		    t_shop s
+		WHERE
+		    s.type = 2 
+		AND
+		    s.id NOT LIKE #{shopid}
+    </select>
+    
+	<!-- 通过店铺id查询店铺省市区号和会员消费范围 -->
+	<select id="getGeneralScopeById" resultType="com.cashier.entityVo.ShopVo" parameterType="com.cashier.entityVo.ShopVo">	
+		SELECT DISTINCT
+			p.area_id provid,
+			p.title provice,
+			c.area_id cityid,
+			c.title city,
+			a.area_id areaid,
+			a.title title,
+			t.name name,
+			t.create_time createTime,
+			t.general_scope generalScope
+		FROM
+			t_dm_area c,
+			t_dm_area a,
+			t_dm_area p,
+			t_shop t
+			<!-- ,t_member m -->
+		WHERE
+			c.area_id = a.pid
+		AND c.pid = p.area_id
+		AND t.area = a.area_id
+		<!-- AND t.id = m.branch_id -->
+		AND t.id = #{id}
+	</select>
+
+    <!-- 查询所有商铺信息（无分页，新增店铺用） -->
+    <select id="listShopByDTO" resultType="com.cashier.entityVo.ShopVo" parameterType="com.cashier.entityDTO.ShopUserPermissionDTO"> 
+        SELECT DISTINCT
+            p.area_id provid,
+            p.title provice,
+            c.area_id cityid,
+            c.title city,
+            a.area_id areaid,
+            a.title title,
+            t.id id,
+            t.name name,
+            t.type type,    
+            t.general_scope generalScope,
+            t.addr addr,
+            t.phone phone,
+            t.create_time createTime,
+            t.state state,
+            t.remarks remarks
+        FROM
+            t_dm_area c,
+            t_dm_area a,
+            t_dm_area p,
+            t_shop t
+        WHERE
+            c.area_id = a.pid
+        AND
+            c.pid = p.area_id
+        AND 
+            t.area = a.area_id
+    </select>
+	<!-- 查询所有商铺信息（无分页，新增店铺用） -->
+	<select id="listShop" resultType="com.cashier.entityVo.ShopVo" parameterType="com.cashier.entityVo.ShopVo">	
+		SELECT DISTINCT
+			p.area_id provid,
+			p.title provice,
+			c.area_id cityid,
+			c.title city,
+			a.area_id areaid,
+			a.title title,
+			t.id id,
+			t.name name,
+			t.type type,	
+			t.general_scope generalScope,
+			t.addr addr,
+			t.phone phone,
+			t.create_time createTime,
+			t.state state,
+			t.remarks remarks
+		FROM
+			t_dm_area c,
+			t_dm_area a,
+			t_dm_area p,
+			t_shop t
+		WHERE
+			c.area_id = a.pid
+		AND
+			c.pid = p.area_id
+		AND	
+			t.area = a.area_id
+	</select>
+
+	<!-- 查询所有商铺信息 -->
+	<select id="listAllShopVo" resultType="com.cashier.entityVo.ShopVo" parameterType="com.cashier.entityVo.ShopVo">	
+		SELECT DISTINCT
+			p.area_id provid,
+			p.title provice,
+			c.area_id cityid,
+			c.title city,
+			a.area_id areaid,
+			a.title title,
+			t.id id,
+			t.name name,
+			t.type type,	
+			t.general_scope generalScope,
+			t.addr addr,
+			t.phone phone,
+			t.create_time createTime,
+			t.state state,
+			t.remarks remarks,
+			t.bonus_type bonusType,
+			b.bonus_name bonusName
+		FROM
+			t_dm_area c,
+			t_dm_area a,
+			t_dm_area p,
+			t_shop t,
+			t_bonus b
+		WHERE
+			c.area_id = a.pid
+		AND
+			c.pid = p.area_id
+		AND	
+			t.area = a.area_id
+		AND
+			t.bonus_type = b.id
+		ORDER BY
+			t.id DESC
+		limit #{page},#{limit}
+	</select>
+
+    <select id="listshop" resultType="com.cashier.entity.Shop" parameterType="com.cashier.entity.Shop">
+		    SELECT id,name from t_shop where id not in (#{id})
+    </select>
+
+	
+	<!-- 查询所有店铺的数据数量 -->
+	<select id="countShop" resultType="com.cashier.entityVo.ShopVo">
+		SELECT 
+			COUNT(t.id) count
+		FROM
+			t_shop t,
+			t_dm_area a
+		WHERE 
+			t.area = a.area_id
+	</select>
+	
+	<!-- 通过店铺名称查询信息 -->
+	<select id="listByShopNameVo" resultType="com.cashier.entityVo.ShopVo" parameterType="com.cashier.entityVo.ShopVo">
+		SELECT DISTINCT
+			p.area_id provid,
+			p.title provice,
+			c.area_id cityid,
+			c.title city,
+			a.area_id areaid,
+			a.title title,
+			t.id id,
+			t.name name,
+			t.type type,	
+			t.general_scope generalScope,
+			t.addr addr,
+			t.phone phone,
+			t.create_time createTime,
+			t.state state,
+			t.remarks remarks,
+			t.bonus_type bonusType,
+		    b.bonus_name bonusName
+		FROM
+			t_dm_area c,
+			t_dm_area a,
+			t_dm_area p,
+			t_shop t,
+			t_bonus b
+		<where> 
+			c.area_id = a.pid
+			AND
+				c.pid = p.area_id
+			AND	
+				t.area = a.area_id
+			AND
+				t.bonus_type = b.id
+			<if test="name != null and name != ''">
+				and t.name like "%"#{name}"%"
+			</if>
+		</where>
+		limit #{page},#{limit}
+	</select>
+	
+	<!-- 通过店铺名查询店铺的数据数量 -->
+	<select id="countByShopName" resultType="com.cashier.entityVo.ShopVo">
+		SELECT 
+			COUNT(t.id) count
+		FROM
+			t_dm_area c,
+			t_dm_area a,
+			t_dm_area p,
+			t_shop t,
+			t_bonus b
+		<where> 
+			c.area_id = a.pid
+			AND
+				c.pid = p.area_id
+			AND	
+				t.area = a.area_id
+			AND
+				t.bonus_type = b.id
+			<if test="name != null and name != ''">
+				and t.name like "%"#{name}"%"
+			</if>
+		</where>
+	</select>
+
+
+	<!-- 添加一条店铺信息 -->
+	<insert id="insertShop"  parameterType="com.cashier.entityDTO.ShopUserPermissionDTO"  useGeneratedKeys="true" keyProperty="id">
+		<!-- <selectKey keyProperty="id" resultType="Integer" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey> -->
+		INSERT INTO t_shop(
+			name,
+			type,
+			province_id,
+			city_id,
+			area,
+			general_scope,
+			addr,
+			phone,
+			create_time,
+			state,
+			remarks,
+			bonus_type
+		)
+		VALUES
+		(
+			#{name},	
+			#{type},
+			#{provid},
+			#{cityid}
+			#{areaid},
+			1,
+			#{addr},
+			#{phone},
+			#{createTime},		
+			#{state},
+			#{remarks},
+			#{bonusType}
+		)
+	</insert>
+	
+	<!-- 修改一条店铺信息 -->
+	<update id="updateShop" parameterType="com.cashier.entityVo.ShopVo">
+		UPDATE t_shop t			
+		<set>
+			<if test="name != null and name != ''">
+                t.name = #{name},
+            </if>
+          <!--<if test="type != null and type != ''">
+                t.type = #{type},
+            </if> -->
+            <if test="provid!=null">
+                t.province_id = #{provid},
+            </if>
+            <if test="cityid!=null">
+                t.city_id=#{cityid},
+            </if>
+            <if test="areaid != null and areaid != ''">
+                t.area = #{areaid},
+            </if>
+            <!-- <if test="generalScope != null and generalScope != ''">
+                t.general_scope = #{generalScope},
+            </if> -->
+            <if test="addr != null and addr != ''">
+                t.addr = #{addr},
+            </if>
+            <if test="phone != null and phone != ''">
+                t.phone = #{phone},
+            </if>
+            <if test="createTime != null and createTime != ''">
+                t.create_time = #{createTime},
+            </if>
+            <if test="state != null and state != ''">
+                t.state = #{state},
+            </if> 
+            <if test="remarks != null and remarks != ''">
+                t.remarks = #{remarks},
+            </if>
+            <if test="bonusType != null and bonusType != ''">
+                t.bonus_type = #{bonusType}
+            </if>
+		</set>
+		WHERE		
+			t.id = #{id}
+	</update>
+	
+	<!-- 删除一条店铺信息 -->
+	<delete id="deleteShop" parameterType="com.cashier.entity.Shop">
+		DELETE FROM
+			t_shop
+		WHERE
+			id = #{id}
+	</delete>
+	
+	<!-- 通过id查询商铺信息 -->
+	<select id="getId" resultType="com.cashier.entity.Shop" parameterType="com.cashier.entity.Shop">
+		SELECT
+			 name,
+            type,
+            province_id provinceId,
+            city_id cityId,
+            area areaid,
+            general_scope generalScope,
+            addr,
+            phone,
+            create_time createTime,
+            state,
+            remarks
+		FROM
+			t_shop
+		WHERE
+			t_shop.id=#{id}
+	</select>
+	
+</mapper>

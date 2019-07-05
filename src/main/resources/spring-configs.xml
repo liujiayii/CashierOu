@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans default-lazy-init="true"
+    xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation=" 
+       http://www.springframework.org/schema/task
+       http://www.springframework.org/schema/task/spring-task-3.2.xsd 
+       http://www.springframework.org/schema/beans   
+       http://www.springframework.org/schema/beans/spring-beans-4.3.xsd  
+       http://www.springframework.org/schema/mvc   
+       http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd   
+       http://www.springframework.org/schema/tx   
+       http://www.springframework.org/schema/tx/spring-tx-4.3.xsd   
+       http://www.springframework.org/schema/aop 
+       http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+       http://www.springframework.org/schema/util 
+       http://www.springframework.org/schema/util/spring-util-4.3.xsd
+       http://www.springframework.org/schema/data/jpa 
+       http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+    <!-- 加载其他的配置文件 -->
+    <import resource="classpath:spring-applicationContext-shiro.xml" />
+
+    <!-- 自动扫描该包 -->
+    <context:component-scan base-package="com.cashier" />
+    <!-- 启用MVC注解 -->
+    <mvc:annotation-driven />
+    <task:annotation-driven scheduler="qbScheduler"
+        mode="proxy" />
+    <task:scheduler id="qbScheduler" pool-size="10" />
+    <!-- 放行静态资源 -->
+    <mvc:default-servlet-handler />
+    <!-- 定义跳转的文件的前后缀 ，视图模式配置 -->
+    <bean id="viewResolver"
+        class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 自动给后面action的方法return的字符串加上前缀和后缀，变成一个 可用的url地址 -->
+        <property name="prefix" value="/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+    <!-- 加载自定义异常处理器组件 -->
+    <bean class="com.cashier.util.CustomExceptionResolver"></bean>
+
+    <util:properties id="cfg" location="classpath:db.properties" />
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+        destroy-method="close" init-method="init" lazy-init="true">
+        <property name="driverClassName" value="#{cfg.driver}" />
+        <property name="url" value="#{cfg.url}" />
+        <property name="username" value="#{cfg.username}" />
+        <property name="password" value="#{cfg.password}" />
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="configLocation" value="classpath:mybatis-configs.xml"></property>
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:mapper/*.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.cashier.dao" />
+    </bean>
+
+    <!-- 定义事务管理对象 -->
+    <bean id="txManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    
+    
+
+    <!-- 开启事务控制的注解支持 -->
+    <tx:annotation-driven transaction-manager="txManager"/>
+    
+    <!-- 配置事务处理方式 -->
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="save*" propagation="REQUIRED"
+                rollback-for="java.lang.Throwable" />
+            <tx:method name="insert*" propagation="REQUIRED"
+                rollback-for="java.lang.Throwable" />
+            <tx:method name="update*" propagation="REQUIRED"
+                rollback-for="java.lang.Throwable" />
+            <tx:method name="delete*" propagation="REQUIRED"
+                rollback-for="java.lang.Throwable" />
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true" />
+            <tx:method name="select*" propagation="SUPPORTS" read-only="true" />
+        </tx:attributes>
+    </tx:advice>
+    <aop:config proxy-target-class="true">
+        <aop:pointcut expression="within(com.cashier.service.*)"
+            id="txPointCut" />
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointCut" />
+    </aop:config>
+    
+    <!-- 描述conctroller -->
+    <context:component-scan base-package="com.cashier.controller"/>
+
+
+    <!-- 连接池配置 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <!-- 最大连接数 -->
+        <property name="maxTotal" value="300" />
+        <!-- 最大空闲连接数 -->
+        <property name="maxIdle" value="100" />
+        <!-- 每次释放连接的最大数目 -->
+        <property name="numTestsPerEvictionRun" value="1024" />
+        <!-- 释放连接的扫描间隔（毫秒） -->
+        <property name="timeBetweenEvictionRunsMillis" value="30000" />
+        <!-- 连接最小空闲时间 -->
+        <property name="minEvictableIdleTimeMillis" value="1800000" />
+        <!-- 连接空闲多久后释放, 当空闲时间>该值 且 空闲连接>最大空闲连接数 时直接释放 -->
+        <property name="softMinEvictableIdleTimeMillis" value="10000" />
+        <!-- 获取连接时的最大等待毫秒数,小于零:阻塞不确定的时间,默认-1 -->
+        <property name="maxWaitMillis" value="1500" />
+        <!-- 在获取连接的时候检查有效性, 默认false -->
+        <property name="testOnBorrow" value="false" />
+        <!-- 在空闲时检查有效性, 默认false -->
+        <property name="testWhileIdle" value="true" />
+        <!-- 连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true -->
+        <property name="blockWhenExhausted" value="false" />
+    </bean>
+
+    <!-- redis单机 通过连接池 -->
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool"
+        destroy-method="close">
+        <constructor-arg name="poolConfig" ref="jedisPoolConfig" />
+        <constructor-arg name="host" value="127.0.0.1" />
+        <constructor-arg name="port" value="6379" />
+    </bean>
+
+    <bean id="multipartResolver"
+        class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="209715200" />
+        <property name="defaultEncoding" value="UTF-8" />
+        <property name="resolveLazily" value="true" />
+    </bean>
+    
+    <!-- SpringMVC全局异常捕获 -->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+             <!-- 未登录验证异常 -->
+                <prop key="org.apache.shiro.authz.UnauthorizedException">views/Index/mistake/WithoutPermission</prop><!-- 未授权使用的异常  -->
+                <prop key="org.apache.shiro.authz.UnauthenticatedException">views/Index/mistake/WithoutPermission</prop><!-- 其他  -->
+            </props> 
+        </property> 
+    </bean>
+    
+
+
+
+</beans>

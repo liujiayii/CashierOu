@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cashier.dao.ProductMapper">
+    <!-- 添加商品 -->
+    <insert id="insertProduct" parameterType="com.cashier.entity.Product" useGeneratedKeys="true" keyProperty="id">
+        insert into t_product (
+            name,
+            product_type_id,
+            pleased,
+            sale_price,
+            member_price,
+            image,
+            state,
+            specification,
+            color,
+            inventory,
+            shop_id,
+            can_use,
+            barcode
+        ) values (
+            #{name},
+            #{productTypeId},
+            #{pleased},
+            #{salePrice},
+            #{memberPrice},
+            #{image},
+            #{state},
+            #{specification},
+            #{color},
+            #{inventory},
+            #{shopId},
+            #{canUse},
+            #{barCode}
+        )
+    
+    </insert>
+    <!-- 修改商品 -->
+    <update id="updateProductById" parameterType="com.cashier.entity.Product">
+        update t_product
+        <set>
+            <if test="productTypeId != null and productTypeId != ''">
+                product_type_id = #{productTypeId},
+            </if>
+           
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="barCode != null and barCode != ''">
+                barcode = #{barCode},
+            </if>
+            <if test="image != null and image != ''">
+                image = #{image},
+            </if>
+            <if test="pleased != null and pleased != ''">
+                pleased = #{pleased},
+            </if>
+            <if test="salePrice != null and salePrice != ''">
+                sale_price = #{salePrice},
+            </if>
+            <if test="memberPrice != null and memberPrice != ''">
+                member_price = #{memberPrice},
+            </if>
+           
+            <if test="specification!=null and specification!=''">
+                specification=#{specification},
+            </if>
+            <if test="color!=null and color!=''">
+                color=#{color},
+            </if>
+            <if test="state != null and state != ''">
+                state = #{state}
+            </if>
+            
+        </set>
+        where id= #{id}
+    </update>
+    <!-- 根据id软删除商品 -->
+   <update id="delProductById">
+    update t_product
+    set can_use=2
+    WHERE id=#{productId}
+   </update>
+    <!-- 条件查询所有商品 -->
+   <select id="getProductByCondition" resultType="com.cashier.entity.Product">
+    select 
+        id,
+        name,
+        pleased,
+        barcode barCode,
+        sale_price salePrice,
+        member_price memberPrice,
+        image,
+        state,
+        specification,
+        color,
+        inventory
+    from t_product
+    WHERE shop_id=#{shopId}
+    and can_use=1
+    <if test="productTypeId!=null">
+     and product_type_id=#{productTypeId}
+    </if>
+   <if test="productName!=null and productName!=''">
+    and name like "%"#{productName}"%"
+   </if>
+    limit #{page},#{limit}
+   </select>
+   <!-- 根据商品种类查询对应商品（不重复 给用户） -->
+   <select id="productsByType" resultMap="ProductAndPropertys">
+    select 
+        p.id,
+        p.name,
+        p.barcode barCode,
+        p.sale_price salePrice,
+        p.member_price memberPrice,
+        p.specification,
+        p.color,
+        p.image,
+        i.quantity quantity
+    FROM t_inventory i JOIN t_product p on i.product_id=p.id
+    WHERE p.shop_id=#{shopId}
+    and p.can_use=1
+    and p.product_type_id=#{productTypeId}
+    and p.state=1    
+    limit #{page},#{limit}
+   </select>
+   <resultMap type="com.cashier.entityVo.ProductOnDisplayVo" id="ProductAndPropertys">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <collection property="listProperty" ofType="com.cashier.entityVo.ProductProperty">
+            <result column="image" property="image"/>
+            <result column="salePrice" property="salePrice"/>
+            <result column="memberPrice" property="memberPrice"/>
+            <result column="specification" property="specification"/>
+            <result column="color" property="color"/>       
+            <result column="quantity" property="quantity"/>
+        </collection>
+   </resultMap>
+ 
+    <!-- 查询商品数量 如果商品分类不为null 则查询该种类商品数量 -->
+    <select id="listProductCount" resultType="Integer">
+        
+        SELECT
+           count(id)
+        from t_product
+        where can_use=1 and shop_id=#{shopId}
+        <if test="productTypeId!=null">
+            and product_type_id=#{productTypeId}
+        </if>
+    </select>
+    <!-- 根据id获得对应商品 -->
+   <select id="getProductById" resultType="com.cashier.entity.Product">
+    select 
+        p.name,
+        p.pleased,
+        p.sale_price salePrice,
+        p.barcode barCode,
+        p.member_price memberPrice,
+        p.image,
+        p.state,
+        p.specification,
+        p.color,
+        p.inventory,
+        p.product_type_id productTypeId,
+        pt.product_type productTypeName
+   from t_product p join t_product_type pt on p.product_type_id=pt.id
+   where p.id=#{productId} 
+   and p.can_use=1
+   </select>
+    
+    <!-- 根据商品码搜索商品 -->
+    <select id="getProductByNameAndBarcode" resultType="com.cashier.entity.Product" parameterType="com.cashier.entity.Product">
+         SELECT
+           id,
+           name,
+           pleased,
+           sale_price salePrice,
+           barcode barCode,
+           member_price memberPrice,
+           image,
+           state,
+           specification,
+           color,
+           inventory
+          
+        from t_product 
+        where can_use=1 and shop_id=#{shopId}
+         and barcode=#{barCode}
+         <if test="id!=null">
+         and id!=#{id}
+         </if>
+    </select>
+    
+     <!-- 分组查询商品组(展示给用户) -->
+    <select id="groupByProductType" resultMap="products">
+        SELECT 
+            p.id,
+            p.name,
+            p.image,
+            p.sale_price salePrice,
+            p.member_price memberPrice,
+            pt.product_type productTypeName,
+            p.specification,
+            p.color,
+            i.quantity quantity
+        FROM t_inventory i JOIN t_product p on i.product_id=p.id left
+        JOIN t_product_type pt on p.product_type_id=pt.id
+        WHERE p.can_use=1 and p.state=1 and p.shop_Id=#{shopId} 
+    
+    </select>
+    <resultMap type="com.cashier.entityVo.ProductVo" id="products">
+        <result column="productTypeName" property="productTypeName"/>
+        <collection property="listProduct" ofType="com.cashier.entityVo.ProductOnDisplayVo">
+            <id column="id" property="id"/>
+            <result column="name" property="name"/>
+             <collection property="listProperty" ofType="com.cashier.entityVo.ProductProperty">
+            <result column="image" property="image"/>
+            <result column="salePrice" property="salePrice"/>
+            <result column="memberPrice" property="memberPrice"/>
+            <result column="specification" property="specification"/>
+            <result column="color" property="color"/>       
+            <result column="quantity" property="quantity"/>
+        </collection>
+        </collection>
+    </resultMap>
+   
+</mapper>

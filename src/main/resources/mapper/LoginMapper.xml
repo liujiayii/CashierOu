@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cashier.dao.LoginMapper">
+    <!-- 通过用户名查询用户信息 -->
+    <select id="selectUserByUsername" parameterType="User" resultType="User">
+        SELECT
+            id,
+            username,
+            name,
+            password,
+            shop_id shopId
+        FROM
+            t_user
+        <where>
+            <if test="username != null and username != ''">
+                username = #{username} 
+            </if>
+        </where>
+    </select>
+    
+    <!-- 通过用户名调用业务层查询角色 -->
+    <select id="listRolesByUser" parameterType="User" resultType="Role">
+        SELECT r.name
+		FROM t_user u,t_role r,t_user_role_relationship ur
+		WHERE u.id = ur.user_id
+		AND r.id = ur.role_id
+		AND u.id = #{id}
+    </select>
+    
+    <!-- 通过用户名调用业务层查询角色 -->
+    <select id="listPermissionsByUser" parameterType="User" resultType="Permission">
+        SELECT p.percode
+        FROM t_user u,t_role r,t_user_role_relationship ur,
+             t_permission p,t_role_permission_relationship rp
+        WHERE u.id = ur.user_id
+        AND r.id = ur.role_id
+        AND r.id = rp.role_id
+        AND p.id = rp.permission_id
+        AND u.id = #{id}
+    </select>
+</mapper>

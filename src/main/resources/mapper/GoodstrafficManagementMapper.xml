@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cashier.dao.GoodstrafficManagementMapper">
+   
+    <!-- 添加一条货流表数据 -->
+    <insert id="addprocurement" parameterType="com.cashier.entity.GoodstrafficManagement"
+    keyProperty="id">
+        <selectKey keyProperty='id' resultType='BigInteger' order='AFTER'  >
+            select LAST_INSERT_ID();
+        </selectKey>
+        insert into t_goodstraffic_management
+        (           
+            <if test="shipmentsShopId!=null">
+            shipments_shop_id,
+            </if>
+            <if test="receivingShopId!=null">
+            receiving_shop_id,  
+            </if>
+            total_money ,
+            order_date ,
+            delivery_date ,
+            goodstraffic_state ,
+            <if test="transportationState!=null">
+            transportation_state ,
+            </if>
+            <if test="settlementStatus!=null">
+            settlement_status ,
+            </if>
+            <if test="remark!=null and remark!=''">
+            remark ,
+            </if>
+            shop_id ,
+            serial_number
+        )
+        values
+        (       
+            <if test="shipmentsShopId!=null">
+            #{shipmentsShopId},
+            </if>
+            <if test="receivingShopId!=null">
+            #{receivingShopId},  
+            </if>   
+            #{totalMoney} ,
+            now() ,
+            #{deliveryDate} ,
+            #{goodstrafficState},
+            <if test="transportationState!=null">
+            #{transportationState} ,
+            </if>
+            <if test="settlementStatus!=null">
+            #{settlementStatus} ,
+            </if>
+            <if test="remark!=null and remark!=''">
+            #{remark} ,
+            </if>
+            #{shopId} ,
+            #{serialnumber}
+        )
+    </insert>
+    
+     <!-- 查询采购商品订单  -->
+    <select id="listProductAndProductType" resultMap="AllProductMap" parameterType="BigInteger">
+        select 
+            pt.id productTypeId  ,
+            pt.product_type productTypeName ,
+            p.id ,
+            p.name 
+        from 
+            t_product_type  pt 
+        join    
+            t_product p 
+        on 
+            pt.id = p.product_type_id    
+        and 
+            p.shop_id = #{id}
+        order by 
+            pt.id
+    </select>    
+    <resultMap id="AllProductMap" type="com.cashier.entityVo.AddsubscriptionVo">
+        <id column="productTypeId" property="productTypeId"></id>
+        <result column="productTypeName" property="productTypeName"/>
+        <collection property="product" ofType="com.cashier.entity.Product">
+            <id column="id" property="id"></id>
+            <result column="name" property="name"/>
+        </collection>
+    </resultMap>
+    
+    <!-- 采购订单，每个店分开查询，时间条件查询 -->
+    <select id="listProcurement"  resultType="com.cashier.entityVo.GoodstrafficManagementVo"
+    parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
+        select
+            tgm.id ,
+            tgm.serial_number           serialNumber,
+            ts.name                     name ,
+            tgm.total_money             totalMoney ,
+            tgm.order_date              orderDate , 
+            tgm.delivery_date           deliveryDate , 
+            tgm.remark ,
+            tgm.goodstraffic_state      goodstrafficState ,
+            tgm.transportation_state    transportationState ,
+            tgm.settlement_status       settlementStatus
+        from
+            t_goodstraffic_management tgm,
+            t_shop  ts 
+        <where>
+            tgm.goodstraffic_state = 2
+        and    
+            tgm.shop_id = ts.id 
+            <if test="shopId != null">
+        and 
+            tgm.shop_id = #{shopId}
+            </if>
+            <if test="startdate != null and startdate != '' and enddate != null and enddate != '' ">
+        and     
+            tgm.order_date between #{startdate} and #{enddate}
+            </if>
+        </where>   
+        order by 
+            tgm.id
+        desc
+        limit #{page},#{limit}               
+    </select>
+    
+    <!-- 采购订单条数，每个店分开查询，时间条件查询 -->
+    <select id="listProcurementCount" resultType="int"
+    parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
+        select
+            count(tgm.id) count
+        from
+            t_goodstraffic_management tgm,
+            t_shop  ts 
+        <where>
+            tgm.goodstraffic_state = 2
+        and    
+            tgm.shop_id = ts.id 
+            <if test="shopId != null">
+        and 
+            tgm.shop_id = #{shopId}
+            </if>
+            <if test="startdate != null and startdate != '' and enddate != null and enddate != '' ">
+        and     
+            tgm.order_date between #{startdate} and #{enddate}
+            </if>
+        </where>   
+    </select>
+    
+    <!-- 显示送货页面 -->
+    <select id="listReceivingShopName" resultType="com.cashier.entityVo.GoodstrafficManagementVo"
+    parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
+        select
+	        tgm.id,
+			ts.name               receivingShopName,
+			tgm.total_money       totalMoney,
+			tgm.delivery_date     deliveryDate,
+			tgm.remark,
+			tgm.serial_number     serialNumber
+		from
+            t_goodstraffic_management tgm,
+            t_shop  ts 	
+        <where>
+            tgm.shipments_shop_id = #{shopId}
+        and
+            tgm.receiving_shop_id = ts.id    
+            <if test="startdate != null and startdate != '' and enddate != null and enddate != '' ">
+        and     
+            tgm.order_date between #{startdate} and #{enddate}
+            </if> 
+        </where>  
+        order by tgm.id desc
+        limit #{page},#{limit}        
+    </select>
+    
+    <!-- 显示送货页面条数 -->
+    <select id="listReceivingShopNameCount" resultType="int"
+    parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
+        select
+            count(tgm.id) count
+        from
+            t_goodstraffic_management tgm,
+            t_shop  ts 
+        <where>
+            tgm.shipments_shop_id = #{shopId}
+        and
+            tgm.receiving_shop_id = ts.id    
+            <if test="startdate != null and startdate != '' and enddate != null and enddate != '' ">
+        and     
+            tgm.order_date between #{startdate} and #{enddate}
+            </if> 
+        </where>  
+    </select>
+    
+    <!-- 显示发起页面 -->
+    <select id="listShipmentsShopName" resultType="com.cashier.entityVo.GoodstrafficManagementVo"
+    parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
+        select
+            tgm.id,
+            ts.name               shipmentsShopName,
+            tgm.total_money       totalMoney,
+            tgm.delivery_date     deliveryDate,
+            tgm.remark,
+            tgm.serial_number     serialNumber
+        from
+            t_goodstraffic_management tgm,
+            t_shop  ts  
+        <where>
+            tgm.receiving_shop_id = #{shopId}
+        and
+            tgm.shipments_shop_id = ts.id
+            <if test="startdate != null and startdate != '' and enddate != null and enddate != '' ">
+        and     
+            tgm.order_date between #{startdate} and #{enddate}
+            </if> 
+        </where>   
+        order by tgm.id desc
+        limit #{page},#{limit}       
+    </select>
+    
+    <!-- 显示发起页面条数 -->
+    <select id="listShipmentsShopNameCount" resultType="int"
+    parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
+        select
+            count(tgm.id) count
+        from
+            t_goodstraffic_management tgm,
+            t_shop  ts 
+        <where>
+            tgm.receiving_shop_id = #{shopId}
+        and
+            tgm.shipments_shop_id = ts.id
+            <if test="startdate != null and startdate != '' and enddate != null and enddate != '' ">
+        and     
+            tgm.order_date between #{startdate} and #{enddate}
+            </if> 
+        </where>   
+    </select>
+
+    <!-- 修改运输状态状态 -->
+    <update id="updateSubscribe" parameterType="com.cashier.entity.GoodstrafficManagement">
+        update 
+            t_goodstraffic_management        
+        set
+            transportation_state = #{transportationState}
+        where 
+            id = #{id}    
+    </update>
+    
+    <!-- 修改结算状态 -->
+    <update id="updateSettlementStatus" parameterType="com.cashier.entity.GoodstrafficManagement">
+        update 
+            t_goodstraffic_management        
+        set
+            settlement_status = #{settlementStatus}
+        where 
+            id = #{id}    
+    </update>
+   
+    <!-- 财务进货管理用 -->
+    <!-- 通过时间段查询本店的申购信息 -->
+    <select id="listThisShopPurchase"  resultType="com.cashier.entityVo.GoodstrafficManagementVo"
+    parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
+        select
+            tgm.id,
+            tgm.total_money         totalMoney,
+            DATE_FORMAT( tgm.order_date ,'%Y-%m-%d %H:%i:%s') orderDate , 
+            DATE_FORMAT( tgm.delivery_date ,'%Y-%m-%d %H:%i:%s') deliveryDate, 
+            tgm.remark
+        from
+            t_goodstraffic_management tgm,
+            t_shop  ts
+        <where>
+            tgm.goodstraffic_state = 1 
+        and 
+            tgm.shop_id = #{shopId}
+        and    
+            tgm.shop_id = ts.id 
+            <if test="startdate != null and startdate != '' and enddate != null and enddate != '' ">
+        and     
+            tgm.order_date between #{startdate} and #{enddate}
+            </if>
+        </where>   
+        order by 
+            tgm.id
+        desc
+        limit #{page},#{limit}               
+    </select>
+    
+   
+
+    
+</mapper>  

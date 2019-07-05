@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cashier.dao.MemberMapper">
+	<!-- 所有的会员（无分页，增加会员查重使用） -->
+	<select id="listAllMember" resultType="com.cashier.entity.Member">
+		SELECT 
+			m.id id,
+			m.number number,
+			m.phone phone,
+			m.name name,
+			m.sex sex,
+			m.birthday birthday,
+			m.credits credits,
+			m.ld_level_id ldLevelId,
+			ld.level level,
+			m.state state,
+			m.total_money totalMoney,
+			m.creattime creattime,
+			m.password password,
+			m.evidence evidence
+		FROM
+			t_member m,
+			t_level_discount ld
+		WHERE
+			m.ld_level_id = ld.id
+	</select>
+	
+	<!-- 分页查询所有的会员 -->
+	<select id="listMemberVo" resultType="com.cashier.entityVo.MemberVo">
+		SELECT 
+			m.id id,
+			m.number number,
+			m.phone phone,
+			m.name name,
+			m.sex sex,
+			m.birthday birthday,
+			m.credits credits,
+			m.ld_level_id ldLevelId,
+			ld.level level,
+			m.state state,
+			m.total_money totalMoney,
+			m.creattime creattime,
+			m.password password,
+			m.evidence evidence
+		FROM
+			t_member m,
+			t_level_discount ld
+		WHERE
+			m.ld_level_id = ld.id
+		AND
+			m.can_use = 0
+		ORDER BY
+			m.id DESC
+		limit #{page},#{limit}
+	</select>
+	
+	<!-- 所有会员的数量 -->
+	<select id="countMember" resultType="com.cashier.entityVo.MemberVo">
+		SELECT 
+			COUNT(m.id) count
+		FROM
+			t_member m,
+			t_level_discount ld
+		WHERE
+			m.ld_level_id = ld.id
+		AND
+			m.can_use = 0
+	</select>
+	
+	<!--  添加会员 -->
+	<insert id="saveMember"  parameterType="com.cashier.entityVo.MemberVo">
+		INSERT INTO t_member 
+		(
+			number,
+			phone,
+			name,
+			sex,
+			birthday,
+			credits,
+			ld_level_id,
+			state,
+			total_money,
+			creattime,
+			can_use
+			<!-- ,
+			password,
+			evidence -->
+		)
+		VALUES
+		(
+			#{number},
+			#{phone},
+			#{name},
+			#{sex},
+			#{birthday},
+			0,
+			#{ldLevelId},
+			2,
+			0,
+			now(),
+			0
+			<!-- ,
+			#{password},
+			#{evidence} -->
+		)
+	</insert>
+	
+	<!--  修改会员信息 -->
+	<update id="updateMember"  parameterType="com.cashier.entity.Member">
+		UPDATE t_member t
+		<set>
+            <if test="phone != null and phone != ''">
+                t.phone = #{phone},
+            </if>
+            <if test="name != null and name != ''">
+                t.name = #{name},
+            </if>
+            <if test="sex != null ">
+                t.sex = #{sex},
+            </if>
+            <if test="birthday != null and birthday != ''">
+                t.birthday = #{birthday},
+            </if>
+            <!-- <if test="password != null and password != ''">
+                t.password = #{password},
+            </if>
+            <if test="evidence != null and evidence != ''">
+                t.evidence = #{evidence},
+            </if> -->
+            <if test="state != null ">
+                t.state = #{state}
+            </if>
+        </set>	
+		WHERE
+		 	t.id = #{id}	
+	</update>
+	
+	<!-- 查重用（修改会员信息查重使用，电话信息等不能重复） -->
+	<select id="listMemberForUpdate" resultType="com.cashier.entity.Member">
+		SELECT DISTINCT
+			m.number number,
+			m.phone phone
+		FROM
+			t_member m,
+			t_level_discount ld
+		WHERE
+			m.ld_level_id = ld.id
+		AND
+			m.id != #{id}
+	</select>
+	
+	<!--  会员卡挂失和取消挂失 -->
+	<update id="updateMemberState"  parameterType="Member">
+		UPDATE t_member t
+		<set>
+			<if test="state != null and state != ''">
+				t.state = #{state}
+			</if>
+		</set>		  
+		WHERE
+		 	t.id = #{id}	
+	</update>
+	
+	<!--  删除会员（软删除） -->
+	<update id="removeMember"  parameterType="Member">
+		UPDATE t_member t
+		SET
+			t.can_use = 1
+		WHERE
+		 	t.id = #{id}	
+	</update>
+	
+	<!-- 通过会员id查询会员信息 -->
+	<select id="getMemberById" resultType="com.cashier.entity.Member">
+		SELECT 
+			m.id id,
+			m.number number,
+			m.phone phone,
+			m.name name,
+			m.sex sex,
+			m.birthday birthday,
+			m.credits credits,
+			m.ld_level_id ldLevelId,
+			ld.level level,
+			m.state state,
+			m.total_money totalMoney,
+			m.creattime creattime,
+			m.password password,
+			m.evidence evidence
+		FROM
+			t_member m,
+			t_level_discount ld
+		WHERE
+			m.ld_level_id = ld.id
+		AND
+		 	m.id = #{id}
+		AND
+			m.can_use = 0
+	</select>
+	
+	
+	<!-- 条件筛选会员 -->
+	<select id="listMemberByOption" parameterType="com.cashier.entityVo.MemberVo" resultType="com.cashier.entityVo.MemberVo">
+		SELECT DISTINCT
+			m.id id,
+			m.number number,
+			m.phone phone,
+			m.name name,
+			m.sex sex,
+			m.birthday birthday,
+			m.credits credits,
+			m.ld_level_id ldLevelId,
+			ld.level level,
+			m.state state,
+			m.total_money totalMoney,
+			m.creattime creattime,
+			m.password password,
+			m.evidence evidence
+		FROM
+			t_member m,
+			t_level_discount ld
+		<where>
+			 	m.ld_level_id = ld.id
+			 AND
+				m.can_use = 0
+			<if test="phone != null and phone !=''">
+				and m.number like "%"#{phone}"%"
+			</if>
+		</where>
+		limit #{page},#{limit}
+		UNION
+		SELECT DISTINCT
+			m.id id,
+			m.number number,
+			m.phone phone,
+			m.name name,
+			m.sex sex,
+			m.birthday birthday,
+			m.credits credits,
+			m.ld_level_id ldLevelId,
+			ld.level level,
+			m.state state,
+			m.total_money totalMoney,
+			m.creattime creattime,
+			m.password password,
+			m.evidence evidence
+		FROM
+			t_member m,
+			t_level_discount ld
+		<where>
+			 	m.ld_level_id = ld.id
+			 AND
+				m.can_use = 0
+			<if test="phone != null and phone !=''">
+                and m.phone like "%"#{phone}"%"
+            </if>
+		</where>
+		limit #{page},#{limit}
+	</select>
+	
+	<!-- 条件筛选会员的数量 -->
+	<select id="countMemberByOption" resultType="com.cashier.entityVo.MemberVo">
+		SELECT
+			COUNT(DISTINCT m.id) count
+		FROM
+			t_member m,
+			t_level_discount ld
+		<where>
+			 	
+			<if test="phone != null and phone !=''">
+                (m.number like "%"#{phone}"%"
+            </if>
+            <if test="phone != null and phone !=''">
+                or m.phone like "%"#{phone}"%")
+            </if>
+            AND 
+            	m.ld_level_id = ld.id
+            AND
+			m.can_use = 0
+		</where>
+	</select>
+	
+	<!-- 根据生日查询会员 -->
+	<select id="listMemberByBirthday" resultType="com.cashier.entityVo.MemberVo">
+		SELECT 
+			m.id id,
+			m.number number,
+			m.phone phone,
+			m.name name,
+			m.sex sex,
+			m.birthday birthday
+		FROM
+			t_member m,
+			t_level_discount ld
+		WHERE
+			m.ld_level_id = ld.id
+		AND
+			m.birthday like "%"#{dayTime}"%"
+		AND
+			m.can_use = 0
+	</select>
+	
+	<!-- 修改会员累计消费金额和等级 -->
+	<update id="updateMemberMoneyAndLevel"  parameterType="com.cashier.entity.Member">
+		UPDATE t_member t
+		<set>
+            <if test="totalMoney != null and totalMoney != ''">
+                t.total_money = #{totalMoney},
+            </if>
+            <if test="ldLevelId != null">
+                t.ld_level_id = #{ldLevelId},
+            </if>
+            <if test="credits != null and credits != ''">
+                t.credits = #{credits}
+            </if>
+        </set>	
+		WHERE
+		 	t.id = #{id}	
+	</update>
+  
+    
+</mapper>

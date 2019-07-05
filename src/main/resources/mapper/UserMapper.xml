@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cashier.dao.UserMapper">
+
+    <!--  先查询总店超级管理员所有权限 -->
+    <select id="listPermissionBySuperUser"  resultType="Permission" >
+        SELECT      
+            p.id
+		FROM
+		    t_role r , t_role_permission_relationship rp ,
+		    t_permission p
+		WHERE r.id = rp.role_id
+		AND p.id = rp.permission_id
+		AND r.name = '超级管理员'
+		AND r.shop_id = 1
+    </select>
+    
+    <!-- 根据当前总店管理员姓名查询出她的权限范围 -->
+    <select id="listPermissionByCurrentUser" parameterType="User" resultMap="listPermissionMap" >
+        SELECT 
+	        p.parent_id parentIds,
+	        p.parent_name parent_names,
+	        p.id id,
+	        p.name name
+	    FROM t_user u ,t_user_role_relationship ur,
+	        t_role r , t_role_permission_relationship rp ,
+	        t_permission p
+		WHERE
+		    u.id = ur.user_id
+		AND r.id = ur.role_id
+		AND r.id = rp.role_id
+		AND p.id = rp.permission_id
+		AND u.username = #{username}
+    </select>
+    
+    <resultMap id="listPermissionMap" type="com.cashier.entityVo.PermissionVo">
+	    <id column="parentIds" jdbcType="BIGINT" property="parentIds" />
+	    <result column="parent_names" jdbcType="VARCHAR" property="parent_names" />
+	    
+	    <collection property="permissions" ofType="com.cashier.entity.Permission" > 
+	        <id column="id" jdbcType="BIGINT" property="id" />
+	        <result column="name" jdbcType="VARCHAR" property="name" />
+	    </collection>
+    </resultMap>
+    
+    
+    <!--column不做限制，可以为任意表的字段，而property须为type 定义的pojo属性-->
+	<!-- <resultMap id="唯一的标识" type="映射的pojo对象">
+	  <id column="表的主键字段，或者可以为查询语句中的别名字段" jdbcType="字段类型" property="映射pojo对象的主键属性" />
+	  <result column="表的一个字段（可以为任意表的一个字段）" jdbcType="字段类型" property="映射到pojo对象的一个属性（须为type定义的pojo对象中的一个属性）"/>
+	  <association property="pojo的一个对象属性" javaType="pojo关联的pojo对象">
+	    <id column="关联pojo对象对应表的主键字段" jdbcType="字段类型" property="关联pojo对象的主席属性"/>
+	    <result  column="任意表的字段" jdbcType="字段类型" property="关联pojo对象的属性"/>
+	  </association>
+	  集合中的property须为oftype定义的pojo对象的属性
+	  <collection property="pojo的集合属性" ofType="集合中的pojo对象">
+	    <id column="集合中pojo对象对应的表的主键字段" jdbcType="字段类型" property="集合中pojo对象的主键属性" />
+	    <result column="可以为任意表的字段" jdbcType="字段类型" property="集合中的pojo对象的属性" />  
+	  </collection>
+	</resultMap> -->
+    
+    
+    <!-- 通过用户名查询整张表查看用户名是否重复 -->
+    <select id="selectUserByUsername" parameterType="com.cashier.entityVo.UserVo" resultType="com.cashier.entityVo.UserVo">
+        SELECT
+            u.username
+        FROM t_user u 
+        WHERE u.username = #{username}
+    </select>
+    
+    <!-- 通过用户ID查询用户信息 -->
+    <select id="getOneUserById" parameterType="com.cashier.entityVo.UserVo" resultType="user">
+        SELECT
+            u.password
+        FROM t_user u 
+        WHERE u.id = #{id}
+    </select>
+    <!-- 通过店铺ID获取该店铺的超级管理员信息 -->
+    <select id="getSuperUserByShopId" parameterType="user" resultType="com.cashier.entityVo.UserVo2">
+        SELECT
+	        u.id,
+	        u.username,
+	        u.password,
+	        u.name,
+	        u.phone,
+	        u.sex,
+	        u.age,
+	        DATE_FORMAT( u.entry_time,'%Y-%m-%d %H:%i:%s') entryTime,
+	        u.role_id roleId,
+	        DATE_FORMAT( u.birthday,'%Y-%m-%d %H:%i:%s') birthday , 
+	        u.remarks,
+	        u.state,
+	        u.shop_id shopId,
+	        u.agent_type agentType,
+	        u.area_id areaId         
+		FROM 
+			t_user u ,
+			t_role r ,
+			t_user_role_relationship ur
+		WHERE 
+			u.id = ur.user_id
+		AND 
+			r.id = ur.role_id
+		AND 
+			r.name='超级管理员'
+		AND 
+			u.shop_id = #{shopId}
+    </select>
+
+	<!-- 查询所有用户（无分页） -->
+	<select id="listUser" resultType="com.cashier.entityVo.UserVo">
+		SELECT DISTINCT
+			u.id id,
+			u.username username,
+			u.name name,
+			u.phone phone,
+			u.sex sex,
+			u.age age,
+			u.role_id roleId,
+			u.entry_time entryTime,
+			r.name roleName,
+			u.birthday birthday,
+			u.remarks remarks,
+			u.state,
+	        u.shop_id shopId,
+	        u.agent_type agentType,
+	        u.area_id areaId
+		FROM 
+			t_user u ,
+			t_role r ,
+			t_user_role_relationship ur
+        WHERE 
+        	u.id = ur.user_id
+        AND 
+        	r.id = ur.role_id
+		AND
+			u.shop_id = #{shopId}
+		AND 
+			r.name !='超级管理员'
+		order by entry_time
+	</select>
+
+  	<!-- 查询所有用户 -->
+	<select id="listUserVo" resultType="com.cashier.entityVo.UserVo">
+		SELECT DISTINCT
+			u.id id,
+			u.username username,
+			u.password password,
+			u.name name,
+			u.phone phone,
+			u.sex sex,
+			u.age age,
+			u.role_id roleId,
+			u.entry_time entryTime,
+			r.name roleName,
+			u.birthday birthday,
+			u.remarks remarks,
+			u.state,
+	        u.shop_id shopId,
+	        u.agent_type agentType,
+	        u.area_id areaId
+		FROM 
+			t_user u ,
+			t_role r ,
+			t_user_role_relationship ur
+        WHERE 
+        	u.id = ur.user_id
+        AND 
+        	r.id = ur.role_id
+		AND
+			u.shop_id = #{shopId}
+	    AND 
+	    	r.name !='超级管理员'
+		order by 
+			u.id DESC
+		limit #{page},#{limit}
+	</select>
+	
+	<!-- 查询本店用户数据数量 -->
+	<select id="countUser" resultType="com.cashier.entityVo.UserVo">
+		SELECT 
+			COUNT(DISTINCT u.id) count
+		FROM 
+			t_user u ,
+			t_role r ,
+			t_user_role_relationship ur
+        WHERE 
+        	u.id = ur.user_id
+        AND 
+        	r.id = ur.role_id
+		AND
+			u.shop_id = #{shopId}
+		AND 
+			r.name !='超级管理员'
+	</select>
+	
+	<!-- 通过电话和卡号查询会员 -->
+	<select id="listByName" parameterType="com.cashier.entityVo.UserVo" resultType="com.cashier.entityVo.UserVo">
+		SELECT DISTINCT
+			u.id id,
+			u.username username,
+			u.name name,
+			u.phone phone,
+			u.sex sex,
+			u.age age,
+			u.role_id roleId,
+			u.entry_time entryTime,
+			r.name roleName,
+			u.birthday birthday,
+			u.remarks remarks,
+			u.state,
+	        u.shop_id shopId,
+	        u.agent_type agentType,
+	        u.area_id areaId
+		FROM 
+			t_user u ,
+			t_role r ,
+			t_user_role_relationship ur
+		<where>
+			u.id = ur.user_id
+        	AND 
+        		r.id = ur.role_id
+			AND 
+				u.shop_id = #{shopId}
+			AND 
+				r.name !='超级管理员'
+			<if test="name != null and name != ''">
+				and u.name like "%"#{name}"%"
+			</if>
+		</where>
+		limit #{page},#{limit}
+	</select>
+	
+	<!-- 条件查询会员数据数量 -->
+	<select id="countByName" resultType="com.cashier.entityVo.UserVo">
+		SELECT
+			COUNT(DISTINCT u.id) count
+		FROM 
+			t_user u ,
+			t_role r ,
+			t_user_role_relationship ur
+		<where>
+		      u.id = ur.user_id
+              AND 
+              	r.id = ur.role_id
+              AND 
+              	u.shop_id = #{shopId}
+			<if test="name != null and name != ''">
+				AND u.name like "%"#{name}"%"
+			</if>
+		</where>
+	</select>
+	<!-- 添加用户时需要把用户个角色的关联表也加上 -->
+	<insert id="saveUserAndRoleRelation"  parameterType="com.cashier.entityVo.UserVo"  useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+            t_user_role_relationship
+            (user_id,role_id)
+        VALUES (
+                #{id},
+                #{roleId}
+                )
+    </insert>
+	
+	
+	<!-- 添加用户 -->
+    <insert id="saveUserByDTO"  parameterType="com.cashier.entityDTO.ShopUserPermissionDTO"  useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_user
+         (
+            username,
+            password,
+            name,
+            phone,
+            sex,
+            age,
+            entry_time,
+            role_id,
+            birthday,
+            remarks,
+            shop_id,
+            state,
+	        agent_type,
+	        area_id
+        )
+        VALUES
+        (
+            #{username},
+            #{password},
+            #{uname},
+            #{uphone},
+            #{sex},
+            #{age},
+            #{entryTime},
+            #{roleId},
+            #{birthday},
+            #{uremarks},
+            #{shopId},
+            2,
+            #{agentType},
+            #{areaId}
+        )
+    </insert>
+	<!-- 添加用户 -->
+	<insert id="saveUser"  parameterType="com.cashier.entityVo.UserVo"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_user
+		 (
+		 	username,
+		 	password,
+			name,
+			phone,
+			sex,
+			age,
+			entry_time,
+			role_id,
+			birthday,
+			remarks,
+			shop_id,
+			state,
+	        agent_type,
+	        area_id
+		)
+		VALUES
+		(
+			#{username},
+			#{password},
+			#{name},
+			#{phone},
+			#{sex},
+			#{age},
+			#{entryTime},
+			#{roleId},
+			#{birthday},
+			#{remarks},
+			#{shopId},
+            2,
+            #{agentType},
+            #{areaId}
+		)
+	</insert>
+    
+    
+    <!-- 更新超级管理员信息 -->
+    <update id="updateSupperUser"  parameterType="com.cashier.entityDTO.ShopUserPermissionDTO">
+        UPDATE t_user t
+        <set>
+            <if test="username != null and username != ''">
+                t.username = #{username},
+            </if>
+            <if test="password != null and password != ''">
+                t.password = #{password},
+            </if>
+            <if test="uname != null and uname != ''">
+                t.name = #{uname},
+            </if>
+            <if test="uphone != null and uphone != ''">
+                t.phone = #{uphone},
+            </if>
+            <if test="sex != null and sex != ''">
+                t.sex = #{sex},
+            </if>
+            <if test="age != null and age != ''">
+                t.age = #{age},
+            </if>
+            <if test="entryTime != null and entryTime != ''">
+                t.entry_time = #{entryTime},
+            </if>
+            <if test="roleId != null and roleId != ''">
+                t.role_id = #{roleId},
+            </if>
+            <if test="birthday != null and birthday != ''">
+                t.birthday = #{birthday},
+            </if>
+            <if test="remarks != null and remarks != ''">
+                t.remarks = #{remarks},
+            </if>
+            <if test="ustate != null">
+                t.state = #{ustate},
+            </if>
+            <if test="agentType != null">
+                t.agent_type = #{agentType},
+            </if>
+            <if test="areaId != null and areaId != ''">
+                t.area_id = #{areaId}
+            </if>
+        </set>  
+        WHERE
+            t.id = #{uId}    
+    </update>
+    
+	<!-- 修改用户 -->
+	<update id="updateUser"  parameterType="User">
+		UPDATE t_user t
+		<set>
+            <!-- <if test="username != null and username != ''">
+                t.username = #{username},
+            </if> -->
+            <if test="password != null and password != ''">
+                t.password = #{password},
+            </if>
+            <if test="name != null and name != ''">
+                t.name = #{name},
+            </if>
+            <if test="phone != null and phone != ''">
+                t.phone = #{phone},
+            </if>
+            <if test="sex != null and sex != ''">
+                t.sex = #{sex},
+            </if>
+            <if test="age != null and age != ''">
+                t.age = #{age},
+            </if>
+            <if test="entryTime != null and entryTime != ''">
+                t.entry_time = #{entryTime},
+            </if>
+            <if test="roleId != null and roleId != ''">
+                t.role_id = #{roleId},
+            </if>
+            <if test="birthday != null and birthday != ''">
+                t.birthday = #{birthday},
+            </if>
+            <if test="remarks != null and remarks != ''">
+                t.remarks = #{remarks},
+            </if>
+            <if test="state != null">
+                t.state = #{state},
+            </if>
+            <if test="agentType != null">
+                t.agent_type = #{agentType},
+            </if>
+            <if test="areaId != null and areaId != ''">
+                t.area_id = #{areaId}
+            </if>
+        </set>	
+		WHERE
+		 	t.id = #{id}	
+	</update>
+  
+  	<!--  删除用户 -->
+	<delete id="removeUser"  parameterType="BigInteger">
+		DELETE from t_user 
+		WHERE 
+			id = #{id}
+	</delete>
+	
+	<!--  店铺删除时删除店铺里的会员 -->
+    <delete id="removeUserByShopId"  parameterType="shop">
+        DELETE from t_user 
+        WHERE 
+            shop_id = #{id}
+    </delete>
+	
+	
+	
+	<!--  删除用户时删除和角色关联的关系表 -->
+	<delete id="removeUserRoleRelation"  parameterType="BigInteger">
+        DELETE from t_user_role_relationship
+        WHERE 
+            user_id = #{id}
+    </delete>
+	
+	<!-- （下拉单用）查询本店所有员工id和员工姓名 -->
+	<select id="listUserName" resultType="com.cashier.entityVo.UserVo">
+		SELECT
+			u.id id,
+			u.name name
+		FROM
+			t_user u ,
+			t_role r ,
+			t_user_role_relationship ur
+		WHERE 
+			u.id = ur.user_id
+        AND 
+        	r.id = ur.role_id
+        AND 
+        	u.shop_id = #{shopId}
+		AND 
+			r.name !='超级管理员'
+	</select>
+	
+	<!-- 修改员工角色关系表 -->
+	<update id="updateUserRoleRelationship"  parameterType="com.cashier.entity.UserRoleRelationship">
+		UPDATE t_user_role_relationship t
+		<set>
+            <if test="roleId != null and roleId != ''">
+                t.role_id = #{roleId}
+            </if>
+        </set>	
+		WHERE
+		 	t.user_id = #{userId}	
+	</update>
+	
+	<!-- 登录后通过用户名查询用户信息 -->
+	<select id="getUserByName" resultType="com.cashier.entityVo.UserShopVo">
+		SELECT
+			u.id,
+			u.username,
+			u.agent_type agentType,
+			u.area_id areaId
+		FROM
+			t_user u
+		WHERE
+			u.state = 2
+		AND
+		  u.username = #{username}
+	</select>
+	
+	<!-- 省级经理管理的店铺 -->
+	<select id="listShopByProvinceAgent" resultType="com.cashier.entityVo.UserShopVo">
+		SELECT
+			s.id shopId,
+			s.name shopName
+		FROM
+			t_user u,
+			t_shop s
+		WHERE
+			u.area_id = s.province_id
+	</select>
+	
+	<!-- 市级经理管理的店铺 -->
+	<select id="listShopByCityAgent" resultType="com.cashier.entityVo.UserShopVo">
+		SELECT
+			s.id shopId,
+			s.name shopName
+		FROM
+			t_user u,
+			t_shop s
+		WHERE
+			u.area_id = s.city_id
+	</select>
+	
+	<!-- 区级经理管理的店铺 -->
+	<select id="listShopByAreaAgent" resultType="com.cashier.entityVo.UserShopVo">
+		SELECT
+			s.id shopId,
+			s.name shopName
+		FROM
+			t_user u,
+			t_shop s
+		WHERE
+			u.area_id = s.area
+	</select>
+	
+	
+</mapper>

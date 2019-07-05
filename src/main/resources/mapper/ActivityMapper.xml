@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "com.cashier.dao.ActivityMapper">
+    
+    <!-- 201907041802根据活动ID查询出动态商品表中的商品ID集合 -->
+    <select id="listProductIdByActivityActive" parameterType="com.cashier.entity.SpecialOffers" resultType="com.cashier.entity.Activities" >
+        SELECT 
+		      aa.product_id productId
+		FROM t_activities_active aa
+		WHERE aa.activity_id =#{id}
+    </select>
+    
+    <!-- 99店铺ID查询出动态活动商品表中的商品ID -->
+    <select id="listActivitiesActive" parameterType="com.cashier.entity.ActivitiesActive" resultType="com.cashier.entity.ActivitiesActive" >
+        SELECT 
+            aa.product_id productId,
+            aa.activity_id activityId,
+            so.name activityName
+        FROM t_activities_active aa ,t_special_offers so
+        WHERE so.id = aa.activity_id 
+        AND so.shop_id = #{shopId}
+    </select>
+    
+    <!-- 10101新增一条优惠活动 -->
+    <insert id="insertActivity" parameterType="com.cashier.entity.SpecialOffers" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_special_offers(
+            shop_id,
+            name,
+            type,
+            discount,
+            start_time,
+            end_time,
+            scope
+            )
+            VALUES
+            (
+            #{shopId},
+            #{name},
+            #{type},
+            #{discount},
+            #{startTime},
+            #{endTime},        
+            #{scope}
+            )
+    </insert>
+    
+    <!-- 201907041718根据活动ID添加参加活动的商品信息到动态活动商品表 -->
+    <insert id="insertActivityProductToAa" parameterType="com.cashier.entity.ActivitiesActive">
+        INSERT INTO t_activities_active(
+            activity_id,
+            product_id
+            )
+            VALUES
+            (
+            #{activityId},
+            #{productId}
+            )
+    </insert> 
+    
+    <!-- 10102根据活动ID添加参加活动的商品信息 -->
+    <insert id="insertActivityProduct" parameterType="com.cashier.entity.Activities">
+        INSERT INTO t_activities(
+            special_offers_id,
+            product_id
+            )
+            VALUES
+            (
+            #{specialOffersId},
+            #{productId}
+            )
+    </insert> 
+    <!-- 10103给满减活动添加满减规则 -->
+    <insert id="insertRegulation" parameterType="com.cashier.entity.Regulation">
+        INSERT INTO t_regulation(
+            special_offers_id,
+            money,
+            reduce_money
+            )
+            VALUES
+            (
+            #{specialOffersId},
+            #{money},
+            #{reduceMoney}
+            )
+    </insert>
+    <!--  102查询优惠活动列表 -->
+    <select id="listActivity" parameterType="com.cashier.entity.SpecialOffers" resultType="com.cashier.entity.SpecialOffers" >
+        SELECT      
+            so.id,
+            shop_id shopId,
+            state,
+            name,
+            type,
+            discount,
+            start_time startTime,
+            end_time endTime,
+            priority,
+            scope
+        FROM
+            t_special_offers so
+        <where>
+            so.shop_id = #{shopId}
+            <if test="type != ''">
+                and so.type = #{type}
+            </if>
+            <if test="state != ''">
+                and so.state = #{state} 
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and so.start_time between #{startTime} and #{endTime} 
+            </if>
+        </where>
+        limit #{beginNum}, #{limit}
+        order by so.state
+    </select>
+    
+    <!-- 10301查询商品分类列表根据活动ID -->
+    <select id="listProductTypeByActivityId" parameterType="com.cashier.entity.SpecialOffers" resultType="com.cashier.entity.ProductType" >
+        SELECT 
+            pt.id,
+            pt.product_type productType
+        FROM t_activities a ,t_product_type pt
+        WHERE a.product_id = pt.id
+        AND pt.can_use = 1
+        AND a.special_offers_id=#{id}
+    </select>
+    
+    <!-- 1141新增一条优惠活动前返回商品分类及商品列表页 -->
+    <select id="listProductAndTypeBefore" parameterType="com.cashier.entity.ProductType" resultMap="productAndProductTypeResultMap" >
+        SELECT 
+            t.id,
+            t.product_type,
+            p.id pid,
+            p.name
+        FROM t_product_type t,t_product p
+        WHERE  t.id = p.product_type_id
+        AND t.can_use = 1 AND p.can_use = 1
+        AND t.shop_id = #{shopId}
+    </select>
+    <resultMap type="productType" id="productAndProductTypeResultMap">
+	    <id property="id" column="id" />
+	    <result property="productTypeName" column="product_type" />
+	    <!-- 配置一对多的关系
+	        property：填写pojo类中集合类类属性的名称
+	        javaType：填写集合类型的名称 
+	    -->
+	    <collection property="products" javaType="list" ofType="product">
+            <!-- 配置主键，是关联Product的唯一标识 -->
+            <id property="id" column="pid" />
+            <result property="name" column="name" />
+        </collection>
+    </resultMap>
+
+
+    <!-- 10302查询商品列表根据活动ID -->
+    <select id="listProductTypeAndProductByActivityId" parameterType="com.cashier.entity.SpecialOffers" resultMap="productTypeResultMap" >
+        SELECT 
+            myLeft.id,
+            myLeft.product_type,
+            myLeft.pid,
+            myLeft.name,
+            aa.product_id flag
+        FROM
+	        (SELECT 
+	            pt.id,
+	            pt.product_type,
+	            p.id pid,
+	            p.name
+	        FROM t_activities a ,t_product_type pt,t_product p
+	        WHERE a.product_id = pt.id AND pt.id = p.product_type_id
+	        AND pt.can_use = 1 AND p.can_use = 1
+	        AND a.special_offers_id=#{id} 
+	        ) myLeft
+	    LEFT JOIN 
+	       t_activities_active aa
+	    ON myLeft.pid = aa.product_id
+    </select>
+    <resultMap type="com.cashier.entity.ProductType" id="productTypeResultMap">
+        <id property="id" column="id" />
+        <result property="productTypeName" column="productTypeName" />
+        <!-- 配置一对多的关系
+            property：填写pojo类中集合类类属性的名称
+            javaType：填写集合类型的名称 
+        -->
+        <collection property="products" javaType="list" ofType="com.cashier.entity.Product">
+            <!-- 配置主键，是关联Product的唯一标识 -->
+            <id property="id" column="pid" />
+            <result property="name" column="name" />
+            <result property="productTypeId" column="flag" />
+        </collection>
+    </resultMap>
+    
+    <!-- 10303根据满减活动ID查询该活动的满减规则 -->
+    <select id="listRegulation" parameterType="com.cashier.entity.SpecialOffers" resultType="com.cashier.entity.Regulation" >
+        SELECT 
+            id,     
+            special_offers_id specialOffersId,
+            money,
+            reduce_money reduceMoney
+        FROM
+            t_regulation r
+        WHERE r.special_offers_id = #{id}
+        order by money
+    </select>
+    
+    <!-- 104根据活动ID修改某条活动 -->
+    <update id="updateActivityById" parameterType="com.cashier.entity.SpecialOffers">
+        UPDATE t_special_offers so         
+        <set>
+            <if test="state != null">
+                so.state = #{state},
+            </if>
+            <if test="name != null and name != ''">
+                so.name = #{name},
+            </if>
+            <if test="discount != null ">
+                so.discount = #{discount},
+            </if>
+            <if test="startTime != null and startTime != ''">
+                so.start_time = #{startTime},
+            </if>
+            <if test="endTime != null and endTime != ''">
+                so.end_time = #{endTime},
+            </if> 
+            <if test="scope != null">
+                so.scope = #{scope}
+            </if>
+        </set>
+        WHERE       
+            so.id = #{id}
+    </update>
+    
+    
+    <!-- 10501根据活动ID删除活动表一条信息和活动商品表对应信息 -->
+    <delete id="deleteActivityAndProductById" parameterType="com.cashier.entity.SpecialOffers">
+        DELETE FROM
+            t_special_offers
+        WHERE
+            id = #{id}
+    </delete>
+    <!-- 10502根据活动ID删除满减规则信息 -->
+    <delete id="deleteRegulationByActivityId" parameterType="com.cashier.entity.SpecialOffers">
+        DELETE FROM
+            t_regulation
+        WHERE
+            special_offers_id = #{id}
+    </delete>
+
+    <!-- 201907041816根据活动ID把动态活动商品表里的数据删除 -->
+    <delete id="deleteAaProductIdByActivityId" parameterType="com.cashier.entity.SpecialOffers">
+        DELETE FROM
+            t_activities_active
+        WHERE
+            activity_id = #{id}
+    </delete>
+    
+    <!-- 106根据满减表ID删除一条满减规则 -->
+    <delete id="deleteRegulationById" parameterType="com.cashier.entity.Regulation">
+        DELETE FROM
+            t_regulation
+        WHERE
+            id = #{id}
+    </delete>
+    
+    <!-- 101001根据活动ID删除活动商品表信息 -->
+    <delete id="deleteActivityProductById" parameterType="com.cashier.entityDTO.SpecialOffersDTO">
+        DELETE FROM
+            t_activities
+        WHERE
+            special_offers_id = #{specialOffersId}
+    </delete>
+    
+    <!-- 108修改一条满减规则 -->
+    <update id="updateOneRegulation" parameterType="com.cashier.entity.Regulation">
+        UPDATE t_regulation r         
+        <set>
+            <if test="money != null">
+                r.money = #{money},
+            </if>
+            <if test="reduceMoney != null">
+                r.reduce_money = #{reduceMoney}
+            </if>
+        </set>
+        WHERE       
+            r.id = #{id}
+    </update>
+    
+    <!-- 109根据活动ID查询活动商品到活动商品修改页 -->
+    <select id="selectPtAndPBySpecialOffersId" parameterType="com.cashier.entity.SpecialOffers" resultMap="productTypeResultMap" >
+        SELECT 
+            pt.id id,
+            pt.product_type,
+            p.id pid,
+            p.name name,
+            aso.product_id flag
+        FROM t_product p 
+        LEFT JOIN t_product_type pt ON p.product_type_id = pt.id
+        LEFT JOIN(
+            SELECT 
+                a.product_id
+            FROM t_activities a,t_special_offers so 
+            WHERE so.id = a.special_offers_id 
+            AND so.id=#{id}
+        ) aso 
+        ON p.id = aso.product_id 
+        AND p.can_use = 1
+    </select>
+              
+</mapper>

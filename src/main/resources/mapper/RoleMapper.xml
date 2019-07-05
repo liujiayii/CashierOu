@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cashier.dao.RoleMapper">
+
+	<!-- 分页查询角色列表 -->
+	<select id="listRole" resultType="com.cashier.entityVo.RoleVo">
+		select
+			r.id,
+			r.name,
+			r.shop_id
+		from
+			t_role r
+		<where>
+			  r.shop_id = #{shopId}
+			  and  r.name != "超级管理员"
+		   <if test="name != null and name != ''">
+			  and r.name like "%"#{name}"%"
+		   </if>
+		</where>
+        limit #{page},#{limit}
+	</select>
+	
+	<!-- 角色的数量 -->
+	<select id="countRole" resultType="com.cashier.entityVo.RoleVo">
+		SELECT 
+			COUNT(r.id) count
+		FROM
+			t_role r
+		<where>
+			  r.shop_id = #{shopId}
+			  and  r.name != "超级管理员"
+		   <if test="name != null and name != ''">
+			  and r.name like "%"#{name}"%"
+		   </if>
+		</where>
+	</select>
+
+    <!-- 根据分店ID获取当前分店的权限ID信息 -->
+    <select id="getPermissionIDListByShopId" parameterType="com.cashier.entityVo.ShopVo" resultType="Permission" >
+        SELECT
+			p.id id
+		FROM
+			t_role r,
+			t_role_permission_relationship rp,
+			t_permission p
+		WHERE
+			r.id = rp.role_id
+		AND rp.permission_id = p.id
+		AND r.name = '超级管理员'
+		AND r.shop_id = #{id} 
+    </select>
+
+    <!-- 根据分店ID获取当前分店的权限信息 -->
+    <select id="getPermissionListByShopId" parameterType="user" resultMap="listPermissionMap" >
+        SELECT
+			p.parent_id parentIds,
+			p.parent_name parent_names,
+			p.id id,
+			p.name name
+		FROM
+			t_role r,
+			t_role_permission_relationship rp,
+			t_permission p
+		WHERE
+			r.id = rp.role_id
+		AND rp.permission_id = p.id
+		AND r.name = '超级管理员'
+		AND r.shop_id = #{shopId} 
+    </select>
+    
+    <resultMap id="listPermissionMap" type="com.cashier.entityVo.PermissionVo">
+        <id column="parentIds" jdbcType="BIGINT" property="parentIds" />
+        <result column="parent_names" jdbcType="VARCHAR" property="parent_names" />
+        
+        <collection property="permissions" ofType="com.cashier.entity.Permission" > 
+            <id column="id" jdbcType="BIGINT" property="id" />
+            <result column="name" jdbcType="VARCHAR" property="name" />
+        </collection>
+    </resultMap>
+
+    <!-- 保存角色权限关联表 -->
+    <insert id="saveRolePermissionRelationship" parameterType="com.cashier.entity.RolePermissionRelationship" >
+        insert into
+        t_role_permission_relationship(role_id,permission_id)
+        values
+        (#{roleId},#{permissionId})
+    </insert>
+
+    <!-- 通过角色名称查询数据库中数据是否存在 -->
+    <select id="selectRoleByRoleName" resultType="Role">
+        SELECT 
+            r.name 
+        FROM 
+        	t_role r
+        WHERE 
+        	r.name = #{name}
+        AND
+        	r.shop_id = #{shopId}
+    </select>
+    
+    <!-- (修改角色用)通过角色名称查询除此id的数据库中数据是否存在 -->
+    <select id="selectRoleByRoleNameNotThis" resultType="Role">
+        SELECT 
+            r.name 
+        FROM 
+        	t_role r
+        WHERE 
+        	r.name = #{name}
+        AND
+        	r.shop_id = #{shopId}
+        AND
+        	r.id != #{id}
+    </select>
+
+	<!-- 查询所有角色-不分页 -->
+	<select id="selectAllRole" resultType="Role">
+		select
+			r.id,
+			r.name,
+			r.shop_id
+		from
+			t_role r
+		<where>
+			  r.shop_id = #{shopId}
+			  and  r.name != "超级管理员"
+		   <if test="name != null and name != ''">
+			  and r.name like "%"#{name}"%"
+		   </if>
+		</where>
+		group by r.id
+         DESC
+	</select>
+
+	<!-- 通过分店ID获取超级管理员角色ID -->
+    <select id="getRoleIdByShopId" parameterType="com.cashier.entityVo.ShopVo" resultType="Role">
+        select
+            r.id
+        from
+            t_role r
+        where
+            r.name = '超级管理员'
+        AND r.shop_id = #{id}
+    </select>
+
+	<!-- 根据id查询角色 -->
+	<select id="selectRoleById" parameterType="Role" resultType="Role">
+		select
+			r.id,
+			r.name,
+			r.shop_id
+		from
+			t_role r
+		where
+			r.id = #{id}
+	</select>
+
+	<!-- 增加角色 -->
+	<insert id="saveRole" parameterType="Role"  useGeneratedKeys="true" keyProperty="id">
+		insert into
+		t_role(name,remarks,shop_id)
+		values
+		(#{name},#{remarks},#{shopId})
+	</insert>
+
+	<!-- 修改角色 -->
+	<update id="updateRole" parameterType="Role" >
+		update t_role r
+		<set>
+			<if test="name != null and name != ''">
+				r.name = #{name}
+			</if>
+		</set>
+		where r.id = #{id}
+	</update>
+
+	<!-- 根据id删除角色 -->
+	<delete id="deleteRoleById" parameterType="BigInteger">
+		delete from
+			t_role 
+		where 
+			id = #{id}
+	</delete>
+	
+	<!-- 删除角色和权限关联表中的一条数据 -->
+    <delete id="deleteRolePermissionRelationship" parameterType="com.cashier.entity.RolePermissionRelationship">
+        delete from
+        	t_role_permission_relationship
+        where 
+        	role_id = #{roleId}
+        and 
+        	permission_id = #{permissionId}
+    </delete>
+    <!-- 删除分店超级管理员权限时需要把该分店的权限全部收回 -->
+    <delete id="deleteAllRolePermissionRelationship" parameterType="com.cashier.entity.RolePermissionRelationship">
+        delete rpr.* 
+		from t_role_permission_relationship rpr 
+		inner join t_role r 
+		on r.id = rpr.role_id
+		where rpr.permission_id=#{permissionId}
+		AND r.shop_id = #{roleId}
+    </delete>
+</mapper>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cashier.dao.JurisdictionMapper">
+
+    <!-- 先判断当前角色是否是超级管理员 -->
+    <select id="selectSuperRoleByRoleId" parameterType="role" resultType="role" >
+        SELECT 
+            id id,
+			name name,
+			salary salary,
+			remarks remarks,
+			shop_id shopId
+        FROM t_role r
+        WHERE r.id = #{id}
+        AND r.name = '超级管理员'
+    </select>
+
+    <!-- 修改店铺中角色权限信息 -->
+    <select id="listPermissionIDByRole" parameterType="role" resultType="Permission" >
+        SELECT 
+            p.id id
+        FROM t_role r,t_role_permission_relationship rp ,t_permission p
+        WHERE r.id = rp.role_id
+        AND rp.permission_id = p.id
+        AND r.id = #{id}
+        AND r.shop_id = #{shopId} 
+    </select>
+
+
+    <!-- 获取当前分店中角色的权限信息 -->
+    <select id="listPermissionByRoleIdAndShopId" resultMap="listPermissionMap" parameterType="role" >
+        SELECT 
+            p.parent_id parentIds,
+            p.parent_name parent_names,
+            p.id id,
+            p.name name
+        FROM t_role r,t_role_permission_relationship rp ,t_permission p
+        WHERE r.id = rp.role_id
+        AND rp.permission_id = p.id
+        AND r.id = #{id}
+        AND r.shop_id = #{shopId} 
+    </select>
+    
+    <resultMap id="listPermissionMap" type="com.cashier.entityVo.PermissionVo">
+        <id column="parentIds" jdbcType="BIGINT" property="parentIds" />
+        <result column="parent_names" jdbcType="VARCHAR" property="parent_names" />
+        
+        <collection property="permissions" ofType="com.cashier.entity.Permission" > 
+            <id column="id" jdbcType="BIGINT" property="id" />
+            <result column="name" jdbcType="VARCHAR" property="name" />
+        </collection>
+    </resultMap>
+
+    <!-- 根据角色查询相应权限-->
+	<select id="selectAllPermission" resultType="com.cashier.entityVo.PermissionVo" parameterType="com.cashier.entityVo.PermissionVo">
+	    	SELECT
+                 rpr.id id,
+                 r.name roleName,
+                 rpr.role_id roleId,
+                 ps.id permissionId,
+                 ps.name permissionName
+                 FROM
+	             t_role r,
+	             t_permission ps,
+	             t_role_permission_relationship rpr
+            <where>
+                 r.id = rpr.role_id
+                 AND rpr.permission_id = ps.id
+                <if test="roleId != null and roleId != ''">
+			      AND	rpr.role_id = #{roleId}
+			</if>
+	    	 </where>
+	    <!-- 	select
+	    	      ps.id id,
+		          ps.name name,
+		          rpr.permission_id permissionId,
+		          r.id roleId,
+		          r.name roleName
+		    FROM
+	              t_permission ps,
+		          t_role r,
+		          t_role_permission_relationship rpr
+		          <where>
+		          r.id = rpr.role_id 
+		          AND rpr.permission_id = ps.id 
+		         <if test="roleId != null and roleId != ''">
+			      AND	r.id = #{roleId}
+			</if> 
+			</where> -->
+	</select> 
+	
+	<!-- 查询用户数量 -->
+	<select id="selectUsersCount" resultType="com.cashier.entityVo.PermissionVo">
+		SELECT COUNT(DISTINCT tb.id) count
+		FROM
+		(
+	 SELECT DISTINCT
+	                     u.id
+               FROM
+	                    t_user u,
+	                    t_role r,
+	                    t_user_role_relationship urr
+		<where>
+		                u.id = urr.user_id
+               AND urr.role_id = r.id
+                   <if test="shopId != null and shopId != ''">
+			   and u.shop_id = #{shopId}
+				   </if>
+			<if test="phones != null and phones != ''">
+				 and u.phone like "%"#{phones}"%"
+			</if>
+		</where>
+		)as tb
+	</select>
+	
+		<!-- 303 用户锁定和解锁 -->
+	<update id="updateUserState"  parameterType="com.cashier.entityVo.PermissionVo">
+		UPDATE t_user u
+		<set>
+			<if test="state != null and state != ''">
+				u.state = #{state}
+			</if>
+		</set>		  
+		WHERE
+		 	u.id = #{userId}	
+	</update>
+</mapper>
