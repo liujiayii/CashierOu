@@ -348,5 +348,23 @@
 		WHERE
 			t_shop.id=#{id}
 	</select>
-	
+	<select id="getAllCity" resultType="com.cashier.entityVo.ShopVo">
+	    SELECT
+          p.area_id provid,
+            p.title provice,
+            c.area_id cityid,
+            c.title city,
+            a.area_id areaid,
+            a.title title
+            FROM
+            t_dm_area c,
+            t_dm_area a,
+            t_dm_area p
+           
+      WHERE
+        
+            c.area_id = a.pid
+            AND
+                c.pid = p.area_id
+	</select>
 </mapper>

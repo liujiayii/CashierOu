@@ -21,9 +21,9 @@
     <select id="listPermissionByCurrentUser" parameterType="User" resultMap="listPermissionMap" >
         SELECT 
 	        p.parent_id parentIds,
-	        p.parent_name parent_names,
-	        p.id id,
-	        p.name name
+	       
+	        p.id id
+	      
 	    FROM t_user u ,t_user_role_relationship ur,
 	        t_role r , t_role_permission_relationship rp ,
 	        t_permission p

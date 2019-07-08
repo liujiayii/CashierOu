@@ -53,9 +53,9 @@ public class ProductController {
 	@ResponseBody
 	public Map<String,Object> addProduct(HttpServletRequest request,HttpSession session,Product product,BigInteger quantity){
 		Map<String, Object> map = new HashMap<>();
-		BigInteger shopId = new BigInteger("1");
+		
 		//设置店铺id，
-		product.setShopId(shopId);
+		product.setShopId(new BigInteger(session.getAttribute("shopId")+""));
 		
 		try {
 			if(product.getBarCode()==null){
@@ -95,9 +95,9 @@ public class ProductController {
 	 */
 	@RequestMapping("/createProduct")
 	@ResponseBody
-	public Map<String,Object> updateProduct(Product product){
+	public Map<String,Object> updateProduct(Product product,HttpSession session){
 		Map<String, Object> map = new HashMap<>();
-		product.setShopId(new BigInteger("1"));
+		product.setShopId(new BigInteger(session.getAttribute("shopId")+""));
 		try {
 			Integer row = productService.updateProductById(product);
 			if(row == 1){
@@ -163,8 +163,8 @@ public class ProductController {
 	 */
 	@RequestMapping("/ProductsByType")
 	@ResponseBody
-	public Map<String,Object> ProductsByType(BigInteger productTypeId,Integer page,Integer limit){
-		BigInteger shopId = new BigInteger("1");
+	public Map<String,Object> ProductsByType(BigInteger productTypeId,Integer page,Integer limit,HttpSession session){
+		BigInteger shopId = new BigInteger(session.getAttribute("shopId")+"");
 		Map<String, Object> map = productService.productsByType(productTypeId, shopId, page, limit);
 		return map ;
 	}
@@ -198,9 +198,9 @@ public class ProductController {
 	 */
 	@RequestMapping("/groupByProductType")
 	@ResponseBody
-	public Map<String,Object> groupByProductType(){
+	public Map<String,Object> groupByProductType(HttpSession session){
 		Map<String, Object> map = new HashMap<>();
-		BigInteger shopId = new BigInteger("1");
+		BigInteger shopId = new BigInteger(session.getAttribute("shopId")+"");
 		List<ProductVo> product= productService.groupByProductType(shopId);
 		map.put("code", 1);
 		map.put("msg", "成功");
@@ -218,9 +218,9 @@ public class ProductController {
 	 */
 	@RequestMapping("/getProductByCondition")
 	@ResponseBody
-	public Map<String,Object> getProductByCondition(String productName,BigInteger shopId,BigInteger productTypeId,Integer page,Integer limit){
+	public Map<String,Object> getProductByCondition(String productName,BigInteger shopId,BigInteger productTypeId,Integer page,Integer limit,HttpSession session){
 		if(shopId==null ){
-			shopId = new BigInteger("1");
+			shopId = new BigInteger(session.getAttribute("shopId")+"");
 		}
 		Map<String,Object> map=productService.getProductByCondition(productName, productTypeId, shopId, page, limit);
 		return map;
@@ -277,5 +277,29 @@ public class ProductController {
         return null;
 
     }
-
+	/**
+	 * 
+	     * @Title: getProductByBarCode
+	     * @description 根据商品条码获得商品
+	     * @param  商品条码
+	     * @return  
+	     * @author chenshuxian
+	     * @createDate 2019年7月8日
+	 */
+	@RequestMapping("/getProductByBarCode")
+	@ResponseBody
+	public Map<String,Object> getProductByBarCode(Product product){
+		Map<String,Object> map = new HashMap<>();
+		Product p = productService.getProductByBarCode(product);
+		if(p != null && !p.equals("")){
+			map.put("product", p);
+			map.put("code", 1);
+			map.put("msg", "成功");
+		}else{
+			map.put("code", 0);
+			map.put("msg", "商品为空或不存在，请核实");
+		}
+		return map;
+		
+	}
 }

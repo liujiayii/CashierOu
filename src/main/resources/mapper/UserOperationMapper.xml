@@ -6,98 +6,100 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.cashier.dao.UserOperationMapper">
 
 
-    <!-- 查询所有操作记录 -->
-    <select id="selectAllUserOperation"  resultType="com.cashier.entityVo.UserOperationVo">
-			SELECT
-				tuo.id id,
-				tu.username userUname,
-				tuo.name name,
-				tuo.time time,
-				tuo.operating_content operatingContent,
-				tuo.shop_id shopId
-			FROM
-				t_user_operation tuo,
-				t_user tu
-			<where>
-				tuo.user_uname = tu.username
-			<if test="shopId != null and shopId != ''">
-			AND	tuo.shop_id = #{shopId}
-			</if>
-		</where>
-		group by id
-		DESC
-		limit #{page},#{limit}
-    </select>
-    
-   <!--  查询操作记录条数 -->
-	<select id="findUserOperationCount" resultType="com.cashier.entityVo.UserOperationVo">
-		SELECT COUNT(DISTINCT tb.id) count
+	<!-- 查询所有操作记录 -->
+	<select id="selectAllUserOperation" resultType="com.cashier.entityVo.UserOperationVo"
+	parameterType="com.cashier.entityVo.UserOperationVo">
+		SELECT
+			uo.id ,
+			uo.user_name ,
+			uo.name ,
+			uo.time ,
+			uo.operating_content operatingContent,
+			s.name shopName
 		FROM
-		(
-		select
-		tuo.id id
-		from
-		t_user_operation tuo
+		    t_user_operation uo,
+		    t_shop s
 		<where>
-			<if test="shopId != null and shopId != ''">
-			 tuo.shop_id = #{shopId}
+		    uo.shop_id = s.id
+			<if test="shopId != null">
+		and		
+		    uo.shop_id = #{shopId}
 			</if>
 		</where>
-		)as tb
+		group by uo.id
+		DESC
+		limit #{page},#{limit}
 	</select>
-    <!-- 添加操作记录 -->
-    <insert id="saveUserOperation" parameterType="com.cashier.entityVo.UserOperationVo" >
-        INSERT INTO
-            t_user_operation(user_uname,name,time,operating_content,shop_id) 
-        VALUES
-            (#{userUname},#{name},now(),#{operatingContent},#{shopId})
-    </insert>
-     <!-- 通过计量单位ID删除一条计量单位信息 -->
-    <delete id="deleteUserOperationById" parameterType="BigInteger">
-        DELETE FROM
-           t_user_operation
-        WHERE
-            id = #{id}
-    </delete>
-  
+
+	<!-- 查询操作记录条数 -->
+	<select id="findUserOperationCount" resultType="int" 
+	parameterType="com.cashier.entityVo.UserOperationVo">
+		select
+		    count(uo.id)
+		from
+		    t_user_operation uo,
+            t_shop s
+		<where>
+            uo.shop_id = s.id
+            <if test="shopId != null">
+        and     
+            uo.shop_id = #{shopId}
+            </if>
+        </where>
+	</select>
 	
-	<!--软删除(可用/不可用)
-	<update id="updateUnitByCanUse" parameterType="com.cashier.entityVo.UserOperationVo">
-		update 	t_unit tu
-		<set>
-			<if test="canUse != null and canUse != ''">
-				tu.can_use = #{canUse},
-			</if>
-		</set>
-		where tu.id= #{id}
-	</update> -->
+	<!-- 添加操作记录 -->
+	<insert id="saveUserOperation" parameterType="com.cashier.entity.UserOperation">
+		INSERT INTO t_user_operation(
+		    user_name,
+		    name,
+		    time,
+		    operating_content,
+		    shop_id
+		)VALUES(
+		    #{userName},
+		    #{name},
+		    now(),
+		    #{operatingContent},
+		    #{shopId}
+		)
+	</insert>
+	<!-- 通过计量单位ID删除一条计量单位信息 -->
+	<delete id="deleteUserOperationById" parameterType="BigInteger">
+		DELETE FROM t_user_operation WHERE id = #{id}
+	</delete>
+
+
+	<!--软删除(可用/不可用) <update id="updateUnitByCanUse" parameterType="com.cashier.entityVo.UserOperationVo"> 
+		update t_unit tu <set> <if test="canUse != null and canUse != ''"> tu.can_use 
+		= #{canUse}, </if> </set> where tu.id= #{id} </update> -->
 	<!-- 按时间查询操作记录 -->
-    <select id="findUserOperationByTime"  resultType="com.cashier.entityVo.UserOperationVo">
-			SELECT
-				tuo.id id,
-				tu.username userUname,
-				tuo.name name,
-				tuo.time time,
-				tuo.operating_content operatingContent,
-				tuo.shop_id shopId
-			FROM
-				t_user_operation tuo,
-				t_user tu
-			<where>
-				tuo.user_uname = tu.username
-			
-			AND	tuo.time  like CONCAT('%', #{day}, '%')
-			
+	<select id="findUserOperationByTime" resultType="com.cashier.entityVo.UserOperationVo">
+		SELECT
+		tuo.id id,
+		tu.username userUname,
+		tuo.name name,
+		tuo.time time,
+		tuo.operating_content operatingContent,
+		tuo.shop_id shopId
+		FROM
+		t_user_operation tuo,
+		t_user tu
+		<where>
+			tuo.user_uname = tu.username
+
+			AND tuo.time like CONCAT('%', #{day}, '%')
+
 			<if test="shopId != null and shopId != ''">
-			AND	tuo.shop_id = #{shopId}
+				AND tuo.shop_id = #{shopId}
 			</if>
 		</where>
 		group by id
 		DESC
 		limit #{page},#{limit}
-    </select>
-    
-    <!--  按时间查询查询操作记录条数 -->
+	</select>
+
+	<!-- 按时间查询查询操作记录条数 -->
 	<select id="findUserOperationCountByTime" resultType="com.cashier.entityVo.UserOperationVo">
 		SELECT COUNT(DISTINCT tb.id) count
 		FROM
@@ -106,75 +108,75 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		tuo.id id
 		from
 		t_user_operation tuo,
-			t_user tu
+		t_user tu
 		<where>
-		tuo.user_uname = tu.username
-	       and tuo.time  like CONCAT('%', #{day}, '%')
+			tuo.user_uname = tu.username
+			and tuo.time like CONCAT('%', #{day}, '%')
 			<if test="shopId != null and shopId != ''">
-			and tuo.shop_id = #{shopId}
+				and tuo.shop_id = #{shopId}
 			</if>
-				<if test="userUname != null and userUname != ''">
-			AND	tu.username like "%"#{userUname}"%"
+			<if test="userUname != null and userUname != ''">
+				AND tu.username like "%"#{userUname}"%"
 			</if>
 			<if test="operatingContent != null and operatingContent != ''">
-			AND	tuo.operating_content like "%"#{operatingContent}"%"
+				AND tuo.operating_content like "%"#{operatingContent}"%"
 			</if>
 		</where>
 		)as tb
 	</select>
 	<!-- 按操作内容查询操作记录 -->
-    <select id="findUserOperationByContent"  resultType="com.cashier.entityVo.UserOperationVo">
-			SELECT
-				tuo.id id,
-				tu.username userUname,
-				tuo.name name,
-				tuo.time time,
-				tuo.operating_content operatingContent,
-				tuo.shop_id shopId
-			FROM
-				t_user_operation tuo,
-				t_user tu
-			<where>
-				tuo.user_uname = tu.username
-	
+	<select id="findUserOperationByContent" resultType="com.cashier.entityVo.UserOperationVo">
+		SELECT
+		tuo.id id,
+		tu.username userUname,
+		tuo.name name,
+		tuo.time time,
+		tuo.operating_content operatingContent,
+		tuo.shop_id shopId
+		FROM
+		t_user_operation tuo,
+		t_user tu
+		<where>
+			tuo.user_uname = tu.username
+
 			<if test="operatingContent != null and operatingContent != ''">
-			AND	tuo.operating_content like "%"#{operatingContent}"%"
+				AND tuo.operating_content like "%"#{operatingContent}"%"
 			</if>
 			<if test="shopId != null and shopId != ''">
-			AND	tuo.shop_id = #{shopId}
+				AND tuo.shop_id = #{shopId}
 			</if>
 		</where>
 		group by id
 		DESC
 		limit #{page},#{limit}
-    </select>
-    <!-- 按操作人查询操作记录 -->
-    <select id="findUserOperationByName"  resultType="com.cashier.entityVo.UserOperationVo">
-			SELECT
-				tuo.id id,
-				tu.username userUname,
-				tuo.name name,
-				tuo.time time,
-				tuo.operating_content operatingContent,
-				tuo.shop_id shopId
-			FROM
-				t_user_operation tuo,
-				t_user tu
-			<where>
-				tuo.user_uname = tu.username
-	
+	</select>
+	<!-- 按操作人查询操作记录 -->
+	<select id="findUserOperationByName" resultType="com.cashier.entityVo.UserOperationVo">
+		SELECT
+		tuo.id id,
+		tu.username userUname,
+		tuo.name name,
+		tuo.time time,
+		tuo.operating_content operatingContent,
+		tuo.shop_id shopId
+		FROM
+		t_user_operation tuo,
+		t_user tu
+		<where>
+			tuo.user_uname = tu.username
+
 			<if test="userUname != null and userUname != ''">
-			AND	tu.username like "%"#{userUname}"%"
+				AND tu.username like "%"#{userUname}"%"
 			</if>
 			<if test="shopId != null and shopId != ''">
-			AND	tuo.shop_id = #{shopId}
+				AND tuo.shop_id = #{shopId}
 			</if>
 		</where>
 		group by id
 		DESC
 		limit #{page},#{limit}
-    </select>
-     <!--  按操作人查询查询操作记录条数 -->
+	</select>
+	<!-- 按操作人查询查询操作记录条数 -->
 	<select id="findUserOperationCountByName" resultType="com.cashier.entityVo.UserOperationVo">
 		SELECT COUNT(DISTINCT tb.id) count
 		FROM
@@ -183,21 +185,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		tuo.id id
 		from
 		t_user_operation tuo,
-			t_user tu
+		t_user tu
 		<where>
-		tuo.user_uname = tu.username
-	     
+			tuo.user_uname = tu.username
+
 			<if test="shopId != null and shopId != ''">
-			and tuo.shop_id = #{shopId}
+				and tuo.shop_id = #{shopId}
 			</if>
-				<if test="userUname != null and userUname != ''">
-			AND	tu.username like "%"#{userUname}"%"
+			<if test="userUname != null and userUname != ''">
+				AND tu.username like "%"#{userUname}"%"
 			</if>
-			
+
 		</where>
 		)as tb
 	</select>
-	 <!--  按操作内容查询查询操作记录条数 -->
+	<!-- 按操作内容查询查询操作记录条数 -->
 	<select id="findUserOperationCountByContent" resultType="com.cashier.entityVo.UserOperationVo">
 		SELECT COUNT(DISTINCT tb.id) count
 		FROM
@@ -206,14 +208,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		tuo.id id
 		from
 		t_user_operation tuo,
-			t_user tu
+		t_user tu
 		<where>
-		tuo.user_uname = tu.username
+			tuo.user_uname = tu.username
 			<if test="shopId != null and shopId != ''">
-			and tuo.shop_id = #{shopId}
+				and tuo.shop_id = #{shopId}
 			</if>
 			<if test="operatingContent != null and operatingContent != ''">
-			AND	tuo.operating_content like "%"#{operatingContent}"%"
+				AND tuo.operating_content like "%"#{operatingContent}"%"
 			</if>
 		</where>
 		)as tb

@@ -121,7 +121,19 @@ public class ProductServiceImpl implements ProductService {
 
 		return row;
 	}
-
+	/**
+	 * 
+	     * @Title: getProductByBarCode
+	     * @description 根据商品条码获得对应商品
+	     * @param  商品条码
+	     * @return   商品详情
+	     * @author chenshuxian
+	     * @createDate 2019年7月8日
+	 */
+	@Override
+	public Product getProductByBarCode(Product product){
+		return productMapper.getProductByNameAndBarcode(product);
+	}
 	/**
 	 * 
 	 * @Title:根据id修改商品

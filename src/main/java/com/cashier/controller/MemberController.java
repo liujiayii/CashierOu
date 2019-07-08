@@ -315,4 +315,43 @@ public class MemberController {
 		return map;
 	}
 	
+	//APP接口----通过电话模糊查询会员信息（不传phone则是会员列表查询）
+	/**
+	 * @Title: listMemberByPhone
+	 * @description APP接口----通过电话模糊查询会员信息
+	 * @param @param page
+	 * @param @param limit
+	 * @param @param memberVo
+	 * @param @return   
+	 * @return Map<String,Object>    
+	 * @author dujiawei
+	 * @createDate 2019年7月8日
+	 */
+	@RequestMapping("/listMemberByPhone")
+	@ResponseBody
+	public Map<String,Object> listMemberByPhone(Integer page, Integer limit, MemberVo memberVo) {
+		memberVo.setPage((page-1)*limit);
+		memberVo.setLimit(limit);
+		Map<String , Object> result = new HashMap<String , Object>();
+		List<MemberVo> list = memberService.listMemberByPhone(memberVo);
+		//会员列表
+		if(list.size() > 0) {
+			for(int i = 0; i<list.size(); i++) {
+				list.get(i).setCount(0);
+			}
+		};
+		MemberVo mVo = memberService.countMemberByPhone(memberVo);//会员数量
+		int count = 0;
+		if(mVo.getCount() != 0) {
+			count = mVo.getCount();
+		};
+		
+		result.put("code", 1);
+		result.put("msg", "Success");
+		result.put("data", list);
+		result.put("count", count);
+		
+		return result;	
+	}
+	
 }

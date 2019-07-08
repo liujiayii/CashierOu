@@ -88,8 +88,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </set>
         where id= #{productTypeId}
     </update>
-
-
+    
+    <select id="dimSelectProductTypeCount" parameterType="com.cashier.entity.ProductType" resultType="Integer">
+        select
+        count(id)
+        
+        from
+        t_product_type 
+        <where>
+        can_use = 1
+        and shop_id = #{shopId}
+        <if test="productTypeName != null and productTypeName != ''">
+            and product_type like "%"#{productTypeName}"%"
+        </if>
+        </where>
+       
+    </select>
 
 
 	

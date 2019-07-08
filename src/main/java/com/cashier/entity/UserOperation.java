@@ -1,24 +1,27 @@
-package com.cashier.entityVo;
+/**
+ * @Title: UserOperation.java
+ * @Package com.cashier.entity
+ * @Description: TODO(用一句话描述该文件做什么)
+ * @author Administrator
+ * @date 2019年7月8日
+ */
+package com.cashier.entity;
 
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import org.springframework.format.annotation.DateTimeFormat;
 /**
- *
  * @ClassName: UserOperation
-
- * @description 员工日常操作实体Vo类
- *
- * @author 
- * @createDate 2019年2月11日
+ * @description 用一句话描述这个类的作用
+ * @author liujunkai
+ * @createDate 2019年7月8日
  */
-
-public class UserOperationVo implements Serializable{
-	
-	private static final long serialVersionUID = 1L;
-	/** 操作记录id */
+public class UserOperation implements Serializable{
+    
+    /**  字段的含义 */
+    private static final long serialVersionUID = 1L;
+    /** 操作记录id */
     private BigInteger id;
     /** 操作人账号 */
     private String userName;
@@ -29,13 +32,7 @@ public class UserOperationVo implements Serializable{
     /** 操作时间 */
     private Timestamp time;
     /** 店铺名称 */
-    private String shopName;
-    /** 店铺ID */
-    private BigInteger ShopId;
-	/** 页 */
-	private int page ;
-	/** 行 */
-	private int limit ;
+    private BigInteger shopId;
     public BigInteger getId() {
         return id;
     }
@@ -66,41 +63,20 @@ public class UserOperationVo implements Serializable{
     public void setTime(Timestamp time) {
         this.time = time;
     }
-    public String getShopName() {
-        return shopName;
-    }
-    public void setShopName(String shopName) {
-        this.shopName = shopName;
-    }
     public BigInteger getShopId() {
-        return ShopId;
+        return shopId;
     }
     public void setShopId(BigInteger shopId) {
-        ShopId = shopId;
-    }
-    public int getPage() {
-        return page;
-    }
-    public void setPage(int page) {
-        this.page = page;
-    }
-    public int getLimit() {
-        return limit;
-    }
-    public void setLimit(int limit) {
-        this.limit = limit;
+        this.shopId = shopId;
     }
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((ShopId == null) ? 0 : ShopId.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + limit;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((operatingContent == null) ? 0 : operatingContent.hashCode());
-        result = prime * result + page;
-        result = prime * result + ((shopName == null) ? 0 : shopName.hashCode());
+        result = prime * result + ((shopId == null) ? 0 : shopId.hashCode());
         result = prime * result + ((time == null) ? 0 : time.hashCode());
         result = prime * result + ((userName == null) ? 0 : userName.hashCode());
         return result;
@@ -113,18 +89,11 @@ public class UserOperationVo implements Serializable{
             return false;
         if (getClass() != obj.getClass())
             return false;
-        UserOperationVo other = (UserOperationVo) obj;
-        if (ShopId == null) {
-            if (other.ShopId != null)
-                return false;
-        } else if (!ShopId.equals(other.ShopId))
-            return false;
+        UserOperation other = (UserOperation) obj;
         if (id == null) {
             if (other.id != null)
                 return false;
         } else if (!id.equals(other.id))
-            return false;
-        if (limit != other.limit)
             return false;
         if (name == null) {
             if (other.name != null)
@@ -136,12 +105,10 @@ public class UserOperationVo implements Serializable{
                 return false;
         } else if (!operatingContent.equals(other.operatingContent))
             return false;
-        if (page != other.page)
-            return false;
-        if (shopName == null) {
-            if (other.shopName != null)
+        if (shopId == null) {
+            if (other.shopId != null)
                 return false;
-        } else if (!shopName.equals(other.shopName))
+        } else if (!shopId.equals(other.shopId))
             return false;
         if (time == null) {
             if (other.time != null)
@@ -157,29 +124,23 @@ public class UserOperationVo implements Serializable{
     }
     @Override
     public String toString() {
-        return "UserOperationVo [id=" + id + ", userName=" + userName + ", name=" + name + ", operatingContent="
-                + operatingContent + ", time=" + time + ", shopName=" + shopName + ", ShopId=" + ShopId + ", page="
-                + page + ", limit=" + limit + "]";
+        return "UserOperation [id=" + id + ", userName=" + userName + ", name=" + name + ", operatingContent="
+                + operatingContent + ", time=" + time + ", shopId=" + shopId + "]";
     }
-    public UserOperationVo(BigInteger id, String userName, String name, String operatingContent, Timestamp time,
-            String shopName, BigInteger shopId, int page, int limit) {
+    public UserOperation(BigInteger id, String userName, String name, String operatingContent, Timestamp time,
+            BigInteger shopId) {
         super();
         this.id = id;
         this.userName = userName;
         this.name = name;
         this.operatingContent = operatingContent;
         this.time = time;
-        this.shopName = shopName;
-        ShopId = shopId;
-        this.page = page;
-        this.limit = limit;
+        this.shopId = shopId;
     }
-    public UserOperationVo() {
+    public UserOperation() {
         super();
         // TODO Auto-generated constructor stub
     }
-	
     
-	
-	
+    
 }

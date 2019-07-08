@@ -124,7 +124,7 @@ public interface UserMapper {
      * @author 
      * @createDate 2019年7月4日
      */
-    public void saveUserByDTO(ShopUserPermissionDTO shopUserPermissionDTO);
+    public Integer saveUserByDTO(ShopUserPermissionDTO shopUserPermissionDTO);
 
     /**
      * @Title: getSuperUserByShopId
@@ -144,7 +144,7 @@ public interface UserMapper {
      * @author dujiawei
      * @createDate 2019年7月4日
      */
-    public void saveUserAndRoleRelation(UserVo userVo);
+    public Integer saveUserAndRoleRelation(UserVo userVo);
 
     /**
      * @Title: removeUserRoleRelation

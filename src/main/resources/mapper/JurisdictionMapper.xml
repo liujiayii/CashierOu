@@ -32,7 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!-- 获取当前分店中角色的权限信息 -->
     <select id="listPermissionByRoleIdAndShopId" resultMap="listPermissionMap" parameterType="role" >
-        SELECT 
+       SELECT 
             p.parent_id parentIds,
             p.parent_name parent_names,
             p.id id,
@@ -41,7 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         WHERE r.id = rp.role_id
         AND rp.permission_id = p.id
         AND r.id = #{id}
-        AND r.shop_id = #{shopId} 
+        AND r.shop_id = #{shopId}
     </select>
     
     <resultMap id="listPermissionMap" type="com.cashier.entityVo.PermissionVo">
@@ -127,4 +127,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		WHERE
 		 	u.id = #{userId}	
 	</update>
+	
+	
+	<!-- 获取角色所有的权限信息 -->
+    <select id="listAllPermissions" resultMap="listPermissionMap" parameterType="role" >
+        SELECT 
+            p.parent_id parentIds,
+            p.parent_name parent_names,
+            p.id id,
+            p.name name
+        FROM 
+	        t_role r,
+	        t_role_permission_relationship rp ,
+	        t_permission p
+        WHERE 
+        	r.id = rp.role_id
+        AND 
+        	rp.permission_id = p.id
+    </select>
+    
+    <!--  -->
+	<select id="listRolePermissions" parameterType="com.cashier.entity.RolePermission" resultType="com.cashier.entity.RolePermission">
+		SELECT  
+            p.id id
+        FROM t_role r,t_role_permission_relationship rp ,t_permission p
+        WHERE r.id = rp.role_id
+        AND rp.permission_id = p.id
+        AND r.id = #{roleId}
+        AND r.shop_id = #{shopId}
+	</select>
 </mapper>

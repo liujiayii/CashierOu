@@ -67,7 +67,7 @@ public interface ShopService {
 	 * @param ids 
      * @createDate 2018年12月5日
      */
-	public int insertShop(ShopUserPermissionDTO shopUserPermissionDTO, String ids);
+	public Integer insertShop(ShopUserPermissionDTO shopUserPermissionDTO, String ids);
 	/**
      * @Title: deleteShop
      * @description 删除店铺
@@ -129,4 +129,14 @@ public interface ShopService {
      */
     public List<Shop> listShopIdButMe(Integer shopId);
 
+    /**
+     * 
+         * @Title: getAllCity
+         * @description  获得所有的省市区
+         * @param  
+         * @return 省市区列表
+         * @author chenshuxian	
+         * @createDate 2019年7月8日
+     */
+    public List<ShopVo> getAllCity();
 }

@@ -138,5 +138,18 @@ public class ProductTypeServiceImpl implements ProductTypeService {
 		Integer beginPage = limit*(page-1);
 		return productTypeMapper.dimSelectProductType(shopId, productType, beginPage, limit);
 	}
+	/**
+	 * 
+	     * @Title: 模糊查询商品类型（也可分页查询所有商品 productType传null）数量
+	     * @description 
+	     * @param  
+	     * @return    
+	     * @author 
+	     * @createDate
+	 */
+	@Override
+	public Integer dimSelectProductTypeCount(ProductType p){
+		return productTypeMapper.dimSelectProductTypeCount(p);
+	}
 
 }

@@ -9,9 +9,10 @@
 
 package com.cashier.controller;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +35,6 @@ import com.cashier.entity.Regulation;
 import com.cashier.entity.SpecialOffers;
 import com.cashier.entityDTO.RegulationDTO;
 import com.cashier.entityDTO.SpecialOffersDTO;
-import com.cashier.entityVo.PermissionVo;
 import com.cashier.service.ActivityService;
 
 import net.sf.json.JSONObject;
@@ -48,6 +49,46 @@ public class ActivityController {
     
     @Resource
     private ActivityService activityService;
+    
+    /**
+     * @Title: updateToBegin
+     * @Description 00定时任务每天凌晨把当天未开始活动变更为进行时
+     * @param  
+     * @return int 
+     * @author zhoujiaxin  
+     * @createDate 2019年7月8日  
+     */
+    @Scheduled(cron = "0 00 00 * * ?")
+    public void updateToBegin(){
+        Calendar instance = Calendar.getInstance();
+        long timeInMillis = instance.getTimeInMillis();
+        Timestamp startTime = new Timestamp(timeInMillis);
+        Timestamp endTime = new Timestamp(timeInMillis+(1000*3600*24)-1);
+        SpecialOffers specialOffers = new SpecialOffers();
+        specialOffers.setStartTime(startTime);
+        specialOffers.setEndTime(endTime);
+        activityService.UpdateSpecialOffersToBegin(specialOffers);
+    }
+    
+    /**
+     * @Title: updateToEnd
+     * @Description 01定时任务每天凌晨把当天进行中活动变更为已结束
+     * @param  
+     * @return int 
+     * @author zhoujiaxin  
+     * @createDate 2019年7月8日  
+     */
+    @Scheduled(cron = "0 00 00 * * ?")
+    public void updateToEnd(){
+        Calendar instance = Calendar.getInstance();
+        long timeInMillis = instance.getTimeInMillis();
+        Timestamp startTime = new Timestamp(timeInMillis-(1000*3600*24));
+        Timestamp endTime = new Timestamp(timeInMillis-1);
+        SpecialOffers specialOffers = new SpecialOffers();
+        specialOffers.setStartTime(startTime);
+        specialOffers.setEndTime(endTime);
+        activityService.UpdateSpecialOffersToEnd(specialOffers);
+    }
     
     /**
      * @Title: checkUpdateActivityProduct
@@ -321,6 +362,8 @@ public class ActivityController {
         // 分页时起始值
         specialOffers.setBeginNum((page-1)*specialOffers.getLimit());
         List<SpecialOffers> specialOffersList = activityService.listActivity(specialOffers);
+        int count = activityService.listActivityCount(specialOffers);
+        map.put("count", count);
         map.put("code", 1);
         map.put("message", "查询成功");
         map.put("data", specialOffersList);

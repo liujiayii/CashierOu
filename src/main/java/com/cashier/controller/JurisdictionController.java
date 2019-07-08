@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +15,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.Permission;
 import com.cashier.entity.Role;
+import com.cashier.entity.RolePermission;
 import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.entityVo.PermissionVo;
 import com.cashier.entityVo.UserOperationVo;
 import com.cashier.service.JurisdictionService;
@@ -137,19 +138,27 @@ public class JurisdictionController {
     //@RequiresPermissions("/updateOneRolePermission")
     @RequestMapping("/updateOneRolePermission")
     @ResponseBody
-    public Map<String , Object> updateOneRolePermission(Model model,Role role,String ids,HttpSession session){
-        BigInteger shopId = (BigInteger)session.getAttribute("shopId");
-        role.setShopId(shopId);
+    public Map<String , Object> updateOneRolePermission(String shopID, Model model,Role role,String ids,HttpSession session){
+      //如果未传店铺id，则是当前登陆用户修改角色；否则，是区域经理修改各自店铺的角色
+  		BigInteger shopId;
+  		if(shopID == null || shopID == ""){
+  			shopId = (BigInteger)session.getAttribute("shopId");
+  			//shopId = new BigInteger("1");
+  			role.setShopId(shopId);
+  		}else{
+  			shopId =  new BigInteger(shopID);
+  			role.setShopId(shopId);
+  		}
         int num = jurisdictionService.updateOneRolePermission(role,ids);
         
         // 添加一条操作记录
         User user = (User)session.getAttribute("user");
-        UserOperationVo userOperationVo = new UserOperationVo();
-        userOperationVo.setShopId(shopId);
-        userOperationVo.setUserUname(user.getUsername());
-        userOperationVo.setName(user.getName());
-        userOperationVo.setOperatingContent("修改权限信息");
-        userOperationMapper.saveUserOperation(userOperationVo);
+        UserOperation userOperation = new UserOperation();
+        userOperation.setShopId(shopId);
+        userOperation.setUserName(user.getUsername());
+        userOperation.setName(user.getName());
+        userOperation.setOperatingContent("修改权限信息");
+        userOperationMapper.saveUserOperation(userOperation);
         
         Map<String , Object> map = new HashMap<String , Object>();
         if(num == 1){
@@ -186,5 +195,85 @@ public class JurisdictionController {
 		return result;
 
 	}
+	
+	/**
+	 * @Title: listRolePermissions
+	 * @description 角色已拥有的权限
+	 * @param @param shopID
+	 * @param @param model
+	 * @param @param session
+	 * @param @param role
+	 * @return Map<String,Object>    
+	 * @author dujiawei
+	 * @createDate 2019年7月8日
+	 */
+	@RequestMapping("/listRolePermissions")
+	@ResponseBody
+	public Map<String,Object> listRolePermissions(String shopID, Model model,HttpSession session,RolePermission rolePermission) {
+		Map<String , Object> result = new HashMap<String , Object>();
+		
+	    String username = (String)session.getAttribute("username");
+	  //如果未传店铺id，则是当前登陆用户修改角色；否则，是区域经理修改各自店铺的角色
+  		BigInteger shopId;
+  		if(shopID == null || shopID == ""){
+  			shopId = (BigInteger)session.getAttribute("shopId");
+  			//shopId = new BigInteger("1");
+  			rolePermission.setShopId(shopId);
+  		}else{
+  			shopId =  new BigInteger(shopID);
+  			rolePermission.setShopId(shopId);
+  		}
+  		rolePermission.setShopId(new BigInteger(""+shopId));
+        if (username =="" || username == null) {
+        	result.put("code", 0);
+    		result.put("msg", "登陆超时");
+            return result; // 抛异常登陆超时
+        }
+        // 获取当前店中角色拥有的权限信息
+        List<RolePermission> permissionVolist = jurisdictionService.listRolePermissions(rolePermission);
+		BigInteger[] arr = new BigInteger[permissionVolist.size()];
+		for(int i=0;i<permissionVolist.size();i++){
+			arr[i] = permissionVolist.get(i).getId();
+		}
+        
+        result.put("code", 1);
+		result.put("msg", "Success");
+		result.put("data", arr);
+		
+		return result;
+	}
+	
+	
+		/**
+		 * @Title: listAllPermissions
+		 * @description 所有的权限列表
+		 * @param @param shopID
+		 * @param @param model
+		 * @param @param session
+		 * @return Map<String,Object>    
+		 * @author dujiawei
+		 * @createDate 2019年7月8日
+		 */
+		@RequestMapping("/listAllPermissions")
+		@ResponseBody
+		public Map<String,Object> listAllPermissions(String shopID, Model model,HttpSession session) {
+			Map<String , Object> result = new HashMap<String , Object>();
+			
+		    String username = (String)session.getAttribute("username");
+	        if (username =="" || username == null) {
+	        	result.put("code", 0);
+	    		result.put("msg", "登陆超时");
+	            return result; // 抛异常登陆超时
+	        }
+	        // 获取当前店中角色拥有的权限信息
+	        List<PermissionVo> allPermission = jurisdictionService.listAllPermissions();
+			
+	        result.put("code", 1);
+			result.put("msg", "Success");
+			result.put("data", allPermission);
+			
+			return result;
+		}
+	
 	
 }

@@ -105,4 +105,14 @@ public interface ProductService {
      * @return 商品条码最后一位验证码
      */
 	String barCode(String jbarCode);
+	/**
+	 * 
+	     * @Title: getProductByBarCode
+	     * @description 根据商品条码获得对应商品
+	     * @param  商品条码
+	     * @return   商品详情
+	     * @author chenshuxian
+	     * @createDate 2019年7月8日
+	 */
+	Product getProductByBarCode(Product product);
 }

@@ -18,6 +18,7 @@ import com.cashier.entity.CustomException;
 import com.cashier.entity.Role;
 import com.cashier.entity.Shop;
 import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.entityVo.UserOperationVo;
 import com.cashier.entityVo.UserShopVo;
 import com.cashier.entityVo.UserVo;
@@ -300,12 +301,12 @@ public class UserController {
 		
 		// 添加一条操作记录
         User user = (User)session.getAttribute("user");
-        UserOperationVo userOperationVo = new UserOperationVo();
-        userOperationVo.setShopId(shopId);
-        userOperationVo.setUserUname(user.getUsername());
-        userOperationVo.setName(user.getName());
-        userOperationVo.setOperatingContent("新增用户");
-        userOperationMapper.saveUserOperation(userOperationVo);
+        UserOperation userOperation = new UserOperation();
+        userOperation.setShopId(shopId);
+        userOperation.setUserName(user.getUsername());
+        userOperation.setName(user.getName());
+        userOperation.setOperatingContent("新增用户");
+        userOperationMapper.saveUserOperation(userOperation);
 		
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1) {
@@ -371,12 +372,12 @@ public class UserController {
 		
 		// 添加一条操作记录
         User user = (User)session.getAttribute("user");
-        UserOperationVo userOperationVo = new UserOperationVo();
-        userOperationVo.setShopId(shopId);
-        userOperationVo.setUserUname(user.getUsername());
-        userOperationVo.setName(user.getName());
-        userOperationVo.setOperatingContent("修改用户");
-        userOperationMapper.saveUserOperation(userOperationVo);
+        UserOperation userOperation = new UserOperation();
+        userOperation.setShopId(shopId);
+        userOperation.setUserName(user.getUsername());
+        userOperation.setName(user.getName());
+        userOperation.setOperatingContent("修改用户");
+        userOperationMapper.saveUserOperation(userOperation);
 		
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1){
@@ -408,12 +409,12 @@ public class UserController {
 		// 添加一条操作记录
 		BigInteger shopId = (BigInteger)session.getAttribute("shopId");
         User user = (User)session.getAttribute("user");
-        UserOperationVo userOperationVo = new UserOperationVo();
-        userOperationVo.setShopId(shopId);
-        userOperationVo.setUserUname(user.getUsername());
-        userOperationVo.setName(user.getName());
-        userOperationVo.setOperatingContent("删除用户");
-        userOperationMapper.saveUserOperation(userOperationVo);
+        UserOperation userOperation = new UserOperation();
+        userOperation.setShopId(shopId);
+        userOperation.setUserName(user.getUsername());
+        userOperation.setName(user.getName());
+        userOperation.setOperatingContent("删除用户");
+        userOperationMapper.saveUserOperation(userOperation);
 		
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1){

@@ -118,10 +118,6 @@ public class MemberServiceImpl implements MemberService {
 			BigInteger ldLevelId = levelMapper.getMinLevelId(level).getId();  //查询最低级的会员等级id
 			//memberVo.setPassword(MD5Util.md5Encode(memberVo.getPassword()));
 			memberVo.setLdLevelId(ldLevelId);  //存会员等级id值
-			/* 解决中文名字乱码问题 */
-			String name = memberVo.getName();
-			name = new String(name.getBytes("ISO-8859-1"), "UTF-8");
-			memberVo.setName(name);
 		
 			num = memberMapper.saveMember(memberVo); //执行新增方法
 			if (num != 0) {
@@ -167,10 +163,6 @@ public class MemberServiceImpl implements MemberService {
 					member.setPassword(MD5Util.md5Encode(password));
 	            }
 			}*/
-			/* 解决中文名字乱码问题 */
-			String name = member.getName();
-			name = new String(name.getBytes("ISO-8859-1"), "UTF-8");
-			member.setName(name);
 			//执行修改会员信息方法
 			num = memberMapper.updateMember(member);
 		} catch (Exception e) {
@@ -291,6 +283,34 @@ public class MemberServiceImpl implements MemberService {
 	public int updateMemberMoneyAndLevel(Member member) {
 		// TODO Auto-generated method stub
 		return memberMapper.updateMemberMoneyAndLevel(member);
+	}
+
+	/**
+	 * @Title: listMemberByPhone
+	 * @description APP接口----通过电话模糊查询会员信息
+	 * @param @param memberVo
+	 * @return List<MemberVo>    
+	 * @author dujiawei
+	 * @createDate 2019年7月8日
+	 */
+	@Override
+	public List<MemberVo> listMemberByPhone(MemberVo memberVo) {
+		// TODO Auto-generated method stub
+		return memberMapper.listMemberByPhone(memberVo);
+	}
+
+	/**
+	 * @Title: countMemberByPhone
+	 * @description APP接口----通过电话模糊查询会员的数量
+	 * @param @param memberVo
+	 * @return MemberVo    
+	 * @author dujiawei
+	 * @createDate 2019年7月8日
+	 */
+	@Override
+	public MemberVo countMemberByPhone(MemberVo memberVo) {
+		// TODO Auto-generated method stub
+		return memberMapper.countMemberByPhone(memberVo);
 	}
 
 }

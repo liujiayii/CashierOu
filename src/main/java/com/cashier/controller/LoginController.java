@@ -273,7 +273,7 @@ public class LoginController {
      * @description 退出登录
      * @author zhoujiaxin
      * @createDate 2018年1月31日
-     */
+     *//*
     @RequestMapping("/logout")
     @ResponseBody
     public Map<String,Object> logout(Model model){
@@ -281,5 +281,5 @@ public class LoginController {
     	map.put("code", 1);
     	map.put("msg", "退出登陆");
         return map;
-    }
+    }*/
 }

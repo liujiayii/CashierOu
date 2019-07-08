@@ -10,6 +10,7 @@ import com.cashier.dao.JurisdictionMapper;
 import com.cashier.dao.RoleMapper;
 import com.cashier.entity.Permission;
 import com.cashier.entity.Role;
+import com.cashier.entity.RolePermission;
 import com.cashier.entity.RolePermissionRelationship;
 import com.cashier.entityVo.PermissionVo;
 import com.cashier.service.JurisdictionService;
@@ -120,5 +121,15 @@ public class JurisdictionServiceImpl implements JurisdictionService{
         
         return 1;
     }
+	@Override
+	public List<PermissionVo> listAllPermissions() {
+		// TODO Auto-generated method stub
+		return jurisdictionMapper.listAllPermissions();
+	}
+	@Override
+	public List<RolePermission> listRolePermissions(RolePermission rolePermission) {
+		// TODO Auto-generated method stub
+		return jurisdictionMapper.listRolePermissions(rolePermission);
+	}
 
 }

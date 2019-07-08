@@ -122,7 +122,7 @@ public interface RoleMapper {
      * @author dujiawei
      * @createDate 2019年7月4日
      */
-    public void saveRolePermissionRelationship(RolePermissionRelationship rolePermissionRelationship);
+    public Integer saveRolePermissionRelationship(RolePermissionRelationship rolePermissionRelationship);
 
 
     /**

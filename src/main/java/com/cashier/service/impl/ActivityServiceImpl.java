@@ -380,5 +380,45 @@ public class ActivityServiceImpl implements ActivityService {
         return map; 
     }
 
+    /**
+     * @Title: updateToBegin
+     * @Description 00定时任务每天凌晨把当天未开始活动变更为进行时
+     * @param  
+     * @return int 
+     * @author zhoujiaxin  
+     * @createDate 2019年7月8日  
+     */
+    @Override
+    public void UpdateSpecialOffersToBegin(SpecialOffers specialOffers) {
+        activityMapper.UpdateSpecialOffersToBegin(specialOffers);
+    }
+
+    /**
+     * @Title: updateToEnd
+     * @Description 01定时任务每天凌晨把当天进行中活动变更为已结束
+     * @param  
+     * @return int 
+     * @author zhoujiaxin  
+     * @createDate 2019年7月8日  
+     */
+    @Override
+    public void UpdateSpecialOffersToEnd(SpecialOffers specialOffers) {
+        activityMapper.UpdateSpecialOffersToEnd(specialOffers);
+    }
+
+    /**
+     * @Title: listActivityCount
+     * @description 活动列表页查询数量总数
+     * @param @param specialOffers
+     * @param  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年7月8日
+     */
+    @Override
+    public int listActivityCount(SpecialOffers specialOffers) {
+        return activityMapper.listActivityCount(specialOffers);
+    }
+
     
 }

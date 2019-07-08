@@ -3,6 +3,7 @@ package com.cashier.dao;
 import java.util.List;
 import com.cashier.entity.Permission;
 import com.cashier.entity.Role;
+import com.cashier.entity.RolePermission;
 import com.cashier.entityVo.PermissionVo;
 
 
@@ -84,5 +85,9 @@ public interface JurisdictionMapper {
      * @createDate 20190221
      */
     public Role selectSuperRoleByRoleId(Role role);
+	public List<PermissionVo> listAllPermissions();
+	
+	
+	public List<RolePermission> listRolePermissions(RolePermission rolePermission);
 
 }

@@ -79,4 +79,5 @@ public interface ProductTypeMapper {
 	     * @createDate
 	 */
 	Integer delProductType(BigInteger productType);
+	Integer dimSelectProductTypeCount(ProductType p);
 }

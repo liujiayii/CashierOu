@@ -144,5 +144,25 @@ public interface MemberMapper {
 	 * @createDate 2019年6月21日
 	 */
 	public int updateMemberMoneyAndLevel(Member member);
+	
+	/**
+	 * @Title: listMemberByPhone
+	 * @description APP接口----通过电话模糊查询会员信息
+	 * @param @param memberVo
+	 * @return List<MemberVo>    
+	 * @author dujiawei
+	 * @createDate 2019年7月8日
+	 */
+	public List<MemberVo> listMemberByPhone(MemberVo memberVo);
+	
+	/**
+	 * @Title: countMemberByPhone
+	 * @description APP接口----通过电话模糊查询会员的数量
+	 * @param @param memberVo
+	 * @return MemberVo    
+	 * @author dujiawei
+	 * @createDate 2019年7月8日
+	 */
+	public MemberVo countMemberByPhone(MemberVo memberVo);
 
 }

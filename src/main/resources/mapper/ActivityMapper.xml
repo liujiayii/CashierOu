@@ -115,6 +115,26 @@
         limit #{beginNum}, #{limit}
         order by so.state
     </select>
+   
+    <!--  活动列表页查询数量总数 -->
+    <select id="listActivityCount" parameterType="com.cashier.entity.SpecialOffers" resultType="int" >
+        SELECT      
+            count(*)
+        FROM
+            t_special_offers so
+        <where>
+            so.shop_id = #{shopId}
+            <if test="type != ''">
+                and so.type = #{type}
+            </if>
+            <if test="state != ''">
+                and so.state = #{state} 
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and so.start_time between #{startTime} and #{endTime} 
+            </if>
+        </where>
+    </select>
     
     <!-- 10301查询商品分类列表根据活动ID -->
     <select id="listProductTypeByActivityId" parameterType="com.cashier.entity.SpecialOffers" resultType="com.cashier.entity.ProductType" >
@@ -285,6 +305,28 @@
         </set>
         WHERE       
             r.id = #{id}
+    </update>
+    
+    <!-- 00定时任务每天凌晨把当天未开始活动变更为进行时 -->
+    <update id="UpdateSpecialOffersToBegin" parameterType="com.cashier.entity.SpecialOffers">
+        UPDATE t_special_offers so         
+        <set>
+            so.state=2
+        </set>
+        WHERE       
+            so.start_time BETWEEN #{startTime} AND #{endTime}
+            AND so.state = 1
+    </update>
+    
+    <!-- 01定时任务每天凌晨把当天进行中活动变更为已结束 -->
+    <update id="UpdateSpecialOffersToEnd" parameterType="com.cashier.entity.SpecialOffers">
+        UPDATE t_special_offers so         
+        <set>
+            so.state=3
+        </set>
+        WHERE       
+            so.end_time BETWEEN #{startTime} AND #{endTime}
+            AND so.state = 2
     </update>
     
     <!-- 109根据活动ID查询活动商品到活动商品修改页 -->

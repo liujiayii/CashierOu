@@ -80,4 +80,14 @@ public interface ProductTypeService {
 	     * @createDate
 	 */
 	List<ProductType> dimSelectProductType(BigInteger shopId,String productType,Integer page,Integer limit);
+	/**
+	 * 
+	     * @Title: 模糊查询商品类型（也可分页查询所有商品 productType传null）数量
+	     * @description 
+	     * @param  
+	     * @return    
+	     * @author 
+	     * @createDate
+	 */
+	Integer dimSelectProductTypeCount(ProductType p);
 }

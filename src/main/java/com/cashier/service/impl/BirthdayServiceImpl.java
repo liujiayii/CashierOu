@@ -96,8 +96,8 @@ public class BirthdayServiceImpl implements BirthdayService {
 		//memberVo.setBirthday(sdf.parse(month));
 		memberVo.setDayTime(month);
 		List<MemberVo>  memberList = memberMapper.listMemberByBirthday(memberVo);
-		System.out.println("启动定时任务"+memberList);
-		System.out.println("启动定时任务2"+month);
+		//System.out.println("启动定时任务"+memberList);
+		//System.out.println("启动定时任务2"+month);
 		
 		if(memberList.size() > 0){
 			for(int i =0 ; i < memberList.size() ; i++){

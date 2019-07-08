@@ -319,6 +319,55 @@
 		WHERE
 		 	t.id = #{id}	
 	</update>
+	
+	<!-- APP接口用 -->
+	
+	<!-- APP接口：通过电话模糊查询会员信息 -->
+	<select id="listMemberByPhone" parameterType="com.cashier.entityVo.MemberVo" resultType="com.cashier.entityVo.MemberVo">
+		SELECT DISTINCT
+			m.id id,
+			m.number number,
+			m.phone phone,
+			m.name name,
+			m.sex sex,
+			m.birthday birthday,
+			m.credits credits,
+			m.ld_level_id ldLevelId,
+			ld.level level,
+			m.state state,
+			m.total_money totalMoney,
+			m.creattime creattime
+		FROM
+			t_member m,
+			t_level_discount ld
+		<where>
+			 	m.ld_level_id = ld.id
+			 AND
+				m.can_use = 0
+			<if test="phone != null and phone !=''">
+				and m.phone like "%"#{phone}"%"
+			</if>
+		</where>
+		limit #{page},#{limit}
+	</select>
+	
+	<!-- APP接口：通过电话模糊查询会员的数量 -->
+	<select id="countMemberByPhone" resultType="com.cashier.entityVo.MemberVo">
+		SELECT
+			COUNT(DISTINCT m.id) count
+		FROM
+			t_member m,
+			t_level_discount ld
+		<where>
+            <if test="phone != null and phone !=''">
+                m.phone like "%"#{phone}"%"
+            </if>
+            AND 
+            	m.ld_level_id = ld.id
+            AND
+			m.can_use = 0
+		</where>
+	</select>
   
     
 </mapper>

@@ -157,7 +157,7 @@ public BigDecimal querDiscount(BigInteger productId, BigInteger shopId,BigDecima
 	}
 	
 	if (discount==null) {
-		discount=new BigDecimal(0);
+		discount=orderProduct;
 	}
 	return discount;
 }

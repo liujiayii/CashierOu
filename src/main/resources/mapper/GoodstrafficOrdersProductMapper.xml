@@ -25,9 +25,9 @@
 	<select id="listGoodstrafficOrdersProduct" resultType="com.cashier.entityVo.GoodstrafficOrdersProductVo"
 		parameterType="BigInteger">
 		select
-			tgop.id,
-			tgop.quantity,
-			tgop.money,
+			gop.id,
+			gop.quantity,
+			gop.money,
 			p.name           productName,
 			pt.product_type  productTypeName
 		from
@@ -35,7 +35,7 @@
 			t_product p,
 			t_product_type pt
 		where
-			tgop.goodstraffic_management_id = #{id}
+			gop.goodstraffic_management_id = #{id}
 			and gop.product_id = p.id
 			and p.product_type_id = pt.id
 	</select>

@@ -34,7 +34,7 @@ public class ProductTypeController {
 	public Map<String,Object> insertProductType(ProductType productType,HttpSession session){
 		//System.out.println(productType);
 		Map<String,Object> map = new HashMap<>();
-		productType.setShopId(new BigInteger("1"));
+		productType.setShopId(new BigInteger(session.getAttribute("shopId")+""));
 		try {
 			Integer row = productTypeService.insertProductType(productType);
 			if( row != 0 ) {
@@ -59,9 +59,9 @@ public class ProductTypeController {
 	 */
 	@RequestMapping("/createProductType")
 	@ResponseBody
-	public Map<String,Object> updateProductType(ProductType productType){
+	public Map<String,Object> updateProductType(ProductType productType,HttpSession session){
 		Map<String, Object> map = new HashMap<>();
-		productType.setShopId(new BigInteger("1"));
+		productType.setShopId(new BigInteger(session.getAttribute("shopId")+""));
 		try {
 			Integer row = productTypeService.updateProductType(productType);
 			if(row == 1){
@@ -110,9 +110,9 @@ public class ProductTypeController {
 	 */
 	@RequestMapping("/listProductType")
 	@ResponseBody
-	public Map<String,Object> listProductType(){
+	public Map<String,Object> listProductType(HttpSession session){
 		Map<String, Object> map = new HashMap<>();
-		BigInteger shopId=new BigInteger("1");
+		BigInteger shopId=new BigInteger(session.getAttribute("shopId")+"");
 		List<ProductType> listProductType=productTypeService.listProductType(shopId);
 		map.put("code", 1);
 		map.put("msg", "查询成功");
@@ -151,12 +151,20 @@ public class ProductTypeController {
 	 */
 	@RequestMapping("/dimOrSelectAllproducts")
 	@ResponseBody
-	public Map<String,Object> allOrDimSelectProductType(String productTypeName,Integer page,Integer limit){
+	public Map<String,Object> allOrDimSelectProductType(String productTypeName,Integer page,Integer limit,HttpSession session){
 		Map<String,Object> map = new HashMap<>();
-		List<ProductType> list=productTypeService.dimSelectProductType(new BigInteger("1"), productTypeName, page, limit);
+		List<ProductType> list=productTypeService.dimSelectProductType(new BigInteger(session.getAttribute("shopId")+""), productTypeName, page, limit);
+		ProductType p = new ProductType();
+		p.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+		if(productTypeName!=null && !productTypeName.equals("")){
+			p.setProductTypeName(productTypeName);
+		}
+		
+		Integer count = productTypeService.dimSelectProductTypeCount(p);
 		map.put("code", 1);
 		map.put("msg", "成功");
 		map.put("productType", list);
+		map.put("count", count);
 		return map;
 	}
 }

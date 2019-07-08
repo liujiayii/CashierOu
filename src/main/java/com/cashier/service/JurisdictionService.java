@@ -3,6 +3,7 @@ package com.cashier.service;
 import java.util.List;
 
 import com.cashier.entity.Role;
+import com.cashier.entity.RolePermission;
 import com.cashier.entityVo.PermissionVo;
 import com.cashier.entityVo.ShopVo;
 
@@ -58,4 +59,10 @@ public interface JurisdictionService {
      * @createDate 2018年1月30日 
      */
     public int updateOneRolePermission(Role role, String ids );
+
+    //所有的权限列表
+	public List<PermissionVo> listAllPermissions();
+	
+	
+	public List<RolePermission> listRolePermissions(RolePermission rolePermission);
 }

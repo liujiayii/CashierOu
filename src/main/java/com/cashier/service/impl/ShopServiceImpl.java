@@ -22,9 +22,11 @@ import com.cashier.entityVo.PermissionVo;
 import com.cashier.entityVo.ShopVo;
 import com.cashier.entityVo.UserVo;
 import com.cashier.service.ShopService;
+import com.cashier.service.ex.DataNotExistsException;
 import com.cashier.service.ex.ShopNameConflictException;
 import com.cashier.service.ex.UserNameConflictException;
 import com.cashier.util.MD5Util;
+import com.shove.data.DataException;
 
 /**
  *
@@ -32,8 +34,8 @@ import com.cashier.util.MD5Util;
 
  * @description 店铺Service实现层
  *
- * @author linhongyu
- * @createDate 2018年11月8日
+ * @author chenshuxian
+ * @createDate 2019年7月6日
  */
 @Service("ShopService")
 @Transactional
@@ -233,8 +235,9 @@ public class ShopServiceImpl implements ShopService{
      */
 	@Override
 	@Transactional
-	public int insertShop(ShopUserPermissionDTO shopUserPermissionDTO,String ids) {
-		try {
+	public Integer insertShop(ShopUserPermissionDTO shopUserPermissionDTO,String ids) {
+		Integer rows=0;
+		
 			// 1.查询出所有店铺信息-shopList
 			List<ShopVo> shopList = shopMapper.listShopByDTO(shopUserPermissionDTO);
 			
@@ -257,7 +260,10 @@ public class ShopServiceImpl implements ShopService{
                 // 这里应该抛出异常，用自定义异常处理器解决
                 throw new UserNameConflictException("用户名重复，请重新输入");
             }
-			shopMapper.insertShop(shopUserPermissionDTO);
+			rows = shopMapper.insertShop(shopUserPermissionDTO);
+			if(rows == 0){
+				throw new DataNotExistsException("添加失败，请联系管理员");
+			}
 			BigInteger newshopId = shopUserPermissionDTO.getId();
 			// 2.添加一个角色给这个店铺
 			Role role = new Role();
@@ -265,16 +271,30 @@ public class ShopServiceImpl implements ShopService{
 			role.setSalary(new BigDecimal(5000));
 			role.setShopId(shopUserPermissionDTO.getId());
 			role.setRemarks("无");
-			roleMapper.saveRole(role);
+			rows = roleMapper.saveRole(role);
+			if(rows == 0){
+				throw new DataNotExistsException("添加失败，请联系管理员");
+			}
 			// 3.添加一个用户给这个店铺
 			shopUserPermissionDTO.setRoleId(role.getId());
 			shopUserPermissionDTO.setShopId(newshopId);
-			shopUserPermissionDTO.setPassword(MD5Util.md5Encode(shopUserPermissionDTO.getPassword()));
-			userMapper.saveUserByDTO(shopUserPermissionDTO);
+			try {
+				shopUserPermissionDTO.setPassword(MD5Util.md5Encode(shopUserPermissionDTO.getPassword()));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			rows = userMapper.saveUserByDTO(shopUserPermissionDTO);
+			if(rows == 0){
+				throw new DataNotExistsException("添加失败，请联系管理员");
+			}
 			// 4.添加用户角色关联表
 			userVo.setId(newshopId);
 			userVo.setRoleId(role.getId());
-			userMapper.saveUserAndRoleRelation(userVo);
+			rows = userMapper.saveUserAndRoleRelation(userVo);
+			if(rows == 0){
+				throw new DataNotExistsException("添加失败，请联系管理员");
+			}
 			// 5.添加权限给当前店铺的超级管理员--先查询总店超级管理员所有权限--根据授权信息给新分店超级管理员添加权限
 	        List<Permission> permissions = userMapper.listPermissionBySuperUser();
 	        String[] permissionIds = ids.split(",");
@@ -284,17 +304,17 @@ public class ShopServiceImpl implements ShopService{
 	            for (int n = 0; n < permissions.size(); n++) {
                     if (new BigInteger(permissionIds[m]).compareTo(permissions.get(n).getId())==0) {
                         rolePermissionRelationship.setPermissionId(permissions.get(n).getId());
-                        roleMapper.saveRolePermissionRelationship(rolePermissionRelationship);
+                        rows=roleMapper.saveRolePermissionRelationship(rolePermissionRelationship);
+                        if(rows==0){
+                        	throw new DataNotExistsException("添加失败，请联系管理员");
+                        }
                         break;
                     }
                 }
                 
             }
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return 1;
+		
+		return rows;
 	}
 	/**
      * @Title: deleteShop
@@ -403,5 +423,20 @@ public class ShopServiceImpl implements ShopService{
         
         return shopMapper.listShopIdButMe(shopId);
     }
+    /**
+     * 
+         * @Title: getAllCity
+         * @description  获得所有的省市区
+         * @param  
+         * @return 省市区列表
+         * @author chenshuxian	
+         * @createDate 2019年7月8日
+     */
+	@Override
+	public List<ShopVo> getAllCity() {
+		
+		return shopMapper.getAllCity();
+	}
     
+   
 }

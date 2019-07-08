@@ -3,6 +3,8 @@ package com.cashier.dao;
 import java.math.BigInteger;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import com.cashier.entity.UserOperation;
 import com.cashier.entityVo.UserOperationVo;
 
 /**
@@ -18,36 +20,48 @@ import com.cashier.entityVo.UserOperationVo;
 public interface UserOperationMapper {
 
 	/**
-	 * description   查询所有操作记录
-	 *
-	 * @author pangchong
-	 * @createDate 2019年2月11日 下午2:00
+	 * 
+	 * @Title: selectAllUserOperation
+	 * @description 查询操作记录表
+	 * @param userOperationVo
+	 * @return List<UserOperationVo>    
+	 * @author liujunkai
+	 * @createDate 2019年7月8日
 	 */
 	public List<UserOperationVo> selectAllUserOperation(UserOperationVo userOperationVo);
 	
 	/**
-	 * 查询操作记录条数
-	 * @author pangchong
-	 * @createDate 2019年2月11日 下午2:00
+	 * 
+	 * @Title: findUserOperationCount
+	 * @description 查询操作记录表的条数
+	 * @param userOperationVo
+	 * @return int    
+	 * @author liujunkai
+	 * @createDate 2019年7月8日
 	 */
-	public UserOperationVo findUserOperationCount(UserOperationVo userOperationVo);
+	public int findUserOperationCount(UserOperationVo userOperationVo);
 	
 	/**
-	 * 添加操作记录
-	 * @author pangchong
-	 * @createDate 2019年2月11日 下午2:00
+	 * 
+	 * @Title: saveUserOperation
+	 * @description 增加一条操作记录表数据
+	 * @param UserOperation 
+	 * @return void    
+	 * @author liujunkai
+	 * @createDate 2019年7月8日
 	 */
-	public int saveUserOperation(UserOperationVo userOperationVo);
+	public void saveUserOperation(UserOperation UserOperation);
 	
-	 /**
-     * @Title: deleteUserOperationById
-     * @description 通过操作记录ID删除一条操作记录信息
-     * @param UserOperationVo
-     * @return     
-     * @author pangchong
-     * @createDate 2019年2月11日 下午2:00
-     */
-	public  int deleteUserOperationById(@Param("id") BigInteger id);
+	/**
+	 * 
+	 * @Title: deleteUserOperationById
+	 * @description 删除一条操作记录表
+	 * @param id 
+	 * @return void    
+	 * @author liujunkai
+	 * @createDate 2019年7月8日
+	 */
+	public void deleteUserOperationById(BigInteger id);
 	
 	/**
 	 * description   按时间查询操作记录

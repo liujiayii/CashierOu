@@ -141,4 +141,14 @@ public interface ShopMapper {
      * @createDate 2019年3月1日
      */
     public List<Shop> listShopIdButMe(Integer shopId);
+    /**
+     * 
+         * @Title: getAllCity
+         * @description  获得所有的省市区
+         * @param  
+         * @return 省市区列表
+         * @author chenshuxian	
+         * @createDate 2019年7月8日
+     */
+    public List<ShopVo> getAllCity();
 }

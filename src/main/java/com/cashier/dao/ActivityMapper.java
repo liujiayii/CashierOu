@@ -216,7 +216,36 @@ public interface ActivityMapper {
      * @createDate 2019年7月4日
      */
     void deleteAaProductIdByActivityId(SpecialOffers specialOffers);
-
     
+    /**
+     * @Title: updateToBegin
+     * @Description 00定时任务每天凌晨把当天未开始活动变更为进行时
+     * @param  
+     * @return int 
+     * @author zhoujiaxin  
+     * @createDate 2019年7月8日  
+     */
+    void UpdateSpecialOffersToBegin(SpecialOffers specialOffers);
+    
+    /**
+     * @Title: updateToEnd
+     * @Description 01定时任务每天凌晨把当天进行中活动变更为已结束
+     * @param  
+     * @return int 
+     * @author zhoujiaxin  
+     * @createDate 2019年7月8日  
+     */
+    void UpdateSpecialOffersToEnd(SpecialOffers specialOffers);
+    
+    /**
+     * @Title: listActivityCount
+     * @description 活动列表页查询数量总数
+     * @param @param specialOffers
+     * @param  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年7月8日
+     */
+    int listActivityCount(SpecialOffers specialOffers);
 
 }
