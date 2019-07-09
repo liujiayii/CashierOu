@@ -386,5 +386,41 @@ public class OrderController {
 			return map;
 	}
 
-	
+	/**
+	 * @Title: getSumOrderAndSumOrderMoney
+	 * @description 条件查询订单量和订单总金额（安卓端）
+	 * @param @param orderVo
+	 * @return Object
+	 * @author chenshuxian
+	 * @createDate 2019年7月8日
+	 */
+	@RequestMapping(value = "/getOrderAndSumOrderMoney")
+	@ResponseBody
+	public Map<String,Object> getOrderAndSumOrderMoney(OrderVo orderVo,HttpSession session) {
+		orderVo.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+		orderVo.setState(1);
+		OrderVo order = orderService.getSumOrderAndSumOrderMoney(orderVo);
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("code", 1);
+		result.put("msg", "成功");
+		// JSONArray array = (JSONArray) JSONArray.toJSON(member);
+		result.put("data", order);
+
+		return result;
+	}
+	/**
+	 * 
+	     * @Title: getPercentageOfProductType
+	     * @description 获得每种商品种类下的商品今日销售百分比
+	     * @param  店铺id
+	     * @return   
+	     * @author chenshuxian
+	     * @createDate 2019年7月8日
+	 */
+	@RequestMapping("/getPercentageOfProductType")
+	public Map<String,Object> getPercentageOfProductType(HttpSession session){
+		BigInteger shopId = new BigInteger(session.getAttribute("shopId")+"");
+		Map<String,Object> map=orderService.getSumOrderByProductType(shopId);
+		return map;
+	}
 }

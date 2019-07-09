@@ -194,10 +194,10 @@ public class ProductServiceImpl implements ProductService {
 		Integer beginPage = limit * (page - 1);
 		List<Product> listProduct = productMapper.getProductByCondition(productName, productTypeId, shopId, beginPage,
 				limit);
-		// Integer count = productMapper.listProductCount(shopId,
-		// productTypeId);
+		Integer count = productMapper.getProductByConditionCount(productName, productTypeId, shopId);
+		
 		map.put("code", 1);
-		map.put("count", listProduct.size());
+		map.put("count", count);
 		map.put("listProduct", listProduct);
 		return map;
 	}

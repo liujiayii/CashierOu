@@ -19,14 +19,12 @@ import com.cashier.entity.Role;
 import com.cashier.entity.Shop;
 import com.cashier.entity.User;
 import com.cashier.entity.UserOperation;
-import com.cashier.entityVo.UserOperationVo;
 import com.cashier.entityVo.UserShopVo;
 import com.cashier.entityVo.UserVo;
 import com.cashier.service.RoleService;
 import com.cashier.service.ShopService;
 import com.cashier.service.UserService;
 import com.cashier.util.MD5Util;
-import net.sf.json.JSONArray;
 
 /**
  *

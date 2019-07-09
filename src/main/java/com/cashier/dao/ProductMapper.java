@@ -71,7 +71,16 @@ public interface ProductMapper {
 	     * @createDate
 	 */
 	List<Product> getProductByCondition(@Param("productName")String productName,@Param("productTypeId")BigInteger productTypeId,@Param("shopId")BigInteger shopId,@Param("page")Integer page,@Param("limit")Integer limit);
-	
+	/**
+	 * 
+	     * @Title: getProductByConditionCount
+	     * @description 条件查询商品详情 数量
+	     * @param  
+	     * @return    
+	     * @author chenshuxian
+	     * @createDate 2019年7月9日
+	 */
+	Integer getProductByConditionCount(@Param("productName")String productName,@Param("productTypeId")BigInteger productTypeId,@Param("shopId")BigInteger shopId);
 	/**
 	 * 
 	     * @Title: listProductCount

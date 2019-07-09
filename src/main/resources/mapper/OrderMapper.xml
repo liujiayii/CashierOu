@@ -5,34 +5,34 @@
 <mapper namespace="com.cashier.dao.OrderMapper">
 	<!-- 条件查询订单信息 -->
 	<select id="listOrderByOption" resultType="com.cashier.entityVo.OrderVo">
-		SELECT 
-			o.id id,
-			o.number number,
-			o.member_number memberNumber,
-			o.create_time createTime,
-			o.shop_id shopId,
-			s.name shopName,
-			o.pay_method payMethod,
-			o.bank_name bankName,
-			o.card_number cardNumber,
-			o.pay_advance payAdvance,
-			o.custom_discount customDiscount,
-			o.total_money totalMoney,
-			o.state state,
-			o.remark remark,
-			o.refund refund
+		SELECT
+		o.id id,
+		o.number number,
+		o.member_number memberNumber,
+		o.create_time createTime,
+		o.shop_id shopId,
+		s.name shopName,
+		o.pay_method payMethod,
+		o.bank_name bankName,
+		o.card_number cardNumber,
+		o.pay_advance payAdvance,
+		o.custom_discount customDiscount,
+		o.total_money totalMoney,
+		o.state state,
+		o.remark remark,
+		o.refund refund
 		FROM
-			t_order o,
-			t_shop s
+		t_order o,
+		t_shop s
 		<where>
 			o.shop_id = s.id
 			<if test="memberNumber != null and memberNumber !=''">
 				and o.member_number like "%"#{memberNumber}"%"
 			</if>
 			<if test="shopId != null">
-                and o.shop_id = #{shopId}
-            </if>
-            <if test="payMethod != null">
+				and o.shop_id = #{shopId}
+			</if>
+			<if test="payMethod != null">
 				and o.pay_method = #{payMethod}
 			</if>
 			<if test="state != null">
@@ -43,26 +43,26 @@
 			</if>
 		</where>
 		ORDER BY
-			o.id DESC
+		o.id DESC
 		limit #{page},#{limit}
 	</select>
-	
+
 	<!-- 条件查询订单数量 -->
 	<select id="countOrderByOption" resultType="com.cashier.entityVo.OrderVo">
-		SELECT 
-			COUNT(o.id) count
+		SELECT
+		COUNT(o.id) count
 		FROM
-			t_order o,
-			t_shop s
+		t_order o,
+		t_shop s
 		<where>
 			o.shop_id = s.id
 			<if test="memberNumber != null and memberNumber !=''">
 				o.member_number like "%"#{memberNumber}"%"
 			</if>
 			<if test="shopId != null">
-                and o.shop_id = #{shopId}
-            </if>
-            <if test="payMethod != null">
+				and o.shop_id = #{shopId}
+			</if>
+			<if test="payMethod != null">
 				and o.pay_method = #{payMethod}
 			</if>
 			<if test="state != null">
@@ -73,53 +73,53 @@
 			</if>
 		</where>
 	</select>
-	
-	<!--  新增一条订单 -->
-	<insert id="saveOrder"  parameterType="com.cashier.entity.Order">
-		INSERT INTO t_order 
+
+	<!-- 新增一条订单 -->
+	<insert id="saveOrder" parameterType="com.cashier.entity.Order">
+		INSERT INTO t_order
 		(
-			id,number,
-			member_number,
-			create_time,
-			shop_id,
-			pay_method,
-			bank_name,
-			card_number,
-			pay_advance,
-			custom_discount,
-			total_money,
-			state,
-			remark,
-			refund
-		
+		id,number,
+		member_number,
+		create_time,
+		shop_id,
+		pay_method,
+		bank_name,
+		card_number,
+		pay_advance,
+		custom_discount,
+		total_money,
+		state,
+		remark,
+		refund
+
 		)
 		VALUES
 		(null,
-			#{number},
-			#{memberNumber},
-			now(),
-			#{shopId},
-			#{payMethod},
-			#{bankName},
-			#{cardNumber},
-			#{payAdvance},
-			#{customDiscount},
-			#{totalMoney},
-			1,
-			#{remark},
-			#{refund}
-		
+		#{number},
+		#{memberNumber},
+		now(),
+		#{shopId},
+		#{payMethod},
+		#{bankName},
+		#{cardNumber},
+		#{payAdvance},
+		#{customDiscount},
+		#{totalMoney},
+		1,
+		#{remark},
+		#{refund}
+
 		)
 	</insert>
-	
+
 	<!-- 查询订单量和订单总金额 -->
-	<select id="getSumOrderAndSumOrderMoney"  resultType="com.cashier.entityVo.OrderVo">
-		SELECT 
-			count(o.id) sumOrder,
-			IFNULL(sum(o.total_money),0) sumOrderMoney
+	<select id="getSumOrderAndSumOrderMoney" resultType="com.cashier.entityVo.OrderVo">
+		SELECT
+		count(o.id) sumOrder,
+		IFNULL(sum(o.total_money),0) sumOrderMoney
 		FROM
-			t_order o,
-			t_shop s
+		t_order o,
+		t_shop s
 		<where>
 			o.shop_id = s.id
 			<if test="startTime != null and startTime !=''">
@@ -129,103 +129,120 @@
 				and o.member_number like "%"#{memberNumber}"%"
 			</if>
 			<if test="shopId != null">
-                and o.shop_id = #{shopId}
-            </if>
-            <if test="payMethod != null">
+				and o.shop_id = #{shopId}
+			</if>
+			<if test="payMethod != null">
 				and o.pay_method = #{payMethod}
 			</if>
 			<if test="state != null">
 				and o.state = #{state}
 			</if>
+			<if test="createTime!=null and createTime!=''">
+				and o.create_time = #{createTime}
+			</if>
 		</where>
-	</select> 
-	
+	</select>
+
 	<!-- 修改订单状态（退货） -->
 	<update id="updateOrderState" parameterType="com.cashier.entity.Order">
-		UPDATE t_order o		
+		UPDATE t_order o
 		<set>
 			<if test="state != null">
-                o.state = #{state},
-            </if>
-            <if test="refund != null">
-                o.refund = #{refund}
-            </if>
+				o.state = #{state},
+			</if>
+			<if test="refund != null">
+				o.refund = #{refund}
+			</if>
 		</set>
-		WHERE		
-			o.id = #{id}
-	</update> 
-	<!--根据条形码查询商品信息  -->
-	<select id="querPreferences" resultType="com.cashier.entity.Product" >
-	
-	select       id,
-        name,
-        pleased,
-        barcode barCode,
-        sale_price salePrice,
-        member_price memberPrice,
-        image,
-        state,
-        specification,
-        color,
-        can_use  canUse,
-        inventory  from t_product where barcode=#{barcode}
-	
-	</select>
-	<select id="Querymembershipstatus"   resultType="com.cashier.entity.Member">
-	SELECT 
-			m.id id,
-			m.number number,
-			m.phone phone,
-			m.name name,
-			m.sex sex,
-			m.birthday birthday,
-			m.credits credits,
-			m.ld_level_id ldLevelId,
-			ld.level level,
-			m.state state,
-			m.total_money totalMoney,
-			m.creattime creattime,
-			m.password password,
-			m.evidence evidence
-		FROM
-			t_member m,
-			t_level_discount ld
 		WHERE
-			m.ld_level_id = ld.id
-			and  ( m.number=#{number}  or  m.phone=#{phone})  and  m.state='0'
-	
+		o.id = #{id}
+	</update>
+	<!--根据条形码查询商品信息 -->
+	<select id="querPreferences" resultType="com.cashier.entity.Product">
+
+		select id,
+		name,
+		pleased,
+		barcode barCode,
+		sale_price salePrice,
+		member_price memberPrice,
+		image,
+		state,
+		specification,
+		color,
+		can_use canUse,
+		inventory from t_product where barcode=#{barcode}
+
 	</select>
-<select id="queractivitybyid"  resultType="BigInteger">
+	<select id="Querymembershipstatus" resultType="com.cashier.entity.Member">
+		SELECT
+		m.id id,
+		m.number number,
+		m.phone phone,
+		m.name name,
+		m.sex sex,
+		m.birthday birthday,
+		m.credits credits,
+		m.ld_level_id ldLevelId,
+		ld.level level,
+		m.state state,
+		m.total_money totalMoney,
+		m.creattime creattime,
+		m.password password,
+		m.evidence evidence
+		FROM
+		t_member m,
+		t_level_discount ld
+		WHERE
+		m.ld_level_id = ld.id
+		and ( m.number=#{number} or m.phone=#{phone}) and m.state='0'
 
-SELECT activity_id FROM `t_activities_active`  s JOIN   t_special_offers t
-on s.activity_id=t.id  where t.shop_id=#{shopId}  and s.product_id=#{productId}
+	</select>
+	<select id="queractivitybyid" resultType="BigInteger">
 
-</select>
+		SELECT activity_id FROM `t_activities_active` s JOIN t_special_offers t
+		on s.activity_id=t.id where t.shop_id=#{shopId} and
+		s.product_id=#{productId}
 
-<select id="querdiscountbyid"  resultType="BigDecimal">
+	</select>
 
-SELECT  (discount *#{orderProduct}) as  re  FROM `t_special_offers`  
-where id=#{activity_id}  and end_time&gt;now()  and start_time&lt;now()   and  type='1'
+	<select id="querdiscountbyid" resultType="BigDecimal">
 
-</select>
-<select id="querdiscountsbyid"  resultType="BigDecimal">
-SELECT  reduce_money  FROM `t_regulation`  s JOIN   t_special_offers t
-on s.special_offers_id=t.id 
-where t.id=#{activity_id}  and t.end_time&gt;now()  and t.start_time&lt;now()   and s.money&lt;#{orderProduct}
+		SELECT (discount *#{orderProduct}) as re FROM `t_special_offers`
+		where id=#{activity_id} and end_time&gt;now() and start_time&lt;now() and
+		type='1'
 
-</select>
-<!-- 现金支付 -->
-  <update id="updatetotalMoney" parameterType="com.cashier.entity.Order">
-		UPDATE t_order o		
-	
-			
-               set o.pay_method = #{i},
-           
-            
-                o.total_money = #{totalMoney}
-           
-	
-		WHERE		
-			o.number = #{orderNumber}
-	</update>   
+	</select>
+	<select id="querdiscountsbyid" resultType="BigDecimal">
+		SELECT reduce_money FROM `t_regulation` s JOIN t_special_offers t
+		on s.special_offers_id=t.id
+		where t.id=#{activity_id} and t.end_time&gt;now() and t.start_time&lt;now()
+		and s.money&lt;#{orderProduct}
+
+	</select>
+	<!-- 现金支付 -->
+	<update id="updatetotalMoney" parameterType="com.cashier.entity.Order">
+		UPDATE t_order o
+
+
+		set o.pay_method = #{i},
+
+
+		o.total_money = #{totalMoney}
+
+
+		WHERE
+		o.number = #{orderNumber}
+	</update>
+	<!-- 获得当天每种商品销量销售总订单数 -->
+	<select id="getSumOrderByProductType" resultType="com.cashier.entityDTO.OrderDTO">
+
+		SELECT
+		SUM(op.product_count) count,
+		pt.product_type productType
+		FROM t_order o join t_order_product op on o.number = op.order_number JOIN
+		t_product p ON op.product_id=p.id JOIN t_product_type pt ON
+		p.product_type_id=pt.id JOIN t_shop s ON pt.shop_id=s.id
+		WHERE s.id=#{shopId} AND TO_DAYS(o.create_time)=TO_DAYS(NOW()) GROUP BY p.product_type_id
+	</select>
 </mapper>

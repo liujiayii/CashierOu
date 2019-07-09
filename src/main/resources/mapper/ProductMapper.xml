@@ -108,6 +108,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
    </if>
     limit #{page},#{limit}
    </select>
+   
+     <!-- 条件查询所有商品数量 -->
+   <select id="getProductByConditionCount" resultType="Integer">
+    select 
+        count(id)
+       
+    from t_product
+    WHERE shop_id=#{shopId}
+    and can_use=1
+    <if test="productTypeId!=null">
+     and product_type_id=#{productTypeId}
+    </if>
+   <if test="productName!=null and productName!=''">
+    and name like "%"#{productName}"%"
+   </if>
+   
+   </select>
    <!-- 根据商品种类查询对应商品（不重复 给用户） -->
    <select id="productsByType" resultMap="ProductAndPropertys">
     select 
@@ -153,7 +170,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <!-- 根据id获得对应商品 -->
    <select id="getProductById" resultType="com.cashier.entity.Product">
-    select 
+    select
+        p.id, 
         p.name,
         p.pleased,
         p.sale_price salePrice,

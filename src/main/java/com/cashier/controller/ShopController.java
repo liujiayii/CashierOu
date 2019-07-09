@@ -1,6 +1,7 @@
 package com.cashier.controller;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.cashier.entity.Permission;
 import com.cashier.entity.Shop;
 import com.cashier.entity.User;
+import com.cashier.entityDTO.PermissionDTO;
 import com.cashier.entityDTO.ShopUserPermissionDTO;
 import com.cashier.entityVo.PermissionVo;
 import com.cashier.entityVo.ShopVo;
@@ -173,9 +175,22 @@ public class ShopController {
 				}
 			}
 		}
+		List<PermissionDTO> listPermissionDTO = new ArrayList<>();
+		for(PermissionVo p : currentPermissionVolist){
+			PermissionDTO permissionDTO = new PermissionDTO();
+			permissionDTO.setId(p.getParentIds());
+			for(Permission per : p.getPermissions()){
+				PermissionDTO permission = new PermissionDTO();
+				permission.setId(per.getId());
+				listPermissionDTO.add(permission);
+			}
+			listPermissionDTO.add(permissionDTO);
+		}
 		// 权限信息
-		map.put("PermissionVolist", currentPermissionVolist);
+		map.put("PermissionVolist", listPermissionDTO);
 		map.put("listCity", listCity);
+		map.put("code", 1);
+		map.put("msg", "失败");
 		// model.addAttribute("PermissionVolist", currentPermissionVolist);
 		return map;
 	}

@@ -164,15 +164,21 @@ public class UserServiceImpl implements UserService {
 		try {
 		    User user = userMapper.getOneUserById(userVo);
 		    String password = userVo.getPassword();
-		    if (!user.getPassword().equals(password) && password !="") {
-		        userVo.setPassword(MD5Util.md5Encode(userVo.getPassword()));
-            }
+		    if(password != null){
+		    	if (!user.getPassword().equals(password) && password !="") {
+			        userVo.setPassword(MD5Util.md5Encode(userVo.getPassword()));
+	            }
+		    }
+		    
 			userMapper.updateUser(userVo);
 			/** 修改员工的同时，修改对应的员工角色关系表的数据 */
-			UserRoleRelationship urrs = new UserRoleRelationship();
-			urrs.setUserId(userVo.getId());
-			urrs.setRoleId(userVo.getRoleId());
-			userMapper.updateUserRoleRelationship(urrs);
+			if(userVo.getRoleId() != null){
+				UserRoleRelationship urrs = new UserRoleRelationship();
+				urrs.setUserId(userVo.getId());
+				urrs.setRoleId(userVo.getRoleId());
+				userMapper.updateUserRoleRelationship(urrs);
+			}
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();

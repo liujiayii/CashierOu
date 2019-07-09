@@ -284,14 +284,14 @@ public class ShopServiceImpl implements ShopService{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			rows = userMapper.saveUserByDTO(shopUserPermissionDTO);
+			//rows = userMapper.saveUserByDTO(shopUserPermissionDTO);
 			if(rows == 0){
 				throw new DataNotExistsException("添加失败，请联系管理员");
 			}
 			// 4.添加用户角色关联表
 			userVo.setId(newshopId);
 			userVo.setRoleId(role.getId());
-			rows = userMapper.saveUserAndRoleRelation(userVo);
+			//rows = userMapper.saveUserAndRoleRelation(userVo);
 			if(rows == 0){
 				throw new DataNotExistsException("添加失败，请联系管理员");
 			}
@@ -304,7 +304,7 @@ public class ShopServiceImpl implements ShopService{
 	            for (int n = 0; n < permissions.size(); n++) {
                     if (new BigInteger(permissionIds[m]).compareTo(permissions.get(n).getId())==0) {
                         rolePermissionRelationship.setPermissionId(permissions.get(n).getId());
-                        rows=roleMapper.saveRolePermissionRelationship(rolePermissionRelationship);
+                        //rows=roleMapper.saveRolePermissionRelationship(rolePermissionRelationship);
                         if(rows==0){
                         	throw new DataNotExistsException("添加失败，请联系管理员");
                         }
