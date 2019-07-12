@@ -26,6 +26,9 @@ public class Level implements Serializable {
 	/** 会员等级 */
 	private String level;
 	
+	/** 累计消费金额 */
+	private BigDecimal totalMoney;
+	
 	/** 页数 */
 	private int page = 1;
 	/** 分页条数 */
@@ -33,100 +36,57 @@ public class Level implements Serializable {
 	/** 数据条数 */
 	private Integer count;
 	
-	
-	/**
-	 * @return the id
-	 */
 	public BigInteger getId() {
 		return id;
 	}
-	/**
-	 * @param id the id to set
-	 */
 	public void setId(BigInteger id) {
 		this.id = id;
 	}
-	/**
-	 * @return the minimum
-	 */
 	public BigDecimal getMinimum() {
 		return minimum;
 	}
-	/**
-	 * @param minimum the minimum to set
-	 */
 	public void setMinimum(BigDecimal minimum) {
 		this.minimum = minimum;
 	}
-	/**
-	 * @return the maximum
-	 */
 	public BigDecimal getMaximum() {
 		return maximum;
 	}
-	/**
-	 * @param maximum the maximum to set
-	 */
 	public void setMaximum(BigDecimal maximum) {
 		this.maximum = maximum;
 	}
-	/**
-	 * @return the level
-	 */
 	public String getLevel() {
 		return level;
 	}
-	/**
-	 * @param level the level to set
-	 */
 	public void setLevel(String level) {
 		this.level = level;
 	}
-	/**
-	 * @return the page
-	 */
+	public BigDecimal getTotalMoney() {
+		return totalMoney;
+	}
+	public void setTotalMoney(BigDecimal totalMoney) {
+		this.totalMoney = totalMoney;
+	}
 	public int getPage() {
 		return page;
 	}
-	/**
-	 * @param page the page to set
-	 */
 	public void setPage(int page) {
 		this.page = page;
 	}
-	/**
-	 * @return the limit
-	 */
 	public int getLimit() {
 		return limit;
 	}
-	/**
-	 * @param limit the limit to set
-	 */
 	public void setLimit(int limit) {
 		this.limit = limit;
 	}
-	/**
-	 * @return the count
-	 */
 	public Integer getCount() {
 		return count;
 	}
-	/**
-	 * @param count the count to set
-	 */
 	public void setCount(Integer count) {
 		this.count = count;
 	}
-	/**
-	 * @return the serialversionuid
-	 */
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -138,11 +98,9 @@ public class Level implements Serializable {
 		result = prime * result + ((maximum == null) ? 0 : maximum.hashCode());
 		result = prime * result + ((minimum == null) ? 0 : minimum.hashCode());
 		result = prime * result + page;
+		result = prime * result + ((totalMoney == null) ? 0 : totalMoney.hashCode());
 		return result;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -181,16 +139,17 @@ public class Level implements Serializable {
 			return false;
 		if (page != other.page)
 			return false;
+		if (totalMoney == null) {
+			if (other.totalMoney != null)
+				return false;
+		} else if (!totalMoney.equals(other.totalMoney))
+			return false;
 		return true;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
-		return "Level [id=" + id + ", minimum=" + minimum + ", maximum=" + maximum + ", level=" + level + ", page="
-				+ page + ", limit=" + limit + ", count=" + count + "]";
+		return "Level [id=" + id + ", minimum=" + minimum + ", maximum=" + maximum + ", level=" + level
+				+ ", totalMoney=" + totalMoney + ", page=" + page + ", limit=" + limit + ", count=" + count + "]";
 	}
-	
 	
 }

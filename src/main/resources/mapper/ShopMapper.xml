@@ -264,7 +264,7 @@
 			#{name},	
 			#{type},
 			#{provid},
-			#{cityid}
+			#{cityid},
 			#{areaid},
 			1,
 			#{addr},
@@ -366,5 +366,23 @@
             c.area_id = a.pid
             AND
                 c.pid = p.area_id
+	</select>
+	
+	
+	<select id="getShopByCondition" resultType="com.cashier.entity.Shop" parameterType="com.cashier.entity.Shop">
+	    SELECT
+			id,
+			name,
+			type
+		FROM
+		    t_shop
+		<where>
+		    <if test="id != null">
+		    id = #{id}
+		    </if>
+		    <if test="type !=null">
+		    type = #{type}
+		    </if>
+		</where>
 	</select>
 </mapper>

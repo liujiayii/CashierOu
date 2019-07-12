@@ -188,9 +188,9 @@ public class ShopController {
 		}
 		// 权限信息
 		map.put("PermissionVolist", listPermissionDTO);
-		map.put("listCity", listCity);
+		//map.put("listCity", listCity);
 		map.put("code", 1);
-		map.put("msg", "失败");
+		map.put("msg", "成功");
 		// model.addAttribute("PermissionVolist", currentPermissionVolist);
 		return map;
 	}
@@ -374,7 +374,7 @@ public class ShopController {
 	public Map<String, Object> listShopIdAndName() {
 		List<Shop> listShop = shopService.listShopIdAndName();
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("code", "1");
+		map.put("code", 1);
 		map.put("msg", "ok");
 		map.put("data", listShop);
 		return map;

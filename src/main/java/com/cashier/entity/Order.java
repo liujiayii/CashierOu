@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-
 /**
  *
  * @ClassName: Order
@@ -15,47 +14,62 @@ import java.sql.Timestamp;
  * @createDate 2019年6月21日
  */
 public class Order implements Serializable {
-	
+
 	/** UID */
 	private static final long serialVersionUID = 1L;
 	/** 消费订单id */
 	private BigInteger id;
 	/** 消费订单编号 */
 	private String number;
-	/** 会员卡号码  */
-    private String memberNumber;
+	/** 会员卡号码 */
+	private String memberNumber;
 	/** 订单创建时间 */
 	private Timestamp createTime;
 	/** 店铺id */
 	private BigInteger shopId;
-	/** 店铺名  */
-    private String shopName;
-	
+	/** 店铺名 */
+	private String shopName;
+
 	/** 交易方式：1现金、2POS机、3支付宝、4微信支付 */
 	private Integer payMethod;
-	
-	/** 开户行名称  */
-    private String bankName;
-    /** 银行卡号  */
-    private String cardNumber;
-	
-	/**订单应收金额*/
+
+	/*	*//** 开户行名称 */
+	/*
+	 * private String bankName;
+	 *//** 银行卡号 *//*
+					 * private String cardNumber;
+					 */
+
+	/** 订单应收金额 */
 	private BigDecimal payAdvance;
-	/**手动输入折扣*/
+	/** 手动输入折扣 */
 	private BigDecimal customDiscount;
-	/**实付总金额*/
+	/** 实付总金额 */
 	private BigDecimal totalMoney;
-	/**订单状态（1出售、2退货）*/
+	/** 订单状态（1出售、2退货） */
 	private Integer state;
-	/**备注*/
+	/** 备注 */
 	private String remark;
-	/** 退货状态：
-	 * 1.退货了 
-	 * 2.没退货 */
+	/**
+	 * 退货状态： 1.退货了 2.没退货
+	 */
 	private Integer refund;
-	
+
 	/** 数据条数 */
 	private Integer count;
+
+	public String getOuttradeno() {
+		return outtradeno;
+	}
+
+	public void setOuttradeno(String outtradeno) {
+		this.outtradeno = outtradeno;
+	}
+
+	/**
+	 * 支付宝微信付款单号
+	 */
+	private String outtradeno;
 
 	/**
 	 * @return the id
@@ -158,30 +172,27 @@ public class Order implements Serializable {
 	/**
 	 * @return the bankName
 	 */
-	public String getBankName() {
-		return bankName;
-	}
-
-	/**
-	 * @param bankName the bankName to set
-	 */
-	public void setBankName(String bankName) {
-		this.bankName = bankName;
-	}
-
-	/**
-	 * @return the cardNumber
-	 */
-	public String getCardNumber() {
-		return cardNumber;
-	}
-
-	/**
-	 * @param cardNumber the cardNumber to set
-	 */
-	public void setCardNumber(String cardNumber) {
-		this.cardNumber = cardNumber;
-	}
+	/*
+	 * public String getBankName() { return bankName; }
+	 * 
+	 *//**
+		 * @param bankName the bankName to set
+		 */
+	/*
+	 * public void setBankName(String bankName) { this.bankName = bankName; }
+	 * 
+	 *//**
+		 * @return the cardNumber
+		 */
+	/*
+	 * public String getCardNumber() { return cardNumber; }
+	 * 
+	 *//**
+		 * @param cardNumber the cardNumber to set
+		 *//*
+			 * public void setCardNumber(String cardNumber) { this.cardNumber = cardNumber;
+			 * }
+			 */
 
 	/**
 	 * @return the payAdvance
@@ -288,15 +299,19 @@ public class Order implements Serializable {
 		return serialVersionUID;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((bankName == null) ? 0 : bankName.hashCode());
-		result = prime * result + ((cardNumber == null) ? 0 : cardNumber.hashCode());
+		/*
+		 * result = prime * result + ((bankName == null) ? 0 : bankName.hashCode());
+		 * result = prime * result + ((cardNumber == null) ? 0 : cardNumber.hashCode());
+		 */
 		result = prime * result + ((count == null) ? 0 : count.hashCode());
 		result = prime * result + ((createTime == null) ? 0 : createTime.hashCode());
 		result = prime * result + ((customDiscount == null) ? 0 : customDiscount.hashCode());
@@ -314,7 +329,9 @@ public class Order implements Serializable {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -326,16 +343,13 @@ public class Order implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Order other = (Order) obj;
-		if (bankName == null) {
-			if (other.bankName != null)
-				return false;
-		} else if (!bankName.equals(other.bankName))
-			return false;
-		if (cardNumber == null) {
-			if (other.cardNumber != null)
-				return false;
-		} else if (!cardNumber.equals(other.cardNumber))
-			return false;
+		/*
+		 * if (bankName == null) { if (other.bankName != null) return false; } else if
+		 * (!bankName.equals(other.bankName)) return false;
+		 * 
+		 * if (cardNumber == null) { if (other.cardNumber != null) return false; } else
+		 * if (!cardNumber.equals(other.cardNumber)) return false;
+		 */
 		if (count == null) {
 			if (other.count != null)
 				return false;
@@ -409,16 +423,13 @@ public class Order implements Serializable {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		return "Order [id=" + id + ", number=" + number + ", memberNumber=" + memberNumber + ", createTime="
 				+ createTime + ", shopId=" + shopId + ", shopName=" + shopName + ", payMethod=" + payMethod
-				+ ", bankName=" + bankName + ", cardNumber=" + cardNumber + ", payAdvance=" + payAdvance
+				+ /* ", bankName=" + bankName + ", cardNumber=" + cardNumber + */", payAdvance=" + payAdvance
 				+ ", customDiscount=" + customDiscount + ", totalMoney=" + totalMoney + ", state=" + state + ", remark="
-				+ remark + ", refund=" + refund + ", count=" + count + "]";
+				+ remark + ", refund=" + refund + ", count=" + count + ", outtradeno=" + outtradeno + "]";
 	}
-	
+
 }

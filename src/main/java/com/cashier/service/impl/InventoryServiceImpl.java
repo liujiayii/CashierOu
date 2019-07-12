@@ -84,4 +84,35 @@ public class InventoryServiceImpl implements InventoryService {
 
     }
 
+    /**
+     * 
+     * @Title: getInventoryByShopId
+     * @description 查看本店低于库存预警的数据
+     * @param  inventory
+     * @return List<Inventory>
+     * @author liujunkai
+     * @createDate 2019年7月8日
+     */
+    @Override
+    public List<Inventory> getInventoryByShopId(InventoryDTO inventoryDTO) {
+        
+        return inventoryMapper.getInventoryByShopId(inventoryDTO);
+    }
+
+    /**
+     * 
+     * @Title: getInventoryByShopIdCount
+     * @description 查看本店低于库存预警的数据的条数
+     * @param inventoryDTO
+     * @return int    
+     * @author liujunkai
+     * @createDate 2019年7月8日
+     */
+    @Override
+    public int getInventoryByShopIdCount(InventoryDTO inventoryDTO) {
+
+        return inventoryMapper.getInventoryByShopIdCount(inventoryDTO);
+    }
+
+    
 }

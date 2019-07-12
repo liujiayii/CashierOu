@@ -104,4 +104,24 @@ public interface LevelMapper {
 	 */
 	public Level getMinLevelId(Level level);
 
+	/**
+	 * @Title: getMaxMoney
+	 * @description 获取等级最高的会员等级对应的累计消费金额上限
+	 * @param @param level
+	 * @return Level    
+	 * @author dujiawei
+	 * @createDate 2019年7月9日
+	 */
+	public Level getMaxMoney(Level level);
+	
+	/**
+	 * @Title: getLevelByMoney
+	 * @description 根据累计消费金额查询会员等级
+	 * @param @param level
+	 * @return Level    
+	 * @author dujiawei
+	 * @createDate 2019年7月9日
+	 */
+	public Level getLevelByMoney(Level level);
+
 }

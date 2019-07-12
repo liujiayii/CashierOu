@@ -291,7 +291,7 @@ public class ShopServiceImpl implements ShopService{
 			// 4.添加用户角色关联表
 			userVo.setId(newshopId);
 			userVo.setRoleId(role.getId());
-			//rows = userMapper.saveUserAndRoleRelation(userVo);
+			rows = userMapper.saveUserAndRoleRelation(userVo);
 			if(rows == 0){
 				throw new DataNotExistsException("添加失败，请联系管理员");
 			}

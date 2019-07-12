@@ -36,6 +36,7 @@ import com.alipay.demo.trade.utils.Utils;
 import com.cashier.entity.OrderProduct;
 import com.cashier.service.OrderProductService;
 import com.cashier.service.OrderService;
+import com.cashier.util.pay.util.JsonUtil;
 @Controller
 public class alipaySweepPaymentcontroller {
 	private static Log                  log = LogFactory.getLog(Main.class);
@@ -86,7 +87,7 @@ public class alipaySweepPaymentcontroller {
      @ResponseBody
 	 public void test_trade_query(String outTradeNo) {
 	        // (必填) 商户订单号，通过此商户订单号查询当面付的交易状态
-		/* String outTradeNo = "tradepay15624694831431587168"; */
+		
 
 	        // 创建查询请求builder，设置请求参数
 	        AlipayTradeQueryRequestBuilder builder = new AlipayTradeQueryRequestBuilder()
@@ -127,11 +128,12 @@ public class alipaySweepPaymentcontroller {
      */  
      @RequestMapping(value ="/paycomwer" ,produces = "application/json; charset=utf-8")
      @ResponseBody
-     public String test_trade_pay(String outTradeNo,String subject,String totalAmount,String authCode ) {
+     public String test_trade_pay(String orderNumber,String subject,String totalAmount,String authCode ) {
 		      // (可选，根据需要决定是否使用) 订单可打折金额，可以配合商家平台配置折扣活动，如果订单部分商品参与打折，可以将部分商品总价填写至此字段，默认全部商品可打折
          // 如果该值未传入,但传入了【订单总金额】,【不可打折金额】 则该值默认为【订单总金额】- 【不可打折金额】
          //        String discountableAmount = "1.00"; //
-
+         String outTradeNo =""+System.currentTimeMillis()
+         + (long) (Math.random() * 10000000L);
          // (可选) 订单不可打折金额，可以配合商家平台配置折扣活动，如果酒水不参与打折，则将对应金额填写至此字段
          // 如果该值未传入,但传入了【订单总金额】,【打折金额】,则该值默认为【订单总金额】-【打折金额】
          String undiscountableAmount = "0.0";
@@ -141,7 +143,7 @@ public class alipaySweepPaymentcontroller {
          String sellerId = "";
 
          // 订单描述，可以对交易或商品进行一个详细地描述，比如填写"购买商品3件共20.00元"
-         String body = "购买商品3件共20.00元";
+         String body = "线下购买";
 
          // 商户操作员编号，添加此参数可以为商户操作员做销售统计
          String operatorId = "test_operator_id";
@@ -187,44 +189,34 @@ public class alipaySweepPaymentcontroller {
          AlipayTradeService service=tradeService;
          
          AlipayF2FPayResult result = service.tradePay(builder);
-         System.out.println("tradeService的值"+result.getResponse().getTotalAmount());
+         System.out.println("tradeService的值"+result.getResponse().getMsg());
          
          switch (result.getTradeStatus()) {
-             case SUCCESS:
-            	 /**订单应收金额*/
-     			BigDecimal payAdvance=new BigDecimal(0);
-     			
-     			 BigDecimal customDiscount=new BigDecimal(0);
-     			/**实付总金额*/
-     			BigDecimal totalMoney=new BigDecimal(0);
-            	 List<OrderProduct> OrderProducte = orderProductService.listorderNumberOrderProduct(outTradeNo);
-         		for(int i=0;i<OrderProducte.size();i++) {
-         			customDiscount=OrderProducte.get(i).getMemberPricediscount();
-         			totalMoney=totalMoney.add(customDiscount);
-         		}
-         		int fig=orderService.updatetotalMoney(1,totalMoney,outTradeNo);
-            	 
+             case SUCCESS:       
+         		orderService.updatetotalMoney(3,orderNumber,outTradeNo);
+         		// fig=orderService.Increasecumulativeconsumptio(orderNumber,new BigDecimal(totalAmount));
                  log.info("支付宝支付成功: )");
-                 break;
+                 return JsonUtil.getResponseJson(1, "支付宝支付成功", null, null);
 
              case FAILED:
                  log.error("支付宝支付失败!!!");
-                 break;
+                 return JsonUtil.getResponseJson(-1, result.getResponse().getSubMsg(), null, null);
 
              case UNKNOWN:
                  log.error("系统异常，订单状态未知!!!");
-                 break;
+                 return JsonUtil.getResponseJson(-1, "系统异常，订单状态未知!!!", null, null);
 
              default:
                  log.error("不支持的交易状态，交易返回异常!!!");
-                 break;
+                 return JsonUtil.getResponseJson(-1, "不支持的交易状态，交易返回异常!!!", null, null);
          }
-		return result.getResponse().getSubMsg();
+		
      }
     /**
      * 退款接口的
      */
-     @RequestMapping("/salescomwer")
+     @RequestMapping(value ="/salescomwer" ,produces = "application/json; charset=utf-8")
+
      @ResponseBody
      public String  test_trade_refund(String outTradeNo,String refundAmount) {
 		
@@ -246,22 +238,24 @@ public class alipaySweepPaymentcontroller {
          System.out.println("tradeService的值"+result.getResponse().getSubMsg());
          switch (result.getTradeStatus()) {
              case SUCCESS:
+            	 orderService.updateOrderStates(outTradeNo,refundAmount);
                  log.info("支付宝退款成功: )");
-                 break;
+                 return JsonUtil.getResponseJson(1, "退款成功", null, null);
 
              case FAILED:
                  log.error("支付宝退款失败!!!");
-                 break;
+                 return JsonUtil.getResponseJson(-1, result.getResponse().getSubMsg(), null, null);
+             
 
              case UNKNOWN:
                  log.error("系统异常，订单退款状态未知!!!");
-                 break;
+                 return JsonUtil.getResponseJson(-1, result.getResponse().getSubMsg(), null, null);
 
              default:
                  log.error("不支持的交易状态，交易返回异常!!!");
-                 break;
+                 return JsonUtil.getResponseJson(-1, result.getResponse().getSubMsg(), null, null);
          }
-         return "退款成功";
+         
      }
    
 }

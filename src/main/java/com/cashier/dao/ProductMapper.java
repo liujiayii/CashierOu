@@ -112,4 +112,6 @@ public interface ProductMapper {
 	 */
 	Product getProductByNameAndBarcode(Product product);
 	
+	Product getProductByGoodstraffic(BigInteger id);
+	
 }

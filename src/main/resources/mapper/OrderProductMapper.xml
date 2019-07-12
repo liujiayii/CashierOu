@@ -25,6 +25,8 @@
 			op.product_id = p.id
 		AND	
 			p.product_type_id = pt.id
+			
+		and order_number=#{orderNumber}	
 		ORDER BY
 			op.id DESC
 		limit #{page},#{limit}
@@ -42,6 +44,7 @@
 			op.product_id = p.id
 		AND	
 			p.product_type_id = pt.id
+			and order_number=#{orderNumber}	
 	</select>
 	
 	<!--  2、新增一条订单商品 -->

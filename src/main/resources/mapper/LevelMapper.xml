@@ -106,5 +106,36 @@
 		FROM
 			t_level_discount ld
 	</select>
+	
+	<!-- 获取等级最高的会员等级对应的累计消费金额上限 -->
+	<select id="getMaxMoney" resultType="com.cashier.entity.Level">
+		SELECT
+			ld.id id,
+			ld.maximum maximum
+		FROM
+			t_level_discount ld
+		WHERE
+			ld.maximum = (
+				SELECT
+					MAX(maximum)
+				FROM
+					t_level_discount
+			)
+	</select>
+	
+	<!-- 根据累计消费金额查询会员等级 -->
+	<select id="getLevelByMoney" resultType="com.cashier.entity.Level">
+		SELECT DISTINCT
+			ld.id id,
+			ld.level level
+		FROM
+			t_level_discount ld,
+			t_member m
+		WHERE
+			m.ld_level_id = ld.id
+		AND
+			ld.minimum &lt;= #{totalMoney}
+		AND ld.maximum &gt;= #{totalMoney}
+	</select>
  
 </mapper>

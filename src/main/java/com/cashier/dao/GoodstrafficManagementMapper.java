@@ -120,4 +120,15 @@ public interface GoodstrafficManagementMapper {
      * @createDate 2019年7月5日
      */
     int listShipmentsShopNameCount(GoodstrafficManagementDTO goodstrafficManagementDTO);
+    
+    /**
+     * 
+     * @Title: getGoodstrafficManagementByApp
+     * @description 查询单条货流表数据
+     * @param id
+     * @return GoodstrafficManagement    
+     * @author liujunkai
+     * @createDate 2019年7月9日
+     */
+    GoodstrafficManagement getGoodstrafficManagementByApp(BigInteger id);
 }

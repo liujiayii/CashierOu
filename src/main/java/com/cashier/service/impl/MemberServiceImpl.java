@@ -313,4 +313,18 @@ public class MemberServiceImpl implements MemberService {
 		return memberMapper.countMemberByPhone(memberVo);
 	}
 
+	/**
+	 * @Title: getMemberByNumber
+	 * @description 通过会员卡号获取会员信息
+	 * @param @param member
+	 * @return Member    
+	 * @author dujiawei
+	 * @createDate 2019年7月12日
+	 */
+	@Override
+	public Member getMemberByNumber(Member member) {
+		// TODO Auto-generated method stub
+		return memberMapper.getMemberByNumber(member);
+	}
+
 }

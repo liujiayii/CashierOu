@@ -105,7 +105,7 @@
             t_goodstraffic_management tgm,
             t_shop  ts 
         <where>
-            tgm.goodstraffic_state = 2
+            tgm.goodstraffic_state = 1
         and    
             tgm.shop_id = ts.id 
             <if test="shopId != null">
@@ -132,7 +132,7 @@
             t_goodstraffic_management tgm,
             t_shop  ts 
         <where>
-            tgm.goodstraffic_state = 2
+            tgm.goodstraffic_state = 1
         and    
             tgm.shop_id = ts.id 
             <if test="shopId != null">
@@ -151,7 +151,7 @@
     parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
         select
 	        tgm.id,
-			ts.name               receivingShopName,
+			ts.name               shipmentsShopName,
 			tgm.total_money       totalMoney,
 			tgm.delivery_date     deliveryDate,
 			tgm.remark,
@@ -160,12 +160,16 @@
             t_goodstraffic_management tgm,
             t_shop  ts 	
         <where>
-            tgm.shipments_shop_id = #{shopId}
+            tgm.receiving_shop_id = #{shopId}
         and
-            tgm.receiving_shop_id = ts.id    
+            tgm.shipments_shop_id = ts.id    
             <if test="startdate != null and startdate != '' and enddate != null and enddate != '' ">
         and     
             tgm.order_date between #{startdate} and #{enddate}
+            </if> 
+            <if test="transportationState!=null">
+        and 
+            tgm.transportation_state = #{transportationState}
             </if> 
         </where>  
         order by tgm.id desc
@@ -181,14 +185,39 @@
             t_goodstraffic_management tgm,
             t_shop  ts 
         <where>
-            tgm.shipments_shop_id = #{shopId}
+            tgm.receiving_shop_id = #{shopId}
         and
-            tgm.receiving_shop_id = ts.id    
+            tgm.shipments_shop_id = ts.id    
             <if test="startdate != null and startdate != '' and enddate != null and enddate != '' ">
         and     
             tgm.order_date between #{startdate} and #{enddate}
             </if> 
+            <if test="transportationState!=null">
+        and 
+            tgm.transportation_state = #{transportationState}
+            </if> 
         </where>  
+    </select>
+    
+    <!-- 显示货流数据 -->
+    <select id="getGoodstrafficManagementByApp" resultType="com.cashier.entity.GoodstrafficManagement"
+    parameterType="BigInteger">
+        select
+            id,
+			shipments_shop_id	  shipmentsShopId,
+			receiving_shop_id	  receivingShopId,
+			total_money			  totalMoney,	 
+			order_date			  orderDate,	 
+			delivery_date		  deliveryDate,		  
+			goodstraffic_state    goodstrafficState,
+			transportation_state  transportationState,
+			remark,
+			shop_id				  shopId,
+            serial_number         serialNumber
+        from
+            t_goodstraffic_management 
+        where
+            id = #{id}  
     </select>
     
     <!-- 显示发起页面 -->
@@ -196,7 +225,7 @@
     parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
         select
             tgm.id,
-            ts.name               shipmentsShopName,
+            ts.name               receivingShopName,
             tgm.total_money       totalMoney,
             tgm.delivery_date     deliveryDate,
             tgm.remark,
@@ -205,12 +234,16 @@
             t_goodstraffic_management tgm,
             t_shop  ts  
         <where>
-            tgm.receiving_shop_id = #{shopId}
+            tgm.shipments_shop_id = #{shopId}
         and
-            tgm.shipments_shop_id = ts.id
+            tgm.receiving_shop_id = ts.id
             <if test="startdate != null and startdate != '' and enddate != null and enddate != '' ">
         and     
             tgm.order_date between #{startdate} and #{enddate}
+            </if>
+            <if test="transportationState!=null">
+        and 
+            tgm.transportation_state = #{transportationState}
             </if> 
         </where>   
         order by tgm.id desc
@@ -226,22 +259,32 @@
             t_goodstraffic_management tgm,
             t_shop  ts 
         <where>
-            tgm.receiving_shop_id = #{shopId}
+            tgm.shipments_shop_id = #{shopId}
         and
-            tgm.shipments_shop_id = ts.id
+            tgm.receiving_shop_id = ts.id
             <if test="startdate != null and startdate != '' and enddate != null and enddate != '' ">
         and     
             tgm.order_date between #{startdate} and #{enddate}
             </if> 
+            <if test="transportationState!=null">
+        and 
+            tgm.transportation_state = #{transportationState}
+            </if> 
         </where>   
     </select>
 
-    <!-- 修改运输状态状态 -->
+    <!-- 修改货流表数据 -->
     <update id="updateSubscribe" parameterType="com.cashier.entity.GoodstrafficManagement">
         update 
             t_goodstraffic_management        
-        set
-            transportation_state = #{transportationState}
+        <set>
+            <if test="receivingShopId!=null">
+            receiving_shop_id = #{receivingShopId},
+            </if>
+            <if test="transportationState!=null">
+            transportation_state = #{transportationState},
+            </if>
+        </set>
         where 
             id = #{id}    
     </update>

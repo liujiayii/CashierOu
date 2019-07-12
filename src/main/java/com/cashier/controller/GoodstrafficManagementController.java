@@ -1,6 +1,7 @@
 package com.cashier.controller;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,17 +14,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cashier.entity.GoodstrafficManagement;
+import com.cashier.entity.Shop;
 import com.cashier.entityDTO.GoodstrafficManagementDTO;
 import com.cashier.entityVo.AddsubscriptionVo;
 import com.cashier.entityVo.GoodstrafficManagementVo;
 import com.cashier.entityVo.GoodstrafficOrdersProductVo;
 import com.cashier.service.GoodstrafficManagementService;
+import com.cashier.service.ShopService;
 
 @Controller
 public class GoodstrafficManagementController {
     @Autowired
     private GoodstrafficManagementService goodstrafficManagementService;
-
+    @Autowired
+    private ShopService shopService;
     /**
      * 
      * @Title: listProcurement
@@ -69,9 +73,12 @@ public class GoodstrafficManagementController {
      */
     @RequestMapping("/addprocurement")
     @ResponseBody
-    public Map<String, Object> addprocurement(GoodstrafficManagement goodstrafficManagement, HttpSession session,String g) {
+    public Map<String, Object> addprocurement(GoodstrafficManagement goodstrafficManagement, HttpSession session,String g,String time) {
         Map<String, Object> map = new HashMap<>();
+        Timestamp ts = new Timestamp(System.currentTimeMillis());  
         try {
+            ts = Timestamp.valueOf(time);  
+            goodstrafficManagement.setDeliveryDate(ts);
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             goodstrafficManagement.setShopId(shopId);
             goodstrafficManagementService.addprocurement(goodstrafficManagement,g);

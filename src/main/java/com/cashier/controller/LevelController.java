@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.cashier.entity.Level;
+import com.cashier.entity.Member;
 import com.cashier.service.LevelService;
 import net.sf.json.JSONArray;
 
@@ -74,7 +77,7 @@ public class LevelController {
 		};
 		
 		Map<String , Object> result = new HashMap<String , Object>();		
-		result.put("code", 0);
+		result.put("code", 1);
 		result.put("msg", "Success");
 		JSONArray array = JSONArray.fromObject(list);
 		result.put("data", array);
@@ -112,10 +115,10 @@ public class LevelController {
 		int num = levelService.saveLevel(level);
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1){
-			map.put("code", 0);
+			map.put("code", 1);
 			map.put("msg", "Success");
 		} else {
-			map.put("code", 1);
+			map.put("code", 0);
 			map.put("msg", "金额区间有冲突，新增失败");
 		}
 		
@@ -151,13 +154,13 @@ public class LevelController {
 		int num = levelService.updateLevel(level);
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1){
-			map.put("code", 0);
+			map.put("code", 1);
 			map.put("msg", "Success");
 		}else if(num == -1) {
-			map.put("code", -1);
+			map.put("code", 0);
 			map.put("msg", "该等级已存在！");
 		} else {
-			map.put("code", 1);
+			map.put("code", 0);
 			map.put("msg", "修改失败了");
 		}
 		
@@ -179,10 +182,10 @@ public class LevelController {
 		int num = levelService.removeLevel(id);
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1){
-			map.put("code", 0);
+			map.put("code", 1);
 			map.put("msg", "Success");
 		} else {
-			map.put("code", 1);
+			map.put("code", 0);
 			map.put("msg", "删除失败了");
 		}
 		

@@ -167,4 +167,30 @@ public class ProductTypeController {
 		map.put("count", count);
 		return map;
 	}
+	
+	/**
+     * 
+     * @Title: selectByCanUse
+     * @description 根据可用/可不用查询商品分类
+     * @return ProductType    
+     * @author liujunkai
+     * @createDate 2019年7月12日
+     */
+	@RequestMapping("/selectByCanUse")
+    @ResponseBody
+    public Map<String,Object> selectByCanUse() {
+        Map<String,Object> map = new HashMap<>();
+        try {
+            ProductType productType = productTypeService.selectByCanUse();
+            map.put("code", 1);
+            map.put("msg", "成功");
+            map.put("data", productType);
+        } catch (Exception e) {
+            e.printStackTrace();
+            map.put("code", 0);
+            map.put("msg", "查询失败");
+        }
+       
+        return map;
+    }
 }

@@ -58,4 +58,26 @@ public interface InventoryMapper {
      * @createDate 2019年7月3日
      */
     void updateInventory(Inventory inventory);
+    
+    /**
+     * 
+     * @Title: getInventoryByShopId
+     * @description 查看本店低于库存预警的数据
+     * @param  inventoryDTO
+     * @return List<Inventory>
+     * @author liujunkai
+     * @createDate 2019年7月8日
+     */
+    List<Inventory> getInventoryByShopId(InventoryDTO inventoryDTO);
+    
+    /**
+     * 
+     * @Title: getInventoryByShopIdCount
+     * @description 查看本店低于库存预警的数据的条数
+     * @param inventoryDTO
+     * @return int    
+     * @author liujunkai
+     * @createDate 2019年7月8日
+     */
+    int getInventoryByShopIdCount(InventoryDTO inventoryDTO);
 }

@@ -11,11 +11,18 @@ import java.util.Map;
 import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.cashier.dao.LevelMapper;
+import com.cashier.dao.MemberMapper;
 import com.cashier.dao.OrderMapper;
+import com.cashier.dao.OrderProductMapper;
+import com.cashier.entity.Level;
 import com.cashier.entity.Member;
 import com.cashier.entity.Order;
+import com.cashier.entity.OrderProduct;
 import com.cashier.entity.Product;
 import com.cashier.entityDTO.OrderDTO;
+import com.cashier.entityDTO.TopTenProductDTO;
 import com.cashier.entityVo.OrderVo;
 import com.cashier.service.OrderService;
 
@@ -32,6 +39,12 @@ public class OrderServiceImpl implements OrderService {
 
 	@Autowired
 	private OrderMapper orderMapper;
+	@Autowired
+	private OrderProductMapper orderProductMapper;
+	@Autowired
+	private MemberMapper memberMapper;
+	@Autowired
+	private LevelMapper levelMapper;
 
 	/**
 	 * @Title: listOrderByOption
@@ -43,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
 	 * @createDate 2019年6月19日
 	 */
 	@Override
-	public List<OrderVo> listOrderByOption(OrderVo orderVo) {
+	public List<Order> listOrderByOption(OrderVo orderVo) {
 		// TODO Auto-generated method stub
 		return orderMapper.listOrderByOption(orderVo);
 	}
@@ -154,7 +167,7 @@ public class OrderServiceImpl implements OrderService {
 		 * 查询商品活动id
 		 */
 		BigInteger activity_id = orderMapper.queractivitybyid(productId, shopId);
-
+         
 		/**
 		 * 查询折扣
 		 */
@@ -175,9 +188,59 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public int updatetotalMoney(int i, BigDecimal totalMoney, String orderNumber) {
-		// TODO Auto-generated method stub
-		return orderMapper.updatetotalMoney(i, totalMoney, orderNumber);
+	public int updatetotalMoney(int i, String orderNumber,String out_trade_no) {
+		/**订单应收金额*/
+		BigDecimal payAdvance=new BigDecimal(0);
+		
+		 BigDecimal customDiscount=new BigDecimal(0);
+		/**实付总金额*/
+		BigDecimal totalMoney=new BigDecimal(0);
+	
+		BigDecimal Advance=new BigDecimal(0);
+		List<OrderProduct> OrderProduct=orderProductMapper.listorderNumberOrderProduct(orderNumber);
+		for(int t=0;t<OrderProduct.size();t++) {
+			customDiscount=OrderProduct.get(t).getMemberPricediscount();
+			totalMoney=totalMoney.add(customDiscount);
+			Advance=OrderProduct.get(t).getMemberPrice();
+			payAdvance=payAdvance.add(Advance);
+		}
+		orderMapper.Increasecumulativeconsumptio(orderNumber,totalMoney);
+		Order Order=orderMapper.OrderByOption(orderNumber);
+		/**
+		 * 更新会员累计金额
+		 */
+        if(Order.getMemberNumber()!=null) {
+	         int fig= orderMapper.Increasecumulativeconsumptio(Order.getMemberNumber(),totalMoney);
+        }
+
+		  /**
+		   * 更新订单的实际付款金额
+		   */
+
+		 
+        //查询会员的累计消费金额，并更新会员等级
+        Member member = new Member();
+        Level level = new Level();
+        member.setNumber(Order.getMemberNumber());
+        Member message = memberMapper.getMemberByNumber(member);  //通过会员卡号获取会员信息---message
+        Level levelMSG = levelMapper.getMaxMoney(level);  //获取会员等级表中最高级别的消费上限金额
+        //累计消费金额如果等于或者超过最高会员等级的最高金额，那么当前会员的等级就是最高级别
+        if(message.getTotalMoney().compareTo(levelMSG.getMaximum()) == 1 || message.getTotalMoney().compareTo(levelMSG.getMaximum()) == 0){
+        	member.setLdLevelId(levelMSG.getId());
+        	member.setId(message.getId());
+        	memberMapper.updateMemberMoneyAndLevel(member);
+        	//System.out.println("最高级别*****");
+        } else {  //若没有超过，根据累计消费金额查询对应的会员等级
+        	level.setTotalMoney(message.getTotalMoney());
+        	Level nowLevel = levelMapper.getLevelByMoney(level);
+        	member.setLdLevelId(nowLevel.getId());
+        	member.setId(message.getId());
+        	memberMapper.updateMemberMoneyAndLevel(member);
+        	//System.out.println("其他级别#####");
+        }
+        
+
+		return orderMapper.updatetotalMoney(i, totalMoney, orderNumber,out_trade_no,payAdvance);
 	}
 
 	/**
@@ -196,15 +259,23 @@ public class OrderServiceImpl implements OrderService {
 			Integer count = 0;
 			List<OrderDTO> listOrder= orderMapper.getSumOrderByProductType(shopId);
 			NumberFormat numberFormat = NumberFormat.getInstance();  
-			numberFormat.setMaximumIntegerDigits(2);
+			numberFormat.setMaximumFractionDigits(2);
+			
 			for(OrderDTO o : listOrder){
 				count+=o.getCount();
+				/*//将每种商品种类的商品订单量除以总量计算百分比
+				String result = numberFormat.format((float)o.getCount()/(float)count * 100);
+				System.out.println((float)o.getCount()/(float)count);
+				map.put(o.getProductType(), result+"%");*/
+			}
+			for(OrderDTO o : listOrder){
 				//将每种商品种类的商品订单量除以总量计算百分比
 				String result = numberFormat.format((float)o.getCount()/(float)count * 100);
 				map.put(o.getProductType(), result+"%");
 			}
 			map.put("code", 1);
 			map.put("msg", "成功");
+			map.put("listOrder", listOrder);
 		} catch (Exception e) {
 			
 			e.printStackTrace();
@@ -215,5 +286,84 @@ public class OrderServiceImpl implements OrderService {
 		System.out.println(map);
 		return map;
 	}
+
+	/**
+	 * 增加会员累计消费
+	 */
+	public int Increasecumulativeconsumptio(String orderNumber, BigDecimal totalMoney) {
+		OrderVo	orderVo =new OrderVo();
+		orderVo.setNumber(orderNumber);
+	         Order Order=orderMapper.OrderByOption(orderNumber);
+	         if(Order.getMemberNumber()!=null) {
+		         int fig= orderMapper.Increasecumulativeconsumptio(Order.getMemberNumber(),totalMoney);
+		         return fig;
+	         }
+	          
+		
+		return 1;
+	}
+  /**
+   * 修改订单状态
+   */
+	@Override
+	public int updateOrderStates(String out_trade_no, String total_fee) {
+		// TODO Auto-generated method stub
+		return orderMapper.updateOrderStates(out_trade_no,total_fee);
+	}
+
+	/**
+	 * 
+	     * @Title: getMonthSumOrderByProductType
+	     * @description 获得当月每种商品销售总订单数 及销售额
+	     * @param  店铺id
+	     * @return   
+	     * @author chenshuxian
+	     * @createDate 2019年7月9日
+	 */
+	@Override
+	public Map<String, Object> getMonthSumOrderByProductType(BigInteger shopId) {
+		
+		Map<String,Object> map = new HashMap<>();
+		try {
+			Integer count = 0;
+			List<OrderDTO> listOrder= orderMapper.getMonthSumOrderByProductType(shopId);
+			NumberFormat numberFormat = NumberFormat.getInstance();  
+			numberFormat.setMaximumFractionDigits(2);
+			for(OrderDTO o : listOrder){
+				count+=o.getCount();
+			}
+			for(OrderDTO o : listOrder){
+				//将每种商品种类的商品订单量除以总量计算百分比
+				String result = numberFormat.format((float)o.getCount()/(float)count * 100);
+				map.put(o.getProductType(), result+"%");
+			}
+			map.put("code", 1);
+			map.put("msg", "成功");
+			map.put("listOrder", listOrder);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			map.put("code", 0);
+			map.put("msg", "失败");
+		}
+		
+		System.out.println(map);
+		return map;
+	}
+	/**
+	 * 
+	     * @Title: getTopTenProduct
+	     * @description 当月销售前十 商品名称及数量
+	     * @param  店铺id
+	     * @return  
+	     * @author chenshuxian
+	     * @createDate  2019年7月9日
+	 */
+	@Override
+	public List<TopTenProductDTO> getTopTenProduct(BigInteger shopId) {
+		
+		return orderMapper.getTopTenProduct(shopId);
+	}
+
 
 }

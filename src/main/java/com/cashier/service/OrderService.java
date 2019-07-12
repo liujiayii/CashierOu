@@ -9,6 +9,7 @@ import com.cashier.entity.Member;
 import com.cashier.entity.Order;
 import com.cashier.entity.Product;
 import com.cashier.entityDTO.OrderDTO;
+import com.cashier.entityDTO.TopTenProductDTO;
 import com.cashier.entityVo.OrderVo;
 
 /**
@@ -30,7 +31,7 @@ public interface OrderService {
 	 * @author dujiawei
 	 * @createDate 2019年6月19日
 	 */
-	public List<OrderVo> listOrderByOption(OrderVo orderVo);
+	public List<Order> listOrderByOption(OrderVo orderVo);
 
 	/**
 	 * @Title: countOrderByOption
@@ -111,7 +112,7 @@ public interface OrderService {
 	 * @param orderNumber
 	 * @return
 	 */
-	public int updatetotalMoney(int i, BigDecimal totalMoney, String orderNumber);
+	public int updatetotalMoney(int i, String orderNumber,String out_trade_no);
 
 	/**
 	 * 
@@ -123,4 +124,47 @@ public interface OrderService {
 	     * @createDate 2019年7月8日
 	 */
 	public Map<String, Object> getSumOrderByProductType(BigInteger shopId);
+
+	/**
+	 * 增加会员累计消费
+	 * @param orderNumber
+	 * @param totalMoney
+	 * @return
+	 */
+
+	public int Increasecumulativeconsumptio(String orderNumber, BigDecimal totalMoney);
+  /**
+   * 修改订单状态
+   * @param out_trade_no
+   * @param total_fee
+   * @return
+   */
+	public int updateOrderStates(String out_trade_no, String total_fee);
+
+
+
+
+	
+	
+	/**
+	 * 
+	     * @Title: getMonthSumOrderByProductType
+	     * @description  获得当月每种商品销售总订单数 及销售额
+	     * @param  店铺id
+	     * @return    
+	     * @author chenshuxian
+	     * @createDate 2019年7月9日
+	 */
+	public Map<String, Object> getMonthSumOrderByProductType(BigInteger shopId);
+	/**
+	 * 
+	     * @Title: getTopTenProduct
+	     * @description 当月销售前十 商品名称及数量
+	     * @param  店铺id
+	     * @return  
+	     * @author chenshuxian
+	     * @createDate  2019年7月9日
+	 */
+	public List<TopTenProductDTO> getTopTenProduct(BigInteger shopId);
+
 }

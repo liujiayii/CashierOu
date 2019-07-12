@@ -151,4 +151,15 @@ public interface ShopMapper {
          * @createDate 2019年7月8日
      */
     public List<ShopVo> getAllCity();
+    
+    /**
+     * 
+     * @Title: getShopByCondition
+     * @description 根据id或者type查询shop表数据
+     * @param shop
+     * @return Shop    
+     * @author liujunkai
+     * @createDate 2019年7月11日
+     */
+    public Shop getShopByCondition(Shop shop);
 }

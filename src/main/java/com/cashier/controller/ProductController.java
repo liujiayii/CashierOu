@@ -35,6 +35,7 @@ import com.cashier.entityVo.ProductVo;
 import com.cashier.service.ProductService;
 import com.cashier.service.ex.ServiceException;
 import com.cashier.service.impl.ProductServiceImpl;
+import com.cashier.util.pay.util.JsonUtil;
 
 @Controller
 public class ProductController {
@@ -264,6 +265,9 @@ public class ProductController {
 			jbarcode13.setShowCheckDigit(true);
 			// 生成二维码
 			//System.out.println(number.substring(0,12));
+			if(number==null||number.equals("")||number.length()<12) {
+				 
+			}
 			bi = jbarcode13.createBarcode(number.substring(0, 12));
             response.reset();
             response.setContentType("image/jpeg");

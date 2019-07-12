@@ -80,4 +80,14 @@ public interface ProductTypeMapper {
 	 */
 	Integer delProductType(BigInteger productType);
 	Integer dimSelectProductTypeCount(ProductType p);
+	
+	/**
+	 * 
+	 * @Title: selectByCanUse
+	 * @description 根据可用/可不用查询商品分类
+	 * @return ProductType    
+	 * @author liujunkai
+	 * @createDate 2019年7月12日
+	 */
+	ProductType selectByCanUse();
 }

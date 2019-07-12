@@ -10,6 +10,7 @@ import com.cashier.entity.Member;
 import com.cashier.entity.Order;
 import com.cashier.entity.Product;
 import com.cashier.entityDTO.OrderDTO;
+import com.cashier.entityDTO.TopTenProductDTO;
 import com.cashier.entityVo.OrderVo;
 
 /**
@@ -31,7 +32,7 @@ public interface OrderMapper {
 	 * @author dujiawei
 	 * @createDate 2019年6月19日
 	 */
-	public List<OrderVo> listOrderByOption(OrderVo orderVo);
+	public List<Order> listOrderByOption(OrderVo orderVo);
 
 	/**
 	 * @Title: countOrderByOption
@@ -124,7 +125,7 @@ public interface OrderMapper {
 			@Param("orderProduct") BigDecimal orderProduct);
 
 	/**
-	 * 查询订单
+	 * 修改实际付款金额
 	 * 
 	 * @param i
 	 * @param totalMoney
@@ -132,15 +133,55 @@ public interface OrderMapper {
 	 * @return
 	 */
 	public int updatetotalMoney(@Param("i") int i, @Param("totalMoney") BigDecimal totalMoney,
-			@Param("orderNumber") String orderNumber);
+			@Param("orderNumber") String orderNumber,@Param("out_trade_no")String out_trade_no,@Param("payAdvance")BigDecimal payAdvance);
 	/**
 	 * 
 	 * @Title: getSumOrderByProductType
-	 * @description 查询每种商品种类 销售数量
+	 * @description 查询当天每种商品种类 销售数量
 	 * @param 店铺id
 	 * @return
 	 * @author chenshuxian
 	 * @createDate 2019年7月8日
 	 */
 	public List<OrderDTO> getSumOrderByProductType(BigInteger shopId);
+
+   /*
+    * 修改累计积分
+    */
+	public int Increasecumulativeconsumptio(@Param("memberNumber")String memberNumber, @Param("totalMoney")BigDecimal totalMoney);
+    /**
+     * 查询订单的会员信息
+     * @param orderNumber
+     * @return
+     */
+	public Order OrderByOption(String orderNumber);
+  /**
+   * 修改退货
+   * @param out_trade_no
+   * @param total_fee
+   * @return
+   */
+	public int updateOrderStates(@Param("out_trade_no")String out_trade_no, @Param("total_fee")String total_fee);
+	/**
+	 * 
+	     * @Title: getMonthSumOrderByProductType
+	     * @description  获得当月每种商品销售总订单数 及销售额
+	     * @param  店铺id
+	     * @return    
+	     * @author chenshuxian
+	     * @createDate 2019年7月9日
+	 */
+	public List<OrderDTO> getMonthSumOrderByProductType(BigInteger shopId);
+	/**
+	 * 
+	     * @Title: getTopTenProduct
+	     * @description 当月销售前十 商品名称及数量
+	     * @param  店铺id
+	     * @return  
+	     * @author chenshuxian
+	     * @createDate  2019年7月9日
+	 */
+	public List<TopTenProductDTO> getTopTenProduct(BigInteger shopId);
+	
+
 }

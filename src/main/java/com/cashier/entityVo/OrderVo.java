@@ -54,9 +54,9 @@ public class OrderVo implements Serializable {
 	private Integer refund;
 	
 	/** 当前所在页 */
-	private int page = 1;
+	private int page;
 	/** 每页显示条数 */
-	private int limit = 5;
+	private int limit;
 	/** 数据条数 */
 	private Integer count;
 	/** 订单总数 */

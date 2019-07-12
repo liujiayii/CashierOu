@@ -119,5 +119,26 @@ public interface GoodstrafficManagementService {
      * @createDate 2019年7月5日
      */
     int listShipmentsShopNameCount(GoodstrafficManagementDTO goodstrafficManagementDTO);
+    
+    
+    /**
+     * 
+     * @Title: ParticularsByApp
+     * @description 查询app端详情
+     * @param id
+     * @return Map<String, Object>
+     * @author liujunkai
+     * @createDate 2019年7月9日
+     */
+    Map<String, Object> ParticularsByApp(BigInteger id);
+
+    /**
+     * @Title: SerialNumber
+     * @description 流水号
+     * @return String    
+     * @author liujunkai
+     * @createDate 2019年7月9日
+     */
+    String SerialNumber();
 
 }

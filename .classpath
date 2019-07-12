@@ -13,9 +13,9 @@
 	</classpathentry>
 	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
 		<attributes>
+			<attribute name="test" value="true"/>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
@@ -52,5 +52,7 @@
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/jdom-1.1.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/jedis-2.8.0.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/Qrcode-c.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/jbarcode-0.2.8.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/JBarcode-Recognition_Source-0.2.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -4,7 +4,7 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cashier.dao.OrderMapper">
 	<!-- 条件查询订单信息 -->
-	<select id="listOrderByOption" resultType="com.cashier.entityVo.OrderVo">
+	<select id="listOrderByOption" resultType="com.cashier.entity.Order">
 		SELECT
 		o.id id,
 		o.number number,
@@ -20,7 +20,8 @@
 		o.total_money totalMoney,
 		o.state state,
 		o.remark remark,
-		o.refund refund
+		o.refund refund,
+		o.outtradeno  outtradeno
 		FROM
 		t_order o,
 		t_shop s
@@ -40,6 +41,9 @@
 			</if>
 			<if test="startTime != null and startTime !=''">
 				and o.create_time between '${startTime}' AND '${endTime}'
+			</if>
+				<if test="number != null and number !=''">
+				and o.number=#{number}
 			</if>
 		</where>
 		ORDER BY
@@ -70,6 +74,9 @@
 			</if>
 			<if test="startTime != null and startTime !=''">
 				and o.create_time between '${startTime}' AND '${endTime}'
+			</if>
+			<if test="number != null and number !=''">
+				and o.number = #{number}
 			</if>
 		</where>
 	</select>
@@ -216,8 +223,9 @@
 	<select id="querdiscountsbyid" resultType="BigDecimal">
 		SELECT reduce_money FROM `t_regulation` s JOIN t_special_offers t
 		on s.special_offers_id=t.id
-		where t.id=#{activity_id} and t.end_time&gt;now() and t.start_time&lt;now()
-		and s.money&lt;#{orderProduct}
+		where money=(select MAX(money) from t_regulation WHERE s.money&lt;#{orderProduct})and
+		t.id=#{activity_id} and t.end_time&gt;now() and t.start_time&lt;now()
+		    
 
 	</select>
 	<!-- 现金支付 -->
@@ -228,8 +236,9 @@
 		set o.pay_method = #{i},
 
 
-		o.total_money = #{totalMoney}
-
+		o.total_money = #{totalMoney},
+        o.outtradeno=#{out_trade_no},
+        o.pay_advance=#{payAdvance}
 
 		WHERE
 		o.number = #{orderNumber}
@@ -239,10 +248,83 @@
 
 		SELECT
 		SUM(op.product_count) count,
+		SUM(op.member_pricediscount*op.product_count) sumPrice,
 		pt.product_type productType
 		FROM t_order o join t_order_product op on o.number = op.order_number JOIN
 		t_product p ON op.product_id=p.id JOIN t_product_type pt ON
 		p.product_type_id=pt.id JOIN t_shop s ON pt.shop_id=s.id
 		WHERE s.id=#{shopId} AND TO_DAYS(o.create_time)=TO_DAYS(NOW()) GROUP BY p.product_type_id
 	</select>
+
+	<!--增加  -->
+	<update id="Increasecumulativeconsumptio">
+	
+	UPDATE t_member t
+		<set>
+		
+				t.total_money = #{totalMoney}+t.total_money
+		
+		</set>		  
+		WHERE
+		 	t.number = #{memberNumber}	
+	
+	
+	</update>
+	<select id="OrderByOption" resultType="com.cashier.entity.Order">
+	SELECT
+		o.id id,
+		o.number number,
+		o.member_number memberNumber,
+		o.create_time createTime,
+		o.shop_id shopId,
+		o.pay_method payMethod,
+		o.bank_name bankName,
+		o.card_number cardNumber,
+		o.pay_advance payAdvance,
+		o.custom_discount customDiscount,
+		o.total_money totalMoney,
+		o.state state,
+		o.remark remark,
+		o.refund refund
+		FROM
+		t_order o  where number=#{orderNumber}
+	
+	</select>
+
+		<!-- 修改订单状态（退货） -->
+	<update id="updateOrderStates">
+		UPDATE t_order o
+		set
+			
+				o.state ='2'
+			
+		
+		
+		WHERE
+		o.outtradeno = #{out_trade_no}
+	</update>
+	
+
+	<!-- 获得当月每种商品销售总订单数 及销售额 -->
+	<select id="getMonthSumOrderByProductType" resultType="com.cashier.entityDTO.OrderDTO">
+	SELECT
+        SUM(op.product_count) count,
+        SUM(op.member_pricediscount*op.product_count) sumPrice,
+        pt.product_type productType
+        FROM t_order o join t_order_product op on o.number = op.order_number JOIN
+        t_product p ON op.product_id=p.id JOIN t_product_type pt ON
+        p.product_type_id=pt.id JOIN t_shop s ON pt.shop_id=s.id
+        WHERE s.id=#{shopId} AND DATE_FORMAT(o.create_time,'%Y%m')=DATE_FORMAT( CURDATE( ) , '%Y%m' ) GROUP BY p.product_type_id
+	</select>
+	<!-- 当月销售前十 商品名称及数量 -->
+	<select id="getTopTenProduct" resultType="com.cashier.entityDTO.TopTenProductDTO">
+	   SELECT
+        p.`name`,
+        SUM(op.product_count) count
+        FROM t_order o join t_order_product op on o.number = op.order_number JOIN
+        t_product p ON op.product_id=p.id JOIN t_shop s ON p.shop_id=s.id
+        WHERE s.id=#{shopId} AND DATE_FORMAT(o.create_time,'%Y%m')=DATE_FORMAT( CURDATE( ) , '%Y%m' ) GROUP BY op.product_id ORDER BY count DESC limit 0,10
+	
+	</select>
+
 </mapper>

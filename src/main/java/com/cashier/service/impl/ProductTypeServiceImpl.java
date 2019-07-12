@@ -152,4 +152,17 @@ public class ProductTypeServiceImpl implements ProductTypeService {
 		return productTypeMapper.dimSelectProductTypeCount(p);
 	}
 
+	/**
+     * 
+     * @Title: selectByCanUse
+     * @description 根据可用/可不用查询商品分类
+     * @return ProductType    
+     * @author liujunkai
+     * @createDate 2019年7月12日
+     */
+    @Override
+    public ProductType selectByCanUse() {
+        return productTypeMapper.selectByCanUse();
+    }
+
 }

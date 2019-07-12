@@ -33,8 +33,8 @@ public class BirthdayController {
 	 * @author dujiawei
 	 * @createDate 2019年6月20日
 	 */
-	//@Scheduled(cron = "0 19 9 * * ?")
-	@Scheduled(cron = "0 00 01 * * ?")  //每天凌晨一点执行方法
+	//@Scheduled(cron = "0 43 10 * * ?")
+	@Scheduled(cron = "0 00 1 * * ?")  //每天凌晨一点执行方法
 	public void saveBirthday() {
 		Birthday birthday = new Birthday();
 		

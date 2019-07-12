@@ -91,4 +91,33 @@ public class InventoryController {
 
         return map;
     }
+    
+    /**
+     * 
+     * @Title: getInventoryByShopId
+     * @description 查看本店低于库存预警的数据
+     * @param  inventory
+     * @return Inventory    
+     * @author liujunkai
+     * @createDate 2019年7月8日
+     */
+    @RequestMapping("/getInventoryByShopId")
+    @ResponseBody
+    public Map<String,Object> getInventoryByShopId(InventoryDTO inventoryDTO) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            List<Inventory> getInventoryByShopId = inventoryService.getInventoryByShopId(inventoryDTO);
+            int count = inventoryService.getInventoryByShopIdCount(inventoryDTO);
+            map.put("msg", "查询成功");
+            map.put("code", 1);
+            map.put("data", getInventoryByShopId);
+            map.put("count", count);
+        } catch (Exception e) {
+            map.put("msg", "查询失败，方法错误");
+            map.put("code", 0);
+        }
+        
+        return map;
+    }
+
 }

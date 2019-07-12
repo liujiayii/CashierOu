@@ -109,6 +109,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     limit #{page},#{limit}
    </select>
    
+   <select id="getProductByGoodstraffic" resultType="com.cashier.entity.Product" parameterType="BigInteger">
+    select 
+        id,
+        name,
+        pleased,
+        barcode barCode,
+        sale_price salePrice,
+        member_price memberPrice,
+        image,
+        state,
+        specification,
+        color,
+        inventory
+    from t_product
+    WHERE id=#{id}
+   </select>
+
+   
      <!-- 条件查询所有商品数量 -->
    <select id="getProductByConditionCount" resultType="Integer">
     select 
@@ -125,6 +143,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
    </if>
    
    </select>
+
    <!-- 根据商品种类查询对应商品（不重复 给用户） -->
    <select id="productsByType" resultMap="ProductAndPropertys">
     select 

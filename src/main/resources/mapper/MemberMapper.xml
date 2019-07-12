@@ -368,6 +368,30 @@
 			m.can_use = 0
 		</where>
 	</select>
+	
+	<!-- 通过会员卡号获取会员信息 -->
+	<select id="getMemberByNumber" resultType="com.cashier.entity.Member">
+		SELECT 
+			m.id id,
+			m.number number,
+			m.phone phone,
+			m.name name,
+			m.sex sex,
+			m.birthday birthday,
+			m.ld_level_id ldLevelId,
+			ld.level level,
+			m.state state,
+			m.total_money totalMoney
+		FROM
+			t_member m,
+			t_level_discount ld
+		WHERE
+			m.ld_level_id = ld.id
+		AND
+		 	m.number = #{number}
+		AND
+			m.can_use = 0
+	</select>
   
     
 </mapper>

@@ -75,7 +75,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
 		</where>
 	</select>
-    
+	
     <!-- 库存表的数据单条显示 -->
     <select id="getInventory" resultType="com.cashier.entity.Inventory"
     parameterType="com.cashier.entity.Inventory">
@@ -87,6 +87,35 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             t_inventory
         where
             id = #{id}
+    </select>
+
+    <!-- 库存表的单店数据显示 -->
+    <select id="getInventoryByShopId" resultType="com.cashier.entity.Inventory"
+    parameterType="com.cashier.entityDTO.InventoryDTO">
+        select
+            id,
+            quantity,
+            inventory_warning inventoryWarning
+        from
+            t_inventory
+        where
+            shop_id = #{id}
+        and
+            quantity <![CDATA[ <= ]]> inventory_warning   
+        order by i.id
+        limit #{page},#{limit}    
+    </select>
+
+    <select id="getInventoryByShopIdCount" resultType="int"
+    parameterType="com.cashier.entityDTO.InventoryDTO">
+        select
+            count(id)
+        from
+            t_inventory
+        where
+            shop_id = #{id}
+        and
+            quantity <![CDATA[ <= ]]> inventory_warning   
     </select>
 
 	<!-- 修改单条数据 -->

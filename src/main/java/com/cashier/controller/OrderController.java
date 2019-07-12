@@ -16,6 +16,8 @@ import com.cashier.entity.Member;
 import com.cashier.entity.Order;
 import com.cashier.entity.OrderProduct;
 import com.cashier.entity.Product;
+import com.cashier.entityDTO.TopTenProductDTO;
+import com.cashier.entityVo.OrderProductVo;
 import com.cashier.entityVo.OrderVo;
 import com.cashier.entityVo.Productvos;
 import com.cashier.service.OrderProductService;
@@ -77,7 +79,37 @@ public class OrderController {
 		orderVo.setLimit(limit);
 		orderVo.setShopId(shopId);
 		Map<String, Object> result = new HashMap<String, Object>();
-		List<OrderVo> list = orderService.listOrderByOption(orderVo);
+		List<Order> list = orderService.listOrderByOption(orderVo);
+		if (list.size() > 0) {
+			for (int i = 0; i < list.size(); i++) {
+				list.get(i).setCount(0);
+			}
+		}
+		;
+		OrderVo oVo = orderService.countOrderByOption(orderVo);// 订单数量
+		int count = 0;
+		if (oVo.getCount() != 0) {
+			count = oVo.getCount();
+		}
+		;
+
+		result.put("code", 1);
+		result.put("msg", "Success");
+		result.put("data", list);
+		result.put("count", count);
+
+		return result;
+	}
+	@RequestMapping("/applistOrderByOption")
+	@ResponseBody
+	public Map<String, Object> applistOrderByOption(Model model, Integer page, Integer limit, OrderVo orderVo,BigInteger shopId) {
+		//BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+
+		orderVo.setPage((page - 1) * limit);
+		orderVo.setLimit(limit);
+		orderVo.setShopId(shopId);
+		Map<String, Object> result = new HashMap<String, Object>();
+		List<Order> list = orderService.listOrderByOption(orderVo);
 		if (list.size() > 0) {
 			for (int i = 0; i < list.size(); i++) {
 				list.get(i).setCount(0);
@@ -109,13 +141,14 @@ public class OrderController {
 	 * @author dujiawei
 	 * @createDate 2019年6月19日
 	 */
+	
 
 	@RequestMapping("/saveOrder")
 	@ResponseBody
 	public Map<String, Object> saveOrder(Order order, HttpSession session, Model model) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-		// order.setShopId(shopId);
+		 order.setShopId(shopId);
 		int num = orderService.saveOrder(order);
 		if (num == 1) {
 			map.put("code", 0);
@@ -196,7 +229,7 @@ public class OrderController {
 	public Map<String, Object> Enquiriesmembershipcard(String number, String phone, HttpSession session) {
 		Member Member = orderService.Querymembershipstatus(number, phone);
 		BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-		shopId=new BigInteger("1");
+		//shopId=new BigInteger("1");
 		String shopName = (String) session.getAttribute("shopName");
 		String orderNumber = codnoutil.cood(shopId);// 生成订单编号
 		Order Order = new Order();
@@ -269,7 +302,7 @@ public class OrderController {
 	@ResponseBody
 	public Map<String, Object> EnquiryonPreferentialPrice(String barCode, Integer productCount, HttpSession session) {
 		BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-		shopId=new BigInteger("1");
+		//shopId=new BigInteger("1");
 		Product product = orderService.querPreferences(barCode);
 		BigDecimal ser = new BigDecimal(Integer.parseInt(productCount.toString()));
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -291,7 +324,7 @@ public class OrderController {
 	@ResponseBody
 	public Map<String, Object> EnquiryonPreferential(String barCode, Integer productCount, HttpSession session) {
 		BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-		shopId=new BigInteger("1");
+		//shopId=new BigInteger("1");
 		Product product = orderService.querPreferences(barCode);
 		BigDecimal ser = new BigDecimal(Integer.parseInt(productCount.toString()));
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -313,7 +346,7 @@ public class OrderController {
 	public Map<String, Object> buyshopping(String orderNumber, String barCode, Integer productCount,
 			HttpSession session, BigDecimal Discount) {
 		BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-		shopId=new BigInteger("1");
+		//shopId=new BigInteger("1");
 		// String orderNumber = codnoutil.cood(shopId);// 生成订单编号
 		Product product = orderService.querPreferences(barCode);
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -325,6 +358,9 @@ public class OrderController {
 		orderProduc.setMemberPricediscount(Discount);// 获取活动折扣价格和商品的满减价格
 		orderProduc.setSalePrice(product.getSalePrice());// 获取单价
 		orderProduc.setOrderNumber(orderNumber);
+		BigDecimal ser = new BigDecimal(Integer.parseInt(productCount.toString()));
+		orderProduc.setMemberPrice(product.getSalePrice().multiply(ser));
+		orderProduc.setType(1);
 		int fig = orderProductService.saveOrderProduct(orderProduc);
 		try {
 			
@@ -355,28 +391,13 @@ public class OrderController {
 	@RequestMapping("/buyshoppingpay")
 	@ResponseBody
 	public Map<String, Object> buyshoppingpay(String orderNumber) {
-		Map<String, Object> map = new HashMap<String, Object>();	
+		Map<String, Object> map = new HashMap<String, Object>();				
+		int fig=orderService.updatetotalMoney(1,orderNumber,"");
 		
-			
-			/**订单应收金额*/
-			BigDecimal payAdvance=new BigDecimal(0);
-			
-			 BigDecimal customDiscount=new BigDecimal(0);
-			/**实付总金额*/
-			BigDecimal totalMoney=new BigDecimal(0);
-		
-		
-
-		List<OrderProduct> OrderProduct = orderProductService.listorderNumberOrderProduct(orderNumber);
-		for(int i=0;i<OrderProduct.size();i++) {
-			customDiscount=OrderProduct.get(i).getMemberPricediscount();
-			totalMoney=totalMoney.add(customDiscount);
-		}
-		int fig=orderService.updatetotalMoney(1,totalMoney,orderNumber);
 		if (fig > 0) {
 			map.put("code", 0);
 			map.put("msg", "Success");
-			map.put("date", totalMoney);
+			/* map.put("date", totalMoney); */
 
 		} else {
 			map.put("code", 1);
@@ -388,7 +409,7 @@ public class OrderController {
 
 	/**
 	 * @Title: getSumOrderAndSumOrderMoney
-	 * @description 条件查询订单量和订单总金额（安卓端）
+	 * @description 条件查询订单量和订单总金额（安卓端与pc端日报公用）
 	 * @param @param orderVo
 	 * @return Object
 	 * @author chenshuxian
@@ -418,9 +439,98 @@ public class OrderController {
 	     * @createDate 2019年7月8日
 	 */
 	@RequestMapping("/getPercentageOfProductType")
+	@ResponseBody
 	public Map<String,Object> getPercentageOfProductType(HttpSession session){
 		BigInteger shopId = new BigInteger(session.getAttribute("shopId")+"");
 		Map<String,Object> map=orderService.getSumOrderByProductType(shopId);
 		return map;
+	}
+	/**
+	 * 
+	     * @Title: getPercentageOfProductTypeByMonth
+	     * @description 获得该月每种商品类型下商品的总销售额和销售数量
+	     * @param  店铺id
+	     * @return    
+	     * @author chenshuxian
+	     * @createDate 2019年7月9日
+	 */
+	@RequestMapping("/getPercentageOfProductTypeByMonth")
+	@ResponseBody
+	public Map<String,Object> getPercentageOfProductTypeByMonth(HttpSession session){
+		BigInteger shopId = new BigInteger(session.getAttribute("shopId")+"");
+		Map<String,Object> map = orderService.getMonthSumOrderByProductType(shopId);
+		return map;
+	}
+	/**
+	 * 
+	     * @Title: getTopTenProduct
+	     * @description  获得当月销售前十商品名称和销售额
+	     * @param  店铺id
+	     * @return    
+	     * @author chenshuxian	
+	     * @createDate 2019年7月9日
+	 */
+	@RequestMapping("/getTopTenProduct")
+	@ResponseBody
+	public Map<String,Object> getTopTenProduct(HttpSession session){
+		Map<String,Object> map = new HashMap<>();
+		BigInteger shopId = new BigInteger(session.getAttribute("shopId")+"");
+		try {
+			List<TopTenProductDTO> listProduct = orderService.getTopTenProduct(shopId);
+			map.put("code", 1);
+			map.put("msg", "成功");
+			map.put("listProduct", listProduct);
+		} catch (Exception e) {
+			e.printStackTrace();
+			map.put("code", 0);
+			map.put("msg", "失败");
+		}
+		return map;
+		
+	}
+	/**
+	 * 根据订单号查询再次打印的方法app上使用
+	 * @param model
+	 * @param page
+	 * @param limit
+	 * @param orderVo
+	 * @param shopId
+	 * @return
+	 */
+	@RequestMapping("/appdylistOrderByOption")
+	@ResponseBody
+	public Map<String, Object> appdylistOrderByOption(Model model, Integer page, Integer limit, OrderVo orderVo,BigInteger shopId) {
+		//BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+
+		orderVo.setPage((1 - 1) * 20);
+		orderVo.setLimit(20);
+		orderVo.setShopId(shopId);
+		Map<String, Object> result = new HashMap<String, Object>();
+		List<Order> list = orderService.listOrderByOption(orderVo);
+		OrderProductVo orderProductVo=new OrderProductVo();
+		orderProductVo.setOrderNumber(list.get(0).getNumber());
+		orderProductVo.setPage((1-1)*20);
+		orderProductVo.setLimit(20);
+		List<OrderProductVo> list2 = orderProductService.listOrderProduct(orderProductVo);
+		if (list.size() > 0) {
+			for (int i = 0; i < list.size(); i++) {
+				list.get(i).setCount(0);
+			}
+		}
+		;
+		OrderVo oVo = orderService.countOrderByOption(orderVo);// 订单数量
+		int count = 0;
+		if (oVo.getCount() != 0) {
+			count = oVo.getCount();
+		}
+		;
+
+		result.put("code", 1);
+		result.put("msg", "Success");
+		result.put("data", list);
+		result.put("dates", list2);
+		result.put("count", count);
+
+		return result;
 	}
 }
