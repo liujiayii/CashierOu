@@ -33,12 +33,28 @@ public class Order implements Serializable {
 	/** 交易方式：1现金、2POS机、3支付宝、4微信支付 */
 	private Integer payMethod;
 
-	/*	*//** 开户行名称 */
-	/*
-	 * private String bankName;
-	 *//** 银行卡号 *//*
-					 * private String cardNumber;
-					 */
+	/** 开户行名称 */
+	
+	  private String bankName;
+	 /** 银行卡号 */
+     private String cardNumber;
+					 
+
+	public String getBankName() {
+		return bankName;
+	}
+
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
+	}
+
+	public String getCardNumber() {
+		return cardNumber;
+	}
+
+	public void setCardNumber(String cardNumber) {
+		this.cardNumber = cardNumber;
+	}
 
 	/** 订单应收金额 */
 	private BigDecimal payAdvance;
@@ -427,7 +443,7 @@ public class Order implements Serializable {
 	public String toString() {
 		return "Order [id=" + id + ", number=" + number + ", memberNumber=" + memberNumber + ", createTime="
 				+ createTime + ", shopId=" + shopId + ", shopName=" + shopName + ", payMethod=" + payMethod
-				+ /* ", bankName=" + bankName + ", cardNumber=" + cardNumber + */", payAdvance=" + payAdvance
+				+ ", bankName=" + bankName + ", cardNumber=" + cardNumber + ", payAdvance=" + payAdvance
 				+ ", customDiscount=" + customDiscount + ", totalMoney=" + totalMoney + ", state=" + state + ", remark="
 				+ remark + ", refund=" + refund + ", count=" + count + ", outtradeno=" + outtradeno + "]";
 	}

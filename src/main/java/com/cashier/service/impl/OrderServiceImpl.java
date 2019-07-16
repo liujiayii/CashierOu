@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,9 @@ import com.cashier.entity.Product;
 import com.cashier.entityDTO.OrderDTO;
 import com.cashier.entityDTO.TopTenProductDTO;
 import com.cashier.entityVo.OrderVo;
+import com.cashier.entityVo.unsteady;
 import com.cashier.service.OrderService;
+import com.cashier.util.codnoutil;
 
 /**
  *
@@ -162,62 +165,129 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public BigDecimal querDiscount(BigInteger productId, BigInteger shopId, BigDecimal orderProduct) {
+	public Map<String,BigDecimal> querDiscount(String  productId, BigInteger shopId) {
 		/**
 		 * 查询商品活动id
 		 */
-		BigInteger activity_id = orderMapper.queractivitybyid(productId, shopId);
+		
+		BigDecimal  discount=new BigDecimal(0);//非会员价格
+		BigDecimal  vipdiscount=new BigDecimal(0);//会员折扣前价格
+		BigDecimal  vipdiscounts=new BigDecimal(0);//会员折扣总价
+		BigDecimal  discounts=new BigDecimal(0);//非会用总价
+		String no=codnoutil.cood(shopId);
+		String []shoping=productId.split(";");
+		for(int i=0;i<shoping.length;i++) {
+			String []shop=shoping[i].split(",");	         
+			  unsteady unsteady = orderMapper.queractivitybyid(shop[0],shopId,shop[1]);
+			  unsteady.setNo(no);
+			  //if(unsteady.type)
+			  orderMapper.islist(unsteady);
+			  }
+		
+	   List <unsteady> unsteady=	orderMapper.queractivitybyids(no);
+	   /**
+		 * 查询折扣活动的总价
+		 */
+	   for(int t=0;t<unsteady.size();t++) {
+		  if(unsteady.get(t).getType()==2) {
+			  discount = orderMapper.querdiscountbyid(unsteady.get(t).getActivity_id(),unsteady.get(t).getSale_price());
+			  vipdiscount=orderMapper.querdiscountbyid(unsteady.get(t).getActivity_id(),unsteady.get(t).getMember_price());
+			  vipdiscounts= vipdiscounts.add(vipdiscount);
+			  discounts=discounts.add(discount);
+		  }
+		  if(unsteady.get(t).getType()==1) {
+				discount = orderMapper.querdiscountsbyid(unsteady.get(t).getActivity_id(),unsteady.get(t).getSale_price());
+				vipdiscount = orderMapper.querdiscountsbyid(unsteady.get(t).getActivity_id(),unsteady.get(t).getMember_price());
+				  vipdiscounts= vipdiscounts.add(vipdiscount);
+				  discounts=discounts.add(discount);
+		  }
+		  else {
+			  discount=unsteady.get(t).getSale_price();
+			  vipdiscount=unsteady.get(t).getMember_price();
+			  vipdiscounts= vipdiscounts.add(vipdiscount);
+			  discounts=discounts.add(discount);
+			  
+		  }
+	   }
+		
+		      
+		Map<String,BigDecimal>  map=new  HashMap<String, BigDecimal>();
+			  
+		   map.put("vipdiscounts", vipdiscounts);
+		   map.put("discounts", discounts);
+			
+
+			
+			
+			
+		//}
          
-		/**
-		 * 查询折扣
-		 */
-		BigDecimal discount = orderMapper.querdiscountbyid(activity_id, orderProduct);
-		/**
-		 * 满减金额
-		 */
-		if (discount == null) {
-
-			discount = orderMapper.querdiscountsbyid(activity_id, orderProduct);
-			discount = orderProduct.subtract(discount);
-		}
-
-		if (discount == null) {
-			discount = orderProduct;
-		}
-		return discount;
+	
+		
+		return map;
 	}
 
 	@Override
-	public int updatetotalMoney(int i, String orderNumber,String out_trade_no) {
-		/**订单应收金额*/
-		BigDecimal payAdvance=new BigDecimal(0);
+	public int updatetotalMoney(int i, String productId, String totalAmount, String out_trade_no,BigInteger shopId,String remark,int is_vip,String nubber) {
+		String orderNumber=codnoutil.cood(shopId);
+		OrderProduct orderProduc = new OrderProduct();
+		BigDecimal ser = new BigDecimal(0);
+				 
+		String []shoping=productId.split(";");
+		for(int t=0;t<shoping.length;t++) {
+			String []shop=shoping[t].split(",");	         
+			  unsteady unsteady = orderMapper.queractivitybyid(shop[0],shopId,shop[1]);
+			  Product product = orderMapper.querproductbyid(shop[0]);
+			  
+			  orderProduc.setProductId(product.getId());// 保存商品的id
+				 orderProduc.setProductCount(Integer.valueOf(shop[1]));// 购买数量
+				 orderProduc.setOrderNumber(orderNumber);
+				 orderProduc.setType(1); 
+				// orderProduc.setMemberPricediscount(unsteady.);// 获取活动折扣价格和商品的满减价格
+				 if(is_vip==1) {
+					 orderProduc.setSalePrice(product.getMemberPrice());// 获取单价
+					 orderProduc.setMemberPrice(unsteady.getMember_price());
+					 ser=ser.add(unsteady.getMember_price());
+				 }else {
+					 orderProduc.setSalePrice(product.getSalePrice());// 获取单价
+					 orderProduc.setMemberPrice(unsteady.getSale_price());
+					 ser=ser.add(unsteady.getSale_price());
+				 }
+				  
+				  
+				  //(Integer.parseInt(productCount.toString()));
+				 // orderProduc.setMemberPrice(product.getSalePrice().multiply(ser));
+				  
+				  int fig =orderProductMapper.saveOrderProduct(orderProduc);
+				 
+		      
+			  }
+		 Order order = new Order();					  
+		  order.setNumber(orderNumber); 
+		  order.setShopId(shopId);
+		  order.setMemberNumber(nubber);
+		  order.setPayMethod(1); 
+		  order.setPayAdvance(ser); 
+		  order.setRemark(remark);
+		  order.setState(1); 
+		  order.setTotalMoney(new BigDecimal(totalAmount));
+		  
+		  orderMapper.saveOrder(order);
+
 		
-		 BigDecimal customDiscount=new BigDecimal(0);
-		/**实付总金额*/
-		BigDecimal totalMoney=new BigDecimal(0);
-	
-		BigDecimal Advance=new BigDecimal(0);
-		List<OrderProduct> OrderProduct=orderProductMapper.listorderNumberOrderProduct(orderNumber);
-		for(int t=0;t<OrderProduct.size();t++) {
-			customDiscount=OrderProduct.get(t).getMemberPricediscount();
-			totalMoney=totalMoney.add(customDiscount);
-			Advance=OrderProduct.get(t).getMemberPrice();
-			payAdvance=payAdvance.add(Advance);
-		}
-		orderMapper.Increasecumulativeconsumptio(orderNumber,totalMoney);
 		Order Order=orderMapper.OrderByOption(orderNumber);
 		/**
 		 * 更新会员累计金额
 		 */
         if(Order.getMemberNumber()!=null) {
-	         int fig= orderMapper.Increasecumulativeconsumptio(Order.getMemberNumber(),totalMoney);
+	         int fig= orderMapper.Increasecumulativeconsumptio(Order.getMemberNumber(),new BigDecimal(totalAmount));
         }
 
 		  /**
 		   * 更新订单的实际付款金额
 		   */
 
-		 
+		if(is_vip==1) {
         //查询会员的累计消费金额，并更新会员等级
         Member member = new Member();
         Level level = new Level();
@@ -239,8 +309,8 @@ public class OrderServiceImpl implements OrderService {
         	//System.out.println("其他级别#####");
         }
         
-
-		return orderMapper.updatetotalMoney(i, totalMoney, orderNumber,out_trade_no,payAdvance);
+		}
+		return 1;
 	}
 
 	/**

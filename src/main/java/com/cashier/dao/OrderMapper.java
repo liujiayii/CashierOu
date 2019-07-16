@@ -12,6 +12,7 @@ import com.cashier.entity.Product;
 import com.cashier.entityDTO.OrderDTO;
 import com.cashier.entityDTO.TopTenProductDTO;
 import com.cashier.entityVo.OrderVo;
+import com.cashier.entityVo.unsteady;
 
 /**
  *
@@ -102,8 +103,14 @@ public interface OrderMapper {
 	 * @param productId
 	 * @param shopId
 	 * @return
+	 * 
+	 * 
 	 */
-	public BigInteger queractivitybyid(@Param("productId") BigInteger productId, @Param("shopId") BigInteger shopId);
+	public unsteady queractivitybyid(@Param("productId") String productId, @Param("shopId") BigInteger shopId,@Param("orderProduct")String orderProduct);
+	//public List<unsteady> queractivitybyid(@Param("productId") String productId, @Param("shopId") BigInteger shopId,@Param("orderProduct")BigDecimal orderProduct);
+	
+
+
 
 	/**
 	 * 查询折扣
@@ -182,6 +189,34 @@ public interface OrderMapper {
 	     * @createDate  2019年7月9日
 	 */
 	public List<TopTenProductDTO> getTopTenProduct(BigInteger shopId);
-	
 
+	
+	
+	/**
+	 * 
+	     * @Title: getTopTenProduct
+	     * @description 插入订单定时表
+	     * @param  店铺id
+	     * @return  
+	     * @author chenshuxian
+	     * @createDate  2019年7月9日
+	 */
+	
+	public void islist(unsteady unsteady);
+	/**
+	 * 查询价格
+	 * @param no
+	 * @return
+	 */
+
+	public List<unsteady> queractivitybyids(String no);
+  /*
+   * 
+   * 查询商品信息
+   */
+	public Product querproductbyid(String id);
+
+	
+	
+         
 }

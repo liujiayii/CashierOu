@@ -102,7 +102,7 @@ public interface OrderService {
 	 * @return
 	 */
 
-	public BigDecimal querDiscount(BigInteger id, BigInteger shopId, BigDecimal memberPrice);
+	public Map<String,BigDecimal> querDiscount(String id, BigInteger shopId);
 
 	/**
 	 * 现金支付
@@ -112,7 +112,7 @@ public interface OrderService {
 	 * @param orderNumber
 	 * @return
 	 */
-	public int updatetotalMoney(int i, String orderNumber,String out_trade_no);
+	public int updatetotalMoney(int i, String authCode, String totalAmount, String out_trade_no,BigInteger shopId,String remark,int type,String nubber);
 
 	/**
 	 * 
@@ -166,5 +166,7 @@ public interface OrderService {
 	     * @createDate  2019年7月9日
 	 */
 	public List<TopTenProductDTO> getTopTenProduct(BigInteger shopId);
+
+	
 
 }

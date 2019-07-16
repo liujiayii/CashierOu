@@ -154,9 +154,9 @@
 	<update id="updateOrderState" parameterType="com.cashier.entity.Order">
 		UPDATE t_order o
 		<set>
-			<if test="state != null">
-				o.state = #{state},
-			</if>
+		
+				o.state = 2,
+		
 			<if test="refund != null">
 				o.refund = #{refund}
 			</if>
@@ -205,12 +205,9 @@
 		and ( m.number=#{number} or m.phone=#{phone}) and m.state='0'
 
 	</select>
-	<select id="queractivitybyid" resultType="BigInteger">
+	<select id="queractivitybyid" resultType="com.cashier.entityVo.unsteady">
 
-		SELECT activity_id FROM `t_activities_active` s JOIN t_special_offers t
-		on s.activity_id=t.id where t.shop_id=#{shopId} and
-		s.product_id=#{productId}
-
+	SELECT   t.activity_id,(sum(s.sale_price)*#{orderProduct}) AS  sale_price,(sum(s.member_price)*#{orderProduct}) AS  member_price,ts.type  from   t_activities_active   t  join    t_product  s   on t.product_id=s.id   JOIN  t_special_offers  ts on ts.id=t.activity_id  WHERE  t.product_id=#{productId}  and  s.shop_id=#{shopId}  group by  t.activity_id 
 	</select>
 
 	<select id="querdiscountbyid" resultType="BigDecimal">
@@ -221,7 +218,7 @@
 
 	</select>
 	<select id="querdiscountsbyid" resultType="BigDecimal">
-		SELECT reduce_money FROM `t_regulation` s JOIN t_special_offers t
+		SELECT (#{orderProduct}-reduce_money) as reduce_money FROM `t_regulation` s JOIN t_special_offers t
 		on s.special_offers_id=t.id
 		where money=(select MAX(money) from t_regulation WHERE s.money&lt;#{orderProduct})and
 		t.id=#{activity_id} and t.end_time&gt;now() and t.start_time&lt;now()
@@ -326,5 +323,29 @@
         WHERE s.id=#{shopId} AND DATE_FORMAT(o.create_time,'%Y%m')=DATE_FORMAT( CURDATE( ) , '%Y%m' ) GROUP BY op.product_id ORDER BY count DESC limit 0,10
 	
 	</select>
+	<!-- 插入临时表数据 -->
+	<insert id="islist">
+	insert into t_unsteady(id,activity_id,member_price,sale_price,productId,type,no)VALUES(null,#{activity_id},#{member_price},#{sale_price},#{productId},#{type},#{no})	
+	</insert>
+	<!--汇总临时表的数据  -->
+	<select id="queractivitybyids"  resultType="com.cashier.entityVo.unsteady">
+	SELECT t_unsteady.activity_id,sum(member_price) as member_price,SUM(t_unsteady.sale_price)as sale_price ,t_unsteady.type  as  sale_price FROM `t_unsteady`  where no=#{no} group by  activity_id ;
+	</select>
+	<!-- 根据id查询商品的信息 -->
+<select id="querproductbyid" resultType="com.cashier.entity.Product">
 
+select id,
+		name,
+		pleased,
+		barcode barCode,
+		sale_price salePrice,
+		member_price memberPrice,
+		image,
+		state,
+		specification,
+		color,
+		can_use canUse,
+		inventory from t_product where id=#{id}
+
+</select>
 </mapper>

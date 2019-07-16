@@ -36,7 +36,7 @@ public class OrderProduct implements Serializable {
 	/**商品总价价 */
 	private BigDecimal memberPrice;
 
-	/**商品价折扣 */
+	/**实际付款 */
 	private BigDecimal memberPricediscount;
 
 	
