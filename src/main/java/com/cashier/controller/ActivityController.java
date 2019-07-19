@@ -37,7 +37,9 @@ import com.cashier.entityDTO.RegulationDTO;
 import com.cashier.entityDTO.SpecialOffersDTO;
 import com.cashier.service.ActivityService;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
 
 /**
  * @Description 优惠活动相关操作(活动管理、满减管理、活动商品管理)
@@ -132,15 +134,15 @@ public class ActivityController {
      */
     @RequestMapping("/checkAddActivityProduct")
     @ResponseBody
-    public Map<String, Object> checkAddActivityProduct(Model model,ActivitiesActive activitiesActive,HttpSession session,@RequestParam("productIdArray[]") List<BigInteger> productIdArray){
+    public Map<String, Object> checkAddActivityProduct(Model model,ActivitiesActive activitiesActive,HttpSession session,String productIdArray){
         // 通过session获取shopId保存到活动表      [hello, world, java]
         Map<String, Object> map = new HashMap<>();
         if (activitiesActive.getShopId()==null) {
          // 通过session获取shopId保存到活动表
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             if (shopId==null) {
-                map.put("code", -1);
-                map.put("message", "店铺ID获取失败，请重新登陆");
+                map.put("code", -2);
+                map.put("message", "店铺ID获取失败，请重新登录");
                 return map;
             }
             activitiesActive.setShopId(shopId);
@@ -151,8 +153,9 @@ public class ActivityController {
             Map<BigInteger, String> map2 = new HashMap<>();
              for (int i = 0; i < activitiesActiveList.size(); i++) {
                 ActivitiesActive activitiesActive2 = activitiesActiveList.get(i);
-                for (int j = 0; j < productIdArray.size(); j++) {
-                    if (activitiesActive2.getProductId().compareTo(productIdArray.get(j))==0) {
+                String[] productIdStrArray = productIdArray.split(",");
+                for (int j = 0; j < productIdStrArray.length; j++) {
+                    if (activitiesActive2.getProductId().compareTo(new BigInteger(productIdStrArray[j]))==0) {
                         map2.put(activitiesActive2.getActivityId(), activitiesActive2.getActivityName());
                     }
                 }
@@ -258,8 +261,8 @@ public class ActivityController {
          // 通过session获取shopId保存到活动表
             shopId = (BigInteger) session.getAttribute("shopId");
             if (shopId==null) {
-                map.put("code", -1);
-                map.put("message", "店铺ID获取失败，请重新登陆");
+                map.put("code", -2);
+                map.put("message", "店铺ID获取失败，请重新登录");
                 return map;
             }
         }
@@ -280,44 +283,18 @@ public class ActivityController {
      */
     @RequestMapping("/insertActivity")
     @ResponseBody
-    public Map<String, Object> insertActivity(Model model,HttpSession session,SpecialOffersDTO specialOffersDTO,String jsonstr){
+    public Map<String, Object> insertActivity(Model model,HttpSession session,SpecialOffersDTO specialOffersDTO,String jsonstr,String myRegulations){
         JSONObject jsonObject=JSONObject.fromObject(jsonstr);
         specialOffersDTO = (SpecialOffersDTO)JSONObject.toBean(jsonObject, SpecialOffersDTO.class);
-        /*
-        specialOffersDTO.setShopId(new BigInteger("1"));
-        specialOffersDTO.setName("五一活动大酬宾");
-        specialOffersDTO.setType(1);
-        specialOffersDTO.setStartTime("2019-05-01");
-        specialOffersDTO.setEndTime("2019-05-07");
-        specialOffersDTO.setScope(3);
-        
-        List<BigInteger> list = new ArrayList<>();
-        list.add(new BigInteger("2"));
-        list.add(new BigInteger("4"));
-        list.add(new BigInteger("5"));
-        specialOffersDTO.setIds(list);
-        
-        List<Regulation> list2 = new ArrayList<>();
-        Regulation regulation = new Regulation();
-        regulation.setMoney(new BigDecimal("100"));
-        regulation.setReduceMoney(new BigDecimal("10"));
-        Regulation regulation2 = new Regulation();
-        regulation2.setMoney(new BigDecimal("200"));
-        regulation2.setReduceMoney(new BigDecimal("25"));
-        list2.add(regulation);
-        list2.add(regulation);
-        specialOffersDTO.setRegulations(list2);
-        
-        JSONObject jsonObject2 = JSONObject.fromObject(specialOffersDTO);
-        String string = jsonObject2.toString();
-        System.out.println(string);
-        */
+        JSONArray jsonArray = JSONArray.fromObject(myRegulations);
+        List<Regulation> list = JSONArray.toList(jsonArray,new Regulation(),new JsonConfig());
+        specialOffersDTO.setRegulations(list);
         Map<String, Object> map = new HashMap<>();
         if (specialOffersDTO.getShopId()==null) {
             // 通过session获取shopId保存到活动表
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             if (shopId==null) {
-                map.put("code", -1);
+                map.put("code", -2);
                 map.put("message", "店铺ID获取失败，请重新登陆");
                 return map;
             }
@@ -347,13 +324,16 @@ public class ActivityController {
     @RequestMapping("/listActivity")
     @ResponseBody
     public Map<String, Object> listActivity(Model model,HttpSession session,SpecialOffers specialOffers,
-            @RequestParam(name = "page", defaultValue = "0") int page){
+            @RequestParam(name = "page", defaultValue = "1") int page,String timeStr){
+            if (timeStr!="" && timeStr!=null) {
+                specialOffers.setName(timeStr);
+            }
         Map<String, Object> map = new HashMap<>();
         if (specialOffers.getShopId()==null) {
             // 通过session获取shopId保存到活动表
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             if (shopId==null) {
-                map.put("code", -1);
+                map.put("code", -2);
                 map.put("message", "店铺ID获取失败，请重新登陆");
                 return map;
             }
@@ -400,8 +380,8 @@ public class ActivityController {
             // 通过session获取shopId保存到活动表
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             if (shopId==null) {
-                map.put("code", -1);
-                map.put("message", "店铺ID获取失败，请重新登陆");
+                map.put("code", -2);
+                map.put("message", "店铺ID获取失败，请重新登录");
                 return map;
             }
             specialOffers.setShopId(shopId);

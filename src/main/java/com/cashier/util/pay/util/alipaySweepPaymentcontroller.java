@@ -220,7 +220,7 @@ public void init() {
              .setOutRequestNo(outRequestNo).setStoreId(storeId);
         // System.out.println("tradeService的值"+result.getResponse().getSubMsg());
          AlipayF2FRefundResult result = tradeService.tradeRefund(builder);
-         System.out.println("tradeService的值"+result.getResponse().getSubMsg());
+         System.out.println("tradeService的值"+result);
          
          return  result;
      }

@@ -86,26 +86,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!-- 条件查询所有商品 -->
    <select id="getProductByCondition" resultType="com.cashier.entity.Product">
     select 
-        id,
-        name,
-        pleased,
-        barcode barCode,
-        sale_price salePrice,
-        member_price memberPrice,
-        image,
-        state,
-        specification,
-        color,
-        inventory
-    from t_product
-    WHERE shop_id=#{shopId}
-    and can_use=1
+        p.id,
+        p.name,
+        p.pleased,
+        p.barcode barCode,
+        p.sale_price salePrice,
+        p.member_price memberPrice,
+        p.image,
+        p.state,
+        p.specification,
+        p.color,
+        p.inventory,
+        pt.product_type productType
+    from t_product p, t_product_type pt
+    WHERE 
+    p.product_type_id=pt.id and
+    p.shop_id=#{shopId}
+    and p.can_use=1
     <if test="productTypeId!=null">
-     and product_type_id=#{productTypeId}
+     and p.product_type_id=#{productTypeId}
     </if>
    <if test="productName!=null and productName!=''">
-    and name like "%"#{productName}"%"
+    and p.name like "%"#{productName}"%"
    </if>
+   order by p.id desc
     limit #{page},#{limit}
    </select>
    
@@ -263,5 +267,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </collection>
         </collection>
     </resultMap>
-   
+   <!-- 修改商品状态(上架/下架) -->
+    <update id="updateProductState" parameterType="Product">
+        update t_product p
+        <set>
+            
+           p.state = #{state}
+           
+        </set>
+        where p.id= #{id}
+    </update>
 </mapper>

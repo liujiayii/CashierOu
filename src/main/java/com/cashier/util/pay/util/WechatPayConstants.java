@@ -43,6 +43,9 @@ public void init() {
 
 } 
 	public Map<String, String> micropay(String total_fee, String auth_code, String orderNumber) throws Exception {
+		Double  total=Double.valueOf(total_fee);
+		Long fee=(long) (total*100);
+		total_fee=fee.toString();
 		WXPayConfig WXPayConfig = new WXPayConfig();
 		WXPay WXPay = new WXPay(WXPayConfig);
 		Map<String, String> params = new HashMap<String, String>();
@@ -91,6 +94,10 @@ public void init() {
 	 */
 	
 	public Map<String, String> drawback(String out_trade_no, String total_fee, String refund_fee) throws Exception {
+		Double  total=Double.valueOf(total_fee);
+		Long fee=(long) (total*100);
+		total_fee=fee.toString();
+		refund_fee=total_fee;
 		WXPayConfig WXPayConfig = new WXPayConfig();
 		WXPay WXPay = new WXPay(WXPayConfig);
 		Map<String, String> params = new HashMap<String, String>();
@@ -108,7 +115,7 @@ public void init() {
 
 		param.put("out_trade_no", out_trade_no);
 		param.put("nonce_str", System.currentTimeMillis() / 1000 + "");
-		Map<String, String> refundQuery = WXPay.refundQuery(params);
+		Map<String, String> refundQuery = WXPay.refundQuery(param);
 		return  refundQuery;
 	}
 				

@@ -199,6 +199,7 @@ public interface ActivityService {
      * @createDate 2019年7月8日
      */
     int listActivityCount(SpecialOffers specialOffers);
+
     
    
 

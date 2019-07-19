@@ -29,6 +29,7 @@
 			gop.quantity,
 			gop.money,
 			p.name           productName,
+			p.id             productId,
 			pt.product_type  productTypeName
 		from
 			t_goodstraffic_orders_product gop,

@@ -54,6 +54,10 @@ public class UserVo implements Serializable {
      *  2.市级;
      *  3.区级） */
     private Integer agentType;
+    /** 用户省ID */
+    private Integer userProvinceId;
+    /** 用户市ID */
+    private Integer userCityId;
     /** 区域ID */
     private Integer areaId;
 	
@@ -154,6 +158,18 @@ public class UserVo implements Serializable {
 	public void setAgentType(Integer agentType) {
 		this.agentType = agentType;
 	}
+	public Integer getUserProvinceId() {
+		return userProvinceId;
+	}
+	public void setUserProvinceId(Integer userProvinceId) {
+		this.userProvinceId = userProvinceId;
+	}
+	public Integer getUserCityId() {
+		return userCityId;
+	}
+	public void setUserCityId(Integer userCityId) {
+		this.userCityId = userCityId;
+	}
 	public Integer getAreaId() {
 		return areaId;
 	}
@@ -203,6 +219,8 @@ public class UserVo implements Serializable {
 		result = prime * result + ((sex == null) ? 0 : sex.hashCode());
 		result = prime * result + ((shopId == null) ? 0 : shopId.hashCode());
 		result = prime * result + ((state == null) ? 0 : state.hashCode());
+		result = prime * result + ((userCityId == null) ? 0 : userCityId.hashCode());
+		result = prime * result + ((userProvinceId == null) ? 0 : userProvinceId.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
 	}
@@ -299,6 +317,16 @@ public class UserVo implements Serializable {
 				return false;
 		} else if (!state.equals(other.state))
 			return false;
+		if (userCityId == null) {
+			if (other.userCityId != null)
+				return false;
+		} else if (!userCityId.equals(other.userCityId))
+			return false;
+		if (userProvinceId == null) {
+			if (other.userProvinceId != null)
+				return false;
+		} else if (!userProvinceId.equals(other.userProvinceId))
+			return false;
 		if (username == null) {
 			if (other.username != null)
 				return false;
@@ -311,8 +339,9 @@ public class UserVo implements Serializable {
 		return "UserVo [id=" + id + ", username=" + username + ", password=" + password + ", name=" + name + ", phone="
 				+ phone + ", sex=" + sex + ", age=" + age + ", entryTime=" + entryTime + ", birthday=" + birthday
 				+ ", remarks=" + remarks + ", shopId=" + shopId + ", roleId=" + roleId + ", roleName=" + roleName
-				+ ", state=" + state + ", agentType=" + agentType + ", areaId=" + areaId + ", page=" + page + ", limit="
-				+ limit + ", count=" + count + "]";
+				+ ", state=" + state + ", agentType=" + agentType + ", userProvinceId=" + userProvinceId
+				+ ", userCityId=" + userCityId + ", areaId=" + areaId + ", page=" + page + ", limit=" + limit
+				+ ", count=" + count + "]";
 	}
 	
 }

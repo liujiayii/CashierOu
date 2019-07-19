@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jbarcode.JBarcode;
 import org.jbarcode.encode.Code128Encoder;
 import org.jbarcode.encode.EAN13Encoder;
@@ -27,6 +28,7 @@ import org.jbarcode.paint.WidthCodedPainter;
 import org.jbarcode.util.ImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -52,14 +54,14 @@ public class ProductController {
 	 */
 	@RequestMapping("/addProduct")
 	@ResponseBody
-	public Map<String,Object> addProduct(HttpServletRequest request,HttpSession session,Product product,BigInteger quantity){
+	public Map<String,Object> addProduct(HttpServletRequest request,HttpSession session,Product product,BigInteger quantity,BigInteger inventoryWarning){
 		Map<String, Object> map = new HashMap<>();
 		
 		//设置店铺id，
 		product.setShopId(new BigInteger(session.getAttribute("shopId")+""));
 		
 		try {
-			if(product.getBarCode()==null){
+			if(product.getBarCode()==null||product.getBarCode().equals("")){
 				//自动生成商品条码
 				String numStr = "";
 				String trandStr = String.valueOf((Math.random() * 9 + 1) * 10000);
@@ -71,7 +73,7 @@ public class ProductController {
 				product.setBarCode(numStr+check);
 				
 			}
-			Integer row =productService.insertProduct(product,quantity);
+			Integer row =productService.insertProduct(product,quantity,inventoryWarning);
 			if(row!=0){
 				map.put("code", 1);
 				map.put("msg", "添加成功");
@@ -268,7 +270,7 @@ public class ProductController {
 			if(number==null||number.equals("")||number.length()<12) {
 				 
 			}
-			bi = jbarcode13.createBarcode(number.substring(0, 12));
+			bi = jbarcode13.createBarcode(number);
             response.reset();
             response.setContentType("image/jpeg");
             OutputStream ops =
@@ -305,5 +307,30 @@ public class ProductController {
 		}
 		return map;
 		
+	}
+	
+	/**
+	 * description 修改商品状态(上架/下架)
+	 *
+	 * @author chenshuxian
+	 * @createDate 2019 年7月18日 下午2:00
+	 */
+	//@RequiresPermissions("/updateProductState")
+	@RequestMapping("/updateProductState")
+	@ResponseBody
+	public Map<String, Object> updateProductState(Product product,HttpSession session) {
+		BigInteger shopId = new BigInteger(session.getAttribute("shopId")+"");
+		int row = productService.updateProductState(product);
+		Map<String, Object> map = new HashMap<String, Object>();
+		if (row == 1) {
+			map.put("code", 0);
+			map.put("msg", "成功");
+			
+		} else {
+			map.put("code", 1);
+			map.put("msg", "失败");
+		}
+		return map;
+
 	}
 }

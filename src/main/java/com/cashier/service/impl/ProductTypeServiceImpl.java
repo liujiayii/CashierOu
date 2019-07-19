@@ -156,13 +156,14 @@ public class ProductTypeServiceImpl implements ProductTypeService {
      * 
      * @Title: selectByCanUse
      * @description 根据可用/可不用查询商品分类
-     * @return ProductType    
+     * @param id
+     * @return List<ProductType>    
      * @author liujunkai
      * @createDate 2019年7月12日
      */
     @Override
-    public ProductType selectByCanUse() {
-        return productTypeMapper.selectByCanUse();
+    public List<ProductType> selectByCanUse(BigInteger id) {
+        return productTypeMapper.selectByCanUse(id);
     }
 
 }

@@ -73,8 +73,10 @@
             t_product p 
         on 
             pt.id = p.product_type_id    
+            <if test=" id !=null and id !='' ">
         and 
-            p.shop_id = #{id}
+            p.shop_id = #{id}  
+            </if>
         order by 
             pt.id
     </select>    
@@ -151,11 +153,12 @@
     parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
         select
 	        tgm.id,
-			ts.name               shipmentsShopName,
-			tgm.total_money       totalMoney,
-			tgm.delivery_date     deliveryDate,
+			ts.name                  shipmentsShopName,
+			tgm.total_money          totalMoney,
+			tgm.delivery_date        deliveryDate,
 			tgm.remark,
-			tgm.serial_number     serialNumber
+			tgm.serial_number        serialNumber,
+			tgm.transportation_state transportationState
 		from
             t_goodstraffic_management tgm,
             t_shop  ts 	
@@ -225,11 +228,12 @@
     parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
         select
             tgm.id,
-            ts.name               receivingShopName,
-            tgm.total_money       totalMoney,
-            tgm.delivery_date     deliveryDate,
+            ts.name                  receivingShopName,
+            tgm.total_money          totalMoney,
+            tgm.delivery_date        deliveryDate,
             tgm.remark,
-            tgm.serial_number     serialNumber
+            tgm.serial_number        serialNumber,
+            tgm.transportation_state transportationState
         from
             t_goodstraffic_management tgm,
             t_shop  ts  

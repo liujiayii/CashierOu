@@ -89,7 +89,7 @@ public class JurisdictionController {
 	    Object shopId = session.getAttribute("shopId");
 	    role.setShopId(new BigInteger(""+shopId));
         if (username =="" || username == null) {
-        	result.put("code", 0);
+        	result.put("code",-2);
     		result.put("msg", "登陆超时");
             return result; // 抛异常登陆超时
         }

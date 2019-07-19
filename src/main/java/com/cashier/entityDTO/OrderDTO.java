@@ -15,7 +15,8 @@ public class OrderDTO implements Serializable{
 	private Integer count;
 	/** 此类商品总销售额*/
 	private BigDecimal sumPrice;
-	
+	/** 百分比*/
+	private String percent;
 	public BigDecimal getSumPrice() {
 		return sumPrice;
 	}
@@ -34,11 +35,18 @@ public class OrderDTO implements Serializable{
 	public void setCount(Integer count) {
 		this.count = count;
 	}
+	public String getPercent() {
+		return percent;
+	}
+	public void setPercent(String percent) {
+		this.percent = percent;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((count == null) ? 0 : count.hashCode());
+		result = prime * result + ((percent == null) ? 0 : percent.hashCode());
 		result = prime * result + ((productType == null) ? 0 : productType.hashCode());
 		result = prime * result + ((sumPrice == null) ? 0 : sumPrice.hashCode());
 		return result;
@@ -57,6 +65,11 @@ public class OrderDTO implements Serializable{
 				return false;
 		} else if (!count.equals(other.count))
 			return false;
+		if (percent == null) {
+			if (other.percent != null)
+				return false;
+		} else if (!percent.equals(other.percent))
+			return false;
 		if (productType == null) {
 			if (other.productType != null)
 				return false;
@@ -71,7 +84,8 @@ public class OrderDTO implements Serializable{
 	}
 	@Override
 	public String toString() {
-		return "OrderDTO [productType=" + productType + ", count=" + count + ", sumPrice=" + sumPrice + "]";
+		return "OrderDTO [productType=" + productType + ", count=" + count + ", sumPrice=" + sumPrice + ", percent="
+				+ percent + "]";
 	}
 	
 }

@@ -137,22 +137,21 @@
 			t.create_time createTime,
 			t.state state,
 			t.remarks remarks,
-			t.bonus_type bonusType,
-			b.bonus_name bonusName
+			t.bonus_type bonusType
+			
 		FROM
 			t_dm_area c,
 			t_dm_area a,
 			t_dm_area p,
-			t_shop t,
-			t_bonus b
+			t_shop t
+			
 		WHERE
 			c.area_id = a.pid
 		AND
 			c.pid = p.area_id
 		AND	
 			t.area = a.area_id
-		AND
-			t.bonus_type = b.id
+	
 		ORDER BY
 			t.id DESC
 		limit #{page},#{limit}
@@ -193,13 +192,13 @@
 			t.state state,
 			t.remarks remarks,
 			t.bonus_type bonusType,
-		    b.bonus_name bonusName
+		 
 		FROM
 			t_dm_area c,
 			t_dm_area a,
 			t_dm_area p,
-			t_shop t,
-			t_bonus b
+			t_shop t
+			
 		<where> 
 			c.area_id = a.pid
 			AND
@@ -207,7 +206,7 @@
 			AND	
 				t.area = a.area_id
 			AND
-				t.bonus_type = b.id
+				
 			<if test="name != null and name != ''">
 				and t.name like "%"#{name}"%"
 			</if>
@@ -223,16 +222,15 @@
 			t_dm_area c,
 			t_dm_area a,
 			t_dm_area p,
-			t_shop t,
-			t_bonus b
+			t_shop t
+	
 		<where> 
 			c.area_id = a.pid
 			AND
 				c.pid = p.area_id
 			AND	
 				t.area = a.area_id
-			AND
-				t.bonus_type = b.id
+		
 			<if test="name != null and name != ''">
 				and t.name like "%"#{name}"%"
 			</if>
@@ -384,5 +382,15 @@
 		    type = #{type}
 		    </if>
 		</where>
+	</select>
+	
+	
+	<!-- (下拉单使用)查询所有的店铺名称和id -->
+	<select id="listAllShopIdAndName" resultType="com.cashier.entityVo.UserShopVo" parameterType="com.cashier.entityVo.UserShopVo">	
+		SELECT
+			s.id shopId,
+			s.name shopName
+		FROM
+			t_shop s
 	</select>
 </mapper>

@@ -145,7 +145,7 @@ public class ShopController {
 		String username = (String) session.getAttribute("username");
 		
 		if (username =="" || username == null) { 
-			map.put("code", -1);
+			map.put("code", -2);
 			map.put("msg", "登陆超时,请重新登陆"); 
 		 	return map; //抛异常登陆超时
 		 }
@@ -209,6 +209,8 @@ public class ShopController {
 	@ResponseBody
 	public Object updateShop(Model model, ShopVo shopVo, ShopUserPermissionDTO shopUserPermissionDTO, String ids) {
 		int num = shopService.updateShop(shopVo, shopUserPermissionDTO, ids);
+
+		
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (num == 1) {
 			map.put("code", 0);

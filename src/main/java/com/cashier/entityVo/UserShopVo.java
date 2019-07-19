@@ -24,7 +24,11 @@ public class UserShopVo implements Serializable {
      *  2.市级;
      *  3.区级） */
     private Integer agentType;
-    /** 区域ID */
+    /** 用户省ID */
+    private Integer userProvinceId;
+    /** 用户市ID */
+    private Integer userCityId;
+    /** 用户区域ID */
     private Integer areaId;
     
     //  店铺表字段
@@ -81,6 +85,18 @@ public class UserShopVo implements Serializable {
 	}
 	public void setAgentType(Integer agentType) {
 		this.agentType = agentType;
+	}
+	public Integer getUserProvinceId() {
+		return userProvinceId;
+	}
+	public void setUserProvinceId(Integer userProvinceId) {
+		this.userProvinceId = userProvinceId;
+	}
+	public Integer getUserCityId() {
+		return userCityId;
+	}
+	public void setUserCityId(Integer userCityId) {
+		this.userCityId = userCityId;
 	}
 	public Integer getAreaId() {
 		return areaId;
@@ -143,6 +159,8 @@ public class UserShopVo implements Serializable {
 		result = prime * result + ((shopName == null) ? 0 : shopName.hashCode());
 		result = prime * result + ((state == null) ? 0 : state.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((userCityId == null) ? 0 : userCityId.hashCode());
+		result = prime * result + ((userProvinceId == null) ? 0 : userProvinceId.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
 	}
@@ -215,6 +233,16 @@ public class UserShopVo implements Serializable {
 				return false;
 		} else if (!type.equals(other.type))
 			return false;
+		if (userCityId == null) {
+			if (other.userCityId != null)
+				return false;
+		} else if (!userCityId.equals(other.userCityId))
+			return false;
+		if (userProvinceId == null) {
+			if (other.userProvinceId != null)
+				return false;
+		} else if (!userProvinceId.equals(other.userProvinceId))
+			return false;
 		if (username == null) {
 			if (other.username != null)
 				return false;
@@ -225,9 +253,9 @@ public class UserShopVo implements Serializable {
 	@Override
 	public String toString() {
 		return "UserShopVo [id=" + id + ", username=" + username + ", password=" + password + ", name=" + name
-				+ ", state=" + state + ", agentType=" + agentType + ", areaId=" + areaId + ", shopId=" + shopId
-				+ ", shopName=" + shopName + ", type=" + type + ", area=" + area + ", provinceId=" + provinceId
-				+ ", cityId=" + cityId + "]";
+				+ ", state=" + state + ", agentType=" + agentType + ", userProvinceId=" + userProvinceId
+				+ ", userCityId=" + userCityId + ", areaId=" + areaId + ", shopId=" + shopId + ", shopName=" + shopName
+				+ ", type=" + type + ", area=" + area + ", provinceId=" + provinceId + ", cityId=" + cityId + "]";
 	}
 
 }

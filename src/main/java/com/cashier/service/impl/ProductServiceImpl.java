@@ -77,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	@Override
 	@Transactional
-	public Integer insertProduct(Product product, BigInteger quantity) {
+	public Integer insertProduct(Product product, BigInteger quantity,BigInteger inventoryWarning) {
 		Integer row;
 		// 判断商品码是否重复，如果重复自定义商品码
 		Product p = productMapper.getProductByNameAndBarcode(product);
@@ -100,8 +100,7 @@ public class ProductServiceImpl implements ProductService {
 		inventory.setProductId(product.getId());
 		inventory.setQuantity(quantity);
 		inventory.setShopId(product.getShopId());
-		// TODO 设置库存预警
-
+		inventory.setInventoryWarning(inventoryWarning);
 		// 判断此店铺是否是总店
 		Shop shop = new Shop();
 		shop.setId(product.getShopId());
@@ -377,6 +376,16 @@ public class ProductServiceImpl implements ProductService {
 		}
 		return checkCode;
 	}
+	/**
+	 * 修改状态(上架/下架)
+	 * 
+	 * @author chenshuxian
+	 * @createDate 2019年7月18日 下午2:00
+	 */
+	@Override
+	public Integer updateProductState(Product product) {
 
+		return productMapper.updateProductState(product);
+	}
 	
 }

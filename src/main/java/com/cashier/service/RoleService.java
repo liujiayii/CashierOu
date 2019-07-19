@@ -98,4 +98,14 @@ public interface RoleService {
      */
     public List<PermissionVo> getPermissionListByShopId(User user);
 
+    /**
+     * @Title: listShopRole
+     * @description 新增修改用户信息时，角色的下拉单选项使用
+     * @param @param roleVo
+     * @return List<RoleVo>    
+     * @author dujiawei
+     * @createDate 2019年7月18日
+     */
+	public List<RoleVo> listShopRole(RoleVo roleVo);
+
 }

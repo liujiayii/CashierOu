@@ -178,18 +178,20 @@ public class ProductTypeController {
      */
 	@RequestMapping("/selectByCanUse")
     @ResponseBody
-    public Map<String,Object> selectByCanUse() {
+    public Map<String,Object> selectByCanUse(HttpSession session) {
         Map<String,Object> map = new HashMap<>();
-        try {
-            ProductType productType = productTypeService.selectByCanUse();
+        //try {
+           // BigInteger shopId=new BigInteger(session.getAttribute("shopId")+"");
+            BigInteger shopId =null;
+            List<ProductType> productType = productTypeService.selectByCanUse(shopId);
             map.put("code", 1);
             map.put("msg", "成功");
             map.put("data", productType);
-        } catch (Exception e) {
-            e.printStackTrace();
-            map.put("code", 0);
-            map.put("msg", "查询失败");
-        }
+        //} catch (Exception e) {
+        //    e.printStackTrace();
+         //   map.put("code", 0);
+         //   map.put("msg", "查询失败");
+       // }
        
         return map;
     }

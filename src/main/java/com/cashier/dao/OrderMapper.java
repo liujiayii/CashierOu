@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.alipay.demo.trade.model.result.AlipayF2FPayResult;
 import com.cashier.entity.Member;
 import com.cashier.entity.Order;
 import com.cashier.entity.Product;
@@ -215,6 +216,19 @@ public interface OrderMapper {
    * 查询商品信息
    */
 	public Product querproductbyid(String id);
+ /**
+  *   没有参加活动的情况
+  * @param productId
+  * @param shopId
+  * @param orderProduct
+  * @return
+  */
+	public unsteady queractivitybyidde(@Param("productId") String productId, @Param("shopId") BigInteger shopId,@Param("orderProduct")String orderProduct);
+/**
+ * 存储返回的数据
+ * @param result
+ */
+public void severAlipayF2FPayResult(AlipayF2FPayResult result);
 
 	
 	

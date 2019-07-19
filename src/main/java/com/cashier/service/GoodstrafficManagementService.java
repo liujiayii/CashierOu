@@ -51,7 +51,7 @@ public interface GoodstrafficManagementService {
      * @author liujunkai
      * @createDate 2019年7月5日
      */
-    List<AddsubscriptionVo> listProductAndProductType(BigInteger id);
+    List<AddsubscriptionVo> listProductAndProductType(BigInteger shopId);
 
     /**
      * 

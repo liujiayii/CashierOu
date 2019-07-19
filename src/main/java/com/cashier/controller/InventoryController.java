@@ -1,8 +1,11 @@
 package com.cashier.controller;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,6 +45,7 @@ public class InventoryController {
             map.put("data", listInventory);
             map.put("count", count);
         } catch (Exception e) {
+            e.printStackTrace();
             map.put("msg", "方法错误");
             map.put("code", 0);
         }
@@ -67,6 +71,7 @@ public class InventoryController {
             map.put("msg", "修改成功");
             map.put("code", 1);
         } catch (Exception e) {
+            e.printStackTrace();
             map.put("code", 0);
             map.put("msg", "方法错误");
         }
@@ -85,9 +90,9 @@ public class InventoryController {
      */
     @RequestMapping("/updateQuantity")
     @ResponseBody
-    public Map<String, Object> updateQuantity(Inventory inventory, Integer judge) {
+    public Map<String, Object> updateQuantity(BigInteger id, String inventory, Integer judge, HttpSession session) {
         Map<String, Object> map = new HashMap<>();
-        map = inventoryService.updateQuantity(inventory, judge);
+        map = inventoryService.updateQuantity(id, inventory, judge, session);
 
         return map;
     }
@@ -103,16 +108,20 @@ public class InventoryController {
      */
     @RequestMapping("/getInventoryByShopId")
     @ResponseBody
-    public Map<String,Object> getInventoryByShopId(InventoryDTO inventoryDTO) {
+    public Map<String,Object> getInventoryByShopId(InventoryDTO inventoryDTO,HttpSession session) {
         Map<String, Object> map = new HashMap<>();
         try {
-            List<Inventory> getInventoryByShopId = inventoryService.getInventoryByShopId(inventoryDTO);
+            inventoryDTO.setPage((inventoryDTO.getPage() - 1) * inventoryDTO.getLimit());
+            BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+            inventoryDTO.setId(shopId);
+            List<InventoryVo> getInventoryByShopId = inventoryService.getInventoryByShopId(inventoryDTO);
             int count = inventoryService.getInventoryByShopIdCount(inventoryDTO);
             map.put("msg", "查询成功");
             map.put("code", 1);
             map.put("data", getInventoryByShopId);
             map.put("count", count);
         } catch (Exception e) {
+            e.printStackTrace();
             map.put("msg", "查询失败，方法错误");
             map.put("code", 0);
         }

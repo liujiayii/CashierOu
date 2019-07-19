@@ -113,5 +113,10 @@ public interface ProductMapper {
 	Product getProductByNameAndBarcode(Product product);
 	
 	Product getProductByGoodstraffic(BigInteger id);
-	
+	/**
+	 * 修改状态(上架/下架)
+	 * @author chenshuxian
+	 * @createDate 2019年7月18日 下午2:00
+	 */
+	public Integer updateProductState(Product product);
 }

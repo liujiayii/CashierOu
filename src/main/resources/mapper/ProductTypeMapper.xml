@@ -16,7 +16,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			can_use = 1
 			and shop_id=#{shopId}
 		</where>
-
+        order by id desc
 	</select>
 
 	<!-- 查询除去当前商品类型所有的商品类型 不分页（用于判断商品分类是否重复） -->
@@ -36,7 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			and pt.product_type = #{productTypeName}
 			and pt.shop_id =#{shopId}
 		</where>
-
+        order by pt.id desc
 	</select>
 	<!-- 模糊查询商品类型 -->
 	<select id="dimSelectProductType" resultType="com.cashier.entity.ProductType">
@@ -52,6 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 				and product_type like "%"#{productTypeName}"%"
 			</if>
 		</where>
+		order by id desc
 		limit #{page},#{limit}
 	</select>
 
@@ -105,17 +106,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 				and product_type like "%"#{productTypeName}"%"
 			</if>
 		</where>
-
+    
 	</select>
 
-	<select id="selectByCanUse" resultType="com.cashier.entity.ProductType">
+	<select id="selectByCanUse" resultType="com.cashier.entity.ProductType" parameterType="BigInteger">
 		select
 		    id,
-		    name
+		    product_type productTypeName
 		from
 		    t_product_type
-		where
+		<where>
 		    can_use = 1
+		    <if test="shopId !=null">
+		and 
+		    shop_id = #{id}     
+		    </if>
+		</where>
+		   
+		order by id desc    
 	</select>
 
 

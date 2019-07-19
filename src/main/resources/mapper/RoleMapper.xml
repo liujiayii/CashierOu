@@ -20,6 +20,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			  and r.name like "%"#{name}"%"
 		   </if>
 		</where>
+		order by 
+			r.id DESC
         limit #{page},#{limit}
 	</select>
 	
@@ -202,4 +204,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where rpr.permission_id=#{permissionId}
 		AND r.shop_id = #{roleId}
     </delete>
+    
+    
+    <!-- 新增修改用户信息时，角色的下拉单选项使用 -->
+	<select id="listShopRole" resultType="com.cashier.entityVo.RoleVo">
+		select
+			r.id,
+			r.name,
+			r.shop_id shopId
+		from
+			t_role r
+		WHERE
+			  r.shop_id = #{shopId}
+			  and  r.name != "超级管理员"
+	</select>
+    
 </mapper>

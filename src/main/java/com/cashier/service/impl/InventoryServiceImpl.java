@@ -5,21 +5,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.cashier.dao.GoodstrafficManagementMapper;
 import com.cashier.dao.InventoryMapper;
+import com.cashier.entity.GoodstrafficManagement;
 import com.cashier.entity.Inventory;
 import com.cashier.entityDTO.InventoryDTO;
 import com.cashier.entityVo.InventoryVo;
 import com.cashier.service.InventoryService;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 @Service
 public class InventoryServiceImpl implements InventoryService {
 
     @Autowired
     private InventoryMapper inventoryMapper;
+    @Autowired
+    private GoodstrafficManagementMapper goodstrafficManagementMapper;
 
+    
     @Override
     public List<InventoryVo> listInventory(InventoryDTO inventoryDTO) {
 
@@ -46,32 +56,71 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public Map<String, Object> updateQuantity(Inventory inventory, Integer judge) {
+    public Map<String, Object> updateQuantity(BigInteger id, String inventory, Integer judge, HttpSession session) {
         Map<String, Object> map = new HashMap<>();
         try {
-            // judege为1则是出库，其他则是入库
-            Inventory inventory2 = inventoryMapper.getInventory(inventory);
-            if (judge == 1) {
-                // 如果这个出库值大于库存值则无法出库
-                if (inventory2.getQuantity().compareTo(inventory.getQuantity()) == 1) {
-                    inventory.setQuantity(inventory2.getQuantity().subtract(inventory.getQuantity()));
-                    inventoryMapper.updateInventory(inventory);
-                } else {
-                    map.put("msg", "库存不足，无法出库");
-                    map.put("code", -1);
-                    
-                    return map;
-                }
+            Inventory inventory2 = new Inventory();
+            Inventory inventory4 = new Inventory();
+            JSONArray myJsonArray = JSONArray.fromObject(inventory);
+            for(int i=0;i<myJsonArray.size();i++){
+                JSONObject obj = JSONObject.fromObject(myJsonArray.get(i));
+                //设置商品ID和店铺ID
+                BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+                inventory2.setShopId(shopId);
+                inventory2.setProductId(new BigInteger(obj.getString("productId")));
+                // judege为1则是出库，其他则是入库
+                Inventory inventory3 = inventoryMapper.getInventory(inventory2);
+                if (judge == 1) {
+                    // 如果这个出库值大于库存值则无法出库
+                    if(inventory3==null){
+                        inventory4.setQuantity(new BigInteger(obj.getString("quantity")));
+                        inventory4.setShopId(shopId);
+                        inventory4.setProductId(new BigInteger(obj.getString("productId")));
+                        inventoryMapper.insertInventory(inventory4);
+                    } else if(inventory3.getQuantity()==null && inventory3.getQuantity().equals("")){
+                        map.put("msg", "没有库存，无法出库");
+                        map.put("code", -1);
+                        
+                        return map;
+                    } else if (inventory3.getQuantity().compareTo(new BigInteger(obj.getString("quantity"))) == 1) {
+                        inventory4.setQuantity(inventory3.getQuantity().subtract(new BigInteger(obj.getString("quantity"))));
+                        inventory4.setId(inventory3.getId());
+                        inventoryMapper.updateInventory(inventory4);
+                    } else {
+                        map.put("msg", "库存不足，无法出库");
+                        map.put("code", -1);
+                        
+                        return map;
+                    }
 
-            } else {
-                // 如果库存值为0
-                if (inventory2.getQuantity().compareTo(new BigInteger("0")) == 0) {
-                    inventoryMapper.updateInventory(inventory);
                 } else {
-                    inventory.setQuantity(inventory.getQuantity().add(inventory2.getQuantity()));
-                    inventoryMapper.updateInventory(inventory);
+                    // 如果库存值为0
+                    if(inventory3==null){
+                        inventory4.setQuantity(new BigInteger(obj.getString("quantity")));
+                        inventory4.setShopId(shopId);
+                        inventory4.setProductId(new BigInteger(obj.getString("productId")));
+                        inventoryMapper.insertInventory(inventory4);
+                    }else if (inventory3.getQuantity().compareTo(new BigInteger("0")) == 0) {
+                        inventory4.setQuantity(new BigInteger(obj.getString("quantity")));
+                        inventory4.setId(inventory3.getId());
+                        inventoryMapper.updateInventory(inventory4);
+                    } else {
+                        inventory4.setQuantity(new BigInteger(obj.getString("quantity")).add(inventory3.getQuantity()));
+                        inventory4.setId(inventory3.getId());
+                        inventoryMapper.updateInventory(inventory4);
+                    }
                 }
             }
+            GoodstrafficManagement goodstrafficManagement = new GoodstrafficManagement();
+            goodstrafficManagement.setId(id);
+            if(judge == 1){
+                goodstrafficManagement.setTransportationState(3);
+            }else{
+                goodstrafficManagement.setTransportationState(5);
+            }
+           
+            goodstrafficManagementMapper.updateSubscribe(goodstrafficManagement);
+            
             map.put("msg", "修改成功");
             map.put("code", 1);
         } catch (Exception e) {
@@ -94,7 +143,7 @@ public class InventoryServiceImpl implements InventoryService {
      * @createDate 2019年7月8日
      */
     @Override
-    public List<Inventory> getInventoryByShopId(InventoryDTO inventoryDTO) {
+    public List<InventoryVo> getInventoryByShopId(InventoryDTO inventoryDTO) {
         
         return inventoryMapper.getInventoryByShopId(inventoryDTO);
     }

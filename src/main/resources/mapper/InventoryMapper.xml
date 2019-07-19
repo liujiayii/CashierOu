@@ -86,36 +86,55 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from
             t_inventory
         where
-            id = #{id}
+            product_id = #{productId}
+        and 
+            shop_id = #{shopId}    
     </select>
 
     <!-- 库存表的单店数据显示 -->
-    <select id="getInventoryByShopId" resultType="com.cashier.entity.Inventory"
+    <select id="getInventoryByShopId" resultType="com.cashier.entityVo.InventoryVo"
     parameterType="com.cashier.entityDTO.InventoryDTO">
         select
-            id,
-            quantity,
-            inventory_warning inventoryWarning
+            i.id,
+            i.quantity,
+            i.inventory_warning inventoryWarning,
+            p.id                productId,   
+            p.name              productName,
+            p.barcode,
+            pt.id               productTypeId,
+            pt.product_type     productTypeName
         from
-            t_inventory
+            t_inventory     i,
+            t_product       p,
+            t_product_type  pt
         where
-            shop_id = #{id}
+            i.shop_id = #{id}
         and
-            quantity <![CDATA[ <= ]]> inventory_warning   
-        order by i.id
+            i.quantity  &lt;=  i.inventory_warning  
+        and
+            i.product_id = p.id
+        and
+            p.product_type_id = pt.id       
+        order by id
         limit #{page},#{limit}    
     </select>
 
     <select id="getInventoryByShopIdCount" resultType="int"
     parameterType="com.cashier.entityDTO.InventoryDTO">
         select
-            count(id)
+            count(i.id)
         from
-            t_inventory
+            t_inventory     i,
+            t_product       p,
+            t_product_type  pt
         where
-            shop_id = #{id}
+            i.shop_id = #{id}
         and
-            quantity <![CDATA[ <= ]]> inventory_warning   
+            i.quantity  &lt;=  i.inventory_warning  
+        and
+            i.product_id = p.id
+        and
+            p.product_type_id = pt.id      
     </select>
 
 	<!-- 修改单条数据 -->
@@ -133,4 +152,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where
 		    id = #{id}
 	</update>
+	
+	
+	
 </mapper>

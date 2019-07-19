@@ -4,6 +4,7 @@ import java.util.List;
 import com.cashier.entity.Shop;
 import com.cashier.entityDTO.ShopUserPermissionDTO;
 import com.cashier.entityVo.ShopVo;
+import com.cashier.entityVo.UserShopVo;
 
 /**
  *
@@ -139,4 +140,15 @@ public interface ShopService {
          * @createDate 2019年7月8日
      */
     public List<ShopVo> getAllCity();
+    
+    
+    /**
+     * @Title: listAllShopIdAndName
+     * @description (下拉单使用)查询所有的店铺名称和id
+     * @param @param userShopVo
+     * @return List<UserShopVo>    
+     * @author dujiawei
+     * @createDate 2019年7月19日
+     */
+    public List<UserShopVo> listAllShopIdAndName(UserShopVo userShopVo);
 }

@@ -109,7 +109,7 @@ public class GoodstrafficManagementController {
         try {
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             List<AddsubscriptionVo> listProductAndProductType = 
-                    goodstrafficManagementService.listProductAndProductType(shopId);
+                    goodstrafficManagementService.listProductAndProductType(new BigInteger("1"));
             map.put("code", 1);
             map.put("data", listProductAndProductType);
             map.put("msg", "显示成功");

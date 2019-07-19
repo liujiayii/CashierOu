@@ -30,6 +30,8 @@ public class GoodstrafficOrdersProductVo implements Serializable {
     private String productName ;
     /** 产品分类 */
     private String productTypeName ;   
+    /** 产品名称ID */
+    private BigInteger productId ;
     
     
     public GoodstrafficOrdersProductVo() {
@@ -87,11 +89,22 @@ public class GoodstrafficOrdersProductVo implements Serializable {
         this.productTypeName = productTypeName;
     }
 
+    
+    public BigInteger getProductId() {
+        return productId;
+    }
+
+
+    public void setProductId(BigInteger productId) {
+        this.productId = productId;
+    }
+
 
     @Override
     public String toString() {
         return "GoodstrafficOrdersProductVo [id=" + id + ", quantity=" + quantity + ", money=" + money
-                + ", productName=" + productName + ", productTypeName=" + productTypeName + "]";
+                + ", productName=" + productName + ", productTypeName=" + productTypeName + ", productId=" + productId
+                + "]";
     }
 
 
@@ -101,6 +114,7 @@ public class GoodstrafficOrdersProductVo implements Serializable {
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((money == null) ? 0 : money.hashCode());
+        result = prime * result + ((productId == null) ? 0 : productId.hashCode());
         result = prime * result + ((productName == null) ? 0 : productName.hashCode());
         result = prime * result + ((productTypeName == null) ? 0 : productTypeName.hashCode());
         result = prime * result + ((quantity == null) ? 0 : quantity.hashCode());
@@ -127,6 +141,11 @@ public class GoodstrafficOrdersProductVo implements Serializable {
                 return false;
         } else if (!money.equals(other.money))
             return false;
+        if (productId == null) {
+            if (other.productId != null)
+                return false;
+        } else if (!productId.equals(other.productId))
+            return false;
         if (productName == null) {
             if (other.productName != null)
                 return false;
@@ -147,14 +166,18 @@ public class GoodstrafficOrdersProductVo implements Serializable {
 
 
     public GoodstrafficOrdersProductVo(BigInteger id, BigInteger quantity, BigDecimal money, String productName,
-            String productTypeName) {
+            String productTypeName, BigInteger productId) {
         super();
         this.id = id;
         this.quantity = quantity;
         this.money = money;
         this.productName = productName;
         this.productTypeName = productTypeName;
+        this.productId = productId;
     }
+
+
+    
     
     
 }

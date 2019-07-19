@@ -15,7 +15,6 @@ import com.cashier.entity.Shop;
 import com.cashier.entity.User;
 import com.cashier.entity.UserOperation;
 import com.cashier.entityVo.RoleVo;
-import com.cashier.entityVo.UserOperationVo;
 import com.cashier.service.RoleService;
 import com.cashier.service.ShopService;
 import net.sf.json.JSONArray;
@@ -157,11 +156,17 @@ public class RoleController {
 	 */
 	@RequestMapping("/listRole")
 	@ResponseBody
-	public Map<String,Object> listRole(Model model, Integer page, Integer limit, RoleVo roleVo, HttpSession session) {
+	public Map<String,Object> listRole(Model model,String shopID, Integer page, Integer limit, RoleVo roleVo, HttpSession session) {
 		Map<String , Object> result = new HashMap<String , Object>();
-		BigInteger shopId = (BigInteger)session.getAttribute("shopId");
-		//BigInteger shopId = new BigInteger("1");
-		roleVo.setShopId(shopId);
+		BigInteger shopId;
+		if(shopID == null || shopID == ""){
+			shopId = (BigInteger)session.getAttribute("shopId");
+			roleVo.setShopId(shopId);
+		}else{
+			shopId = new BigInteger(shopID);
+			roleVo.setShopId(shopId);
+		}
+		
 		roleVo.setPage((page-1)*limit);
 		roleVo.setLimit(limit);
 		List<RoleVo> list = roleService.listRole(roleVo);  //角色列表
@@ -233,7 +238,7 @@ public class RoleController {
         Map<String , Object> map = new HashMap<String , Object>();
         if(num == 1){
             map.put("code", 1);
-            map.put("msg", "Success");
+            map.put("msg", "添加成功");
         } else {
             map.put("code", 0);
             map.put("msg", "添加角色名称重复");
@@ -336,6 +341,39 @@ public class RoleController {
 		}
 		
 		return map;
+	}
+	
+	/**
+	 * @Title: listShopRole
+	 * @description 新增修改用户信息时，角色的下拉单选项使用
+	 * @param @param model
+	 * @param @param shopID
+	 * @param @param roleVo
+	 * @param @param session
+	 * @return Map<String,Object>    
+	 * @author dujiawei
+	 * @createDate 2019年7月18日
+	 */
+	@RequestMapping("/listShopRole")
+	@ResponseBody
+	public Map<String,Object> listShopRole(Model model, String shopID, RoleVo roleVo, HttpSession session) {
+		Map<String , Object> result = new HashMap<String , Object>();
+		BigInteger shopId;
+		if (shopID != null && !shopID.equals("") && Integer.parseInt(shopID) != 0) {
+			shopId = new BigInteger(shopID);
+		} else {
+			// 获得当前店铺id
+			shopId = new BigInteger(session.getAttribute("shopId") + "");
+		}
+		roleVo.setShopId(shopId);
+		List<RoleVo> list = roleService.listShopRole(roleVo);  //角色列表
+		model.addAttribute("roleList",list);
+		
+		result.put("code", 1);
+		result.put("msg", "Success");
+		result.put("data", list);
+		
+		return result;	
 	}
 	
 }

@@ -110,6 +110,10 @@ public class ShopUserPermissionDTO {
     private Integer agentType;
     /** 区域ID */
     private Integer areaId;
+    /** 用户省ID */
+    private Integer userProvinceId;
+    /** 用户市ID */
+    private Integer userCityId;
     
 	public BigInteger getId() {
 		return id;
@@ -315,6 +319,18 @@ public class ShopUserPermissionDTO {
 	public void setAreaId(Integer areaId) {
 		this.areaId = areaId;
 	}
+	public Integer getUserProvinceId() {
+		return userProvinceId;
+	}
+	public void setUserProvinceId(Integer userProvinceId) {
+		this.userProvinceId = userProvinceId;
+	}
+	public Integer getUserCityId() {
+		return userCityId;
+	}
+	public void setUserCityId(Integer userCityId) {
+		this.userCityId = userCityId;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -351,6 +367,8 @@ public class ShopUserPermissionDTO {
 		result = prime * result + ((uname == null) ? 0 : uname.hashCode());
 		result = prime * result + ((uphone == null) ? 0 : uphone.hashCode());
 		result = prime * result + ((uremarks == null) ? 0 : uremarks.hashCode());
+		result = prime * result + ((userCityId == null) ? 0 : userCityId.hashCode());
+		result = prime * result + ((userProvinceId == null) ? 0 : userProvinceId.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		result = prime * result + ((ustate == null) ? 0 : ustate.hashCode());
 		return result;
@@ -518,6 +536,16 @@ public class ShopUserPermissionDTO {
 				return false;
 		} else if (!uremarks.equals(other.uremarks))
 			return false;
+		if (userCityId == null) {
+			if (other.userCityId != null)
+				return false;
+		} else if (!userCityId.equals(other.userCityId))
+			return false;
+		if (userProvinceId == null) {
+			if (other.userProvinceId != null)
+				return false;
+		} else if (!userProvinceId.equals(other.userProvinceId))
+			return false;
 		if (username == null) {
 			if (other.username != null)
 				return false;
@@ -540,7 +568,7 @@ public class ShopUserPermissionDTO {
 				+ ", password=" + password + ", uname=" + uname + ", uphone=" + uphone + ", sex=" + sex + ", age=" + age
 				+ ", entryTime=" + entryTime + ", roleId=" + roleId + ", birthday=" + birthday + ", uremarks="
 				+ uremarks + ", shopId=" + shopId + ", ustate=" + ustate + ", agentType=" + agentType + ", areaId="
-				+ areaId + "]";
+				+ areaId + ", userProvinceId=" + userProvinceId + ", userCityId=" + userCityId + "]";
 	}
     
 }

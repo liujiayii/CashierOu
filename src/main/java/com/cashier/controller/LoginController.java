@@ -26,6 +26,7 @@ import com.cashier.entity.User;
 import com.cashier.service.LoginService;
 import com.cashier.service.ShopService;
 import com.cashier.util.JedisClientSingle;
+import com.cashier.util.pay.util.JsonUtil;
 
 /*import com.cashier.dao.RegulationMapper;
 import com.cashier.dao.SpecialOffersMapper;
@@ -50,7 +51,19 @@ public class LoginController {
     private SpecialOffersMapper specialOffersMapper;
     @Autowired
     private RegulationMapper regulationMapper;*/
-    
+   
+    /**
+     * 跳转到登录页面
+     *
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "/toLogin", produces = "application/json; charset=utf-8")
+   
+    @ResponseBody
+    public String toLogin(Model model) {
+        return JsonUtil.getResponseJson(-2, "登录超时，请重新登录", null, null);
+    }
     
     /**
      * 
@@ -123,10 +136,10 @@ public class LoginController {
                 MySessionContex.AddSession(session);
             }else{
                 HttpSession oldSession = MySessionContex.getSession(beforSessionId);
-                if (oldSession !=null && !oldSession.equals(session)) {
-                    MySessionContex.DelSession(oldSession);
-                    oldSession.invalidate();
-                }
+				/*
+				 * if (oldSession !=null && !oldSession.equals(session)) {
+				 * MySessionContex.DelSession(oldSession); oldSession.invalidate(); }
+				 */
                 String sessionId = session.getId();
                 jedisClientSingle.set(username, sessionId);
                 jedisClientSingle.setExpire(username, 1800);
@@ -164,6 +177,7 @@ public class LoginController {
         try {
             subject.login(token);
         } catch (Exception e) {
+        	e.printStackTrace();
             map.put("code", 0);
             map.put("msg", "登陆失败");
             return map;// 账号或密码错误
@@ -195,10 +209,12 @@ public class LoginController {
             User user = loginService.selectUserByUsername(username);
             session.setAttribute("username", username);
             session.setAttribute("shopId", user.getShopId());
+           // System.out.println(session.getAttribute("shopId")+"shopid");
             Shop s = new Shop();
             s.setId(user.getShopId());
             //根据shopId查询店铺详情
             Shop shop = shopService.getId(s);
+            shop.setId(s.getId());
             map.put("shop", shop);
             // 根据店铺ID获取当前店铺的优惠信息
             //PreferentialManagement preferentialManagement = new PreferentialManagement();

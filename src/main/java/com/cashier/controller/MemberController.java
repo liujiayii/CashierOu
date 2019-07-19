@@ -66,11 +66,11 @@ public class MemberController {
 		Map<String , Object> result = new HashMap<String , Object>();
 		List<MemberVo> list = memberService.listMemberVo(memberVo);  //会员列表
 		
-		if(list.size() > 0) {
+		/*if(list.size() > 0) {
 			for(int i = 0; i<list.size(); i++) {
 				list.get(i).setCount(0);
 			}
-		};
+		};*/
 		MemberVo mVo = memberService.countMember();//会员数量
 		int count = 0;
 		if(mVo.getCount() != 0) {
@@ -271,11 +271,11 @@ public class MemberController {
 		Map<String , Object> result = new HashMap<String , Object>();
 		list = memberService.listMemberByOption(memberVo);
 		//会员列表
-		if(list.size() > 0) {
+		/*if(list.size() > 0) {
 			for(int i = 0; i<list.size(); i++) {
 				list.get(i).setCount(0);
 			}
-		};
+		};*/
 		MemberVo mVo = memberService.countMemberByOption(memberVo);//会员数量
 		int count = 0;
 		if(mVo.getCount() != 0) {
@@ -335,11 +335,11 @@ public class MemberController {
 		Map<String , Object> result = new HashMap<String , Object>();
 		List<MemberVo> list = memberService.listMemberByPhone(memberVo);
 		//会员列表
-		if(list.size() > 0) {
+		/*if(list.size() > 0) {
 			for(int i = 0; i<list.size(); i++) {
 				list.get(i).setCount(0);
 			}
-		};
+		};*/
 		MemberVo mVo = memberService.countMemberByPhone(memberVo);//会员数量
 		int count = 0;
 		if(mVo.getCount() != 0) {

@@ -68,7 +68,7 @@ public interface InventoryMapper {
      * @author liujunkai
      * @createDate 2019年7月8日
      */
-    List<Inventory> getInventoryByShopId(InventoryDTO inventoryDTO);
+    List<InventoryVo> getInventoryByShopId(InventoryDTO inventoryDTO);
     
     /**
      * 

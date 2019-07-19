@@ -23,7 +23,7 @@ public interface ProductService {
 	     * @author chenshuxian
 	     * @createDate 2019年6月18日 
 	 */
-	Integer insertProduct(Product product,BigInteger quantity);
+	Integer insertProduct(Product product,BigInteger quantity,BigInteger inventoryWarning);
 	/**
 	 * 
 	     * @Title:根据id修改商品 
@@ -115,4 +115,12 @@ public interface ProductService {
 	     * @createDate 2019年7月8日
 	 */
 	Product getProductByBarCode(Product product);
+	/**
+	 * 修改状态(上架/下架)
+	 * 
+	 * @author chenshuxian
+	 * @createDate 2019年7月18日 下午2:00
+	 */
+	Integer updateProductState(Product product);
+	
 }

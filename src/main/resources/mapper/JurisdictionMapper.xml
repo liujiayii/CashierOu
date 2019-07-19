@@ -131,7 +131,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<!-- 获取角色所有的权限信息 -->
     <select id="listAllPermissions" resultMap="listPermissionMap" parameterType="role" >
-        SELECT 
+        SELECT DISTINCT
             p.parent_id parentIds,
             p.parent_name parent_names,
             p.id id,

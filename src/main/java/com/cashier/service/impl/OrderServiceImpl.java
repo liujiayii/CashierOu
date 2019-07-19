@@ -13,6 +13,8 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alipay.demo.trade.model.GoodsDetail;
+import com.alipay.demo.trade.model.result.AlipayF2FPayResult;
 import com.cashier.dao.LevelMapper;
 import com.cashier.dao.MemberMapper;
 import com.cashier.dao.OrderMapper;
@@ -179,6 +181,9 @@ public class OrderServiceImpl implements OrderService {
 		for(int i=0;i<shoping.length;i++) {
 			String []shop=shoping[i].split(",");	         
 			  unsteady unsteady = orderMapper.queractivitybyid(shop[0],shopId,shop[1]);
+			  if(unsteady==null) {
+				  unsteady = orderMapper.queractivitybyidde(shop[0],shopId,shop[1]);
+			  }
 			  unsteady.setNo(no);
 			  //if(unsteady.type)
 			  orderMapper.islist(unsteady);
@@ -226,7 +231,9 @@ public class OrderServiceImpl implements OrderService {
 		
 		return map;
 	}
-
+/**
+ * 计算并将订单的消息存放
+ */
 	@Override
 	public int updatetotalMoney(int i, String productId, String totalAmount, String out_trade_no,BigInteger shopId,String remark,int is_vip,String nubber) {
 		String orderNumber=codnoutil.cood(shopId);
@@ -237,6 +244,9 @@ public class OrderServiceImpl implements OrderService {
 		for(int t=0;t<shoping.length;t++) {
 			String []shop=shoping[t].split(",");	         
 			  unsteady unsteady = orderMapper.queractivitybyid(shop[0],shopId,shop[1]);
+			  if(unsteady==null) {
+				  unsteady = orderMapper.queractivitybyidde(shop[0],shopId,shop[1]); 
+			  }
 			  Product product = orderMapper.querproductbyid(shop[0]);
 			  
 			  orderProduc.setProductId(product.getId());// 保存商品的id
@@ -266,10 +276,11 @@ public class OrderServiceImpl implements OrderService {
 		  order.setNumber(orderNumber); 
 		  order.setShopId(shopId);
 		  order.setMemberNumber(nubber);
-		  order.setPayMethod(1); 
+		  order.setPayMethod(i); 
 		  order.setPayAdvance(ser); 
 		  order.setRemark(remark);
 		  order.setState(1); 
+		  order.setOuttradeno(out_trade_no);
 		  order.setTotalMoney(new BigDecimal(totalAmount));
 		  
 		  orderMapper.saveOrder(order);
@@ -341,7 +352,7 @@ public class OrderServiceImpl implements OrderService {
 			for(OrderDTO o : listOrder){
 				//将每种商品种类的商品订单量除以总量计算百分比
 				String result = numberFormat.format((float)o.getCount()/(float)count * 100);
-				map.put(o.getProductType(), result+"%");
+				o.setPercent(result+"%");
 			}
 			map.put("code", 1);
 			map.put("msg", "成功");
@@ -384,7 +395,7 @@ public class OrderServiceImpl implements OrderService {
 	/**
 	 * 
 	     * @Title: getMonthSumOrderByProductType
-	     * @description 获得当月每种商品销售总订单数 及销售额
+	     * @description 获得当月每种商品销售总订单数 及销售额 以及百分比
 	     * @param  店铺id
 	     * @return   
 	     * @author chenshuxian
@@ -405,7 +416,7 @@ public class OrderServiceImpl implements OrderService {
 			for(OrderDTO o : listOrder){
 				//将每种商品种类的商品订单量除以总量计算百分比
 				String result = numberFormat.format((float)o.getCount()/(float)count * 100);
-				map.put(o.getProductType(), result+"%");
+				o.setPercent(result+"%");
 			}
 			map.put("code", 1);
 			map.put("msg", "成功");
@@ -422,6 +433,33 @@ public class OrderServiceImpl implements OrderService {
 	}
 	/**
 	 * 
+	 */
+	public List<GoodsDetail> goodsDetailList(String barCode,BigInteger shopId){
+		
+		List<GoodsDetail> goodsDetailList = new ArrayList<GoodsDetail>();
+		String []shoping=barCode.split(";");
+		for(int t=0;t<shoping.length;t++) {
+			String []shop=shoping[t].split(",");	         
+			  unsteady unsteady = orderMapper.queractivitybyid(shop[0],shopId,shop[1]);
+			  if(unsteady==null) {
+				  unsteady = orderMapper.queractivitybyidde(shop[0],shopId,shop[1]); 
+			  }
+			  Product product = orderMapper.querproductbyid(shop[0]);
+				Double  total=Double.valueOf(product.getMemberPrice().toString());
+				Long fee=(long) (total*100);
+				
+			  GoodsDetail goods = GoodsDetail.newInstance(product.getBarCode(), product.getName(), fee, Integer.valueOf(shop[1]));
+				
+				
+				 goodsDetailList.add(goods);
+				// orderProduc.setMemberPricediscount(unsteady.);// 获取活动折扣价格和商品的满减价格
+			
+		}
+		return goodsDetailList;
+		
+	}
+	/**
+	 * 
 	     * @Title: getTopTenProduct
 	     * @description 当月销售前十 商品名称及数量
 	     * @param  店铺id
@@ -433,6 +471,12 @@ public class OrderServiceImpl implements OrderService {
 	public List<TopTenProductDTO> getTopTenProduct(BigInteger shopId) {
 		
 		return orderMapper.getTopTenProduct(shopId);
+	}
+
+	@Override
+	public void severAlipayF2FPayResult(AlipayF2FPayResult result) {
+		orderMapper.severAlipayF2FPayResult(result);
+		
 	}
 
 

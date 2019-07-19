@@ -20,6 +20,7 @@ import com.cashier.entity.User;
 import com.cashier.entityDTO.ShopUserPermissionDTO;
 import com.cashier.entityVo.PermissionVo;
 import com.cashier.entityVo.ShopVo;
+import com.cashier.entityVo.UserShopVo;
 import com.cashier.entityVo.UserVo;
 import com.cashier.service.ShopService;
 import com.cashier.service.ex.DataNotExistsException;
@@ -436,6 +437,21 @@ public class ShopServiceImpl implements ShopService{
 	public List<ShopVo> getAllCity() {
 		
 		return shopMapper.getAllCity();
+	}
+
+	
+	/**
+     * @Title: listAllShopIdAndName
+     * @description (下拉单使用)查询所有的店铺名称和id
+     * @param @param userShopVo
+     * @return List<UserShopVo>    
+     * @author dujiawei
+     * @createDate 2019年7月19日
+     */
+	@Override
+	public List<UserShopVo> listAllShopIdAndName(UserShopVo userShopVo) {
+		// TODO Auto-generated method stub
+		return shopMapper.listAllShopIdAndName(userShopVo);
 	}
     
    

@@ -3,6 +3,8 @@ package com.cashier.dao;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.cashier.entity.GoodstrafficManagement;
 import com.cashier.entityDTO.GoodstrafficManagementDTO;
 import com.cashier.entityVo.AddsubscriptionVo;
@@ -52,7 +54,7 @@ public interface GoodstrafficManagementMapper {
      * @author liujunkai
      * @createDate 2019年7月5日
      */
-    List<AddsubscriptionVo> listProductAndProductType(BigInteger id);
+    List<AddsubscriptionVo> listProductAndProductType(@Param("id") BigInteger id);
 
     /**
      * 

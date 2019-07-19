@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
+import com.alipay.demo.trade.model.GoodsDetail;
+import com.alipay.demo.trade.model.result.AlipayF2FPayResult;
 import com.cashier.entity.Member;
 import com.cashier.entity.Order;
 import com.cashier.entity.Product;
@@ -166,7 +168,17 @@ public interface OrderService {
 	     * @createDate  2019年7月9日
 	 */
 	public List<TopTenProductDTO> getTopTenProduct(BigInteger shopId);
-
+     /**
+      * 存储支付宝支付的返回数据
+      * @param result
+      */
+	public void severAlipayF2FPayResult(AlipayF2FPayResult result);
+ /**
+  * 
+  * @param barCode
+  * @param shopId
+  * @return
+  */
 	
-
+	public List<GoodsDetail> goodsDetailList(String barCode,BigInteger shopId);
 }

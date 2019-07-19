@@ -96,24 +96,23 @@
             discount,
             start_time startTime,
             end_time endTime,
-            priority,
             scope
         FROM
             t_special_offers so
         <where>
             so.shop_id = #{shopId}
-            <if test="type != ''">
+            <if test="type != 0">
                 and so.type = #{type}
             </if>
-            <if test="state != ''">
+            <if test="state != 0">
                 and so.state = #{state} 
             </if>
-            <if test="startTime != null and startTime != ''">
-                and so.start_time between #{startTime} and #{endTime} 
+            <if test="name != null and name != ''">
+                and  TO_DAYS(so.start_time)=TO_DAYS(#{name})
             </if>
         </where>
-        limit #{beginNum}, #{limit}
         order by so.state
+        limit #{beginNum}, #{limit}
     </select>
    
     <!--  活动列表页查询数量总数 -->
@@ -124,14 +123,14 @@
             t_special_offers so
         <where>
             so.shop_id = #{shopId}
-            <if test="type != ''">
+            <if test="type != 0">
                 and so.type = #{type}
             </if>
-            <if test="state != ''">
+            <if test="state != 0">
                 and so.state = #{state} 
             </if>
-            <if test="startTime != null and startTime != ''">
-                and so.start_time between #{startTime} and #{endTime} 
+            <if test="name != null and name != ''">
+                and  TO_DAYS(so.start_time)=TO_DAYS(#{name})
             </if>
         </where>
     </select>

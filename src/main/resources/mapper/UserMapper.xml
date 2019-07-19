@@ -94,7 +94,9 @@
 	        u.state,
 	        u.shop_id shopId,
 	        u.agent_type agentType,
-	        u.area_id areaId         
+	        u.area_id areaId,
+	        u.province_id userProvinceId,
+	        u.city_id userCityId         
 		FROM 
 			t_user u ,
 			t_role r ,
@@ -126,7 +128,9 @@
 			u.state,
 	        u.shop_id shopId,
 	        u.agent_type agentType,
-	        u.area_id areaId
+	        u.area_id areaId,
+	        u.province_id userProvinceId,
+	        u.city_id userCityId
 		FROM 
 			t_user u ,
 			t_role r ,
@@ -160,7 +164,9 @@
 			u.state,
 	        u.shop_id shopId,
 	        u.agent_type agentType,
-	        u.area_id areaId
+	        u.area_id areaId,
+	        u.province_id userProvinceId,
+	        u.city_id userCityId
 		FROM 
 			t_user u ,
 			t_role r ,
@@ -213,7 +219,9 @@
 			u.state,
 	        u.shop_id shopId,
 	        u.agent_type agentType,
-	        u.area_id areaId
+	        u.area_id areaId,
+	        u.province_id userProvinceId,
+	        u.city_id userCityId
 		FROM 
 			t_user u ,
 			t_role r ,
@@ -230,6 +238,8 @@
 				and u.name like "%"#{name}"%"
 			</if>
 		</where>
+		order by 
+			u.id DESC
 		limit #{page},#{limit}
 	</select>
 	
@@ -281,7 +291,9 @@
             shop_id,
             state,
 	        agent_type,
-	        area_id
+	        area_id,
+	        province_id,
+	        city_id
         )
         VALUES
         (
@@ -298,7 +310,9 @@
             #{shopId},
             2,
             #{agentType},
-            #{areaId}
+            #{areaId},
+            #{userProvinceId},
+            #{userCityId}
         )
     </insert>
 	<!-- 添加用户 -->
@@ -318,7 +332,9 @@
 			shop_id,
 			state,
 	        agent_type,
-	        area_id
+	        area_id,
+	        province_id,
+	        city_id
 		)
 		VALUES
 		(
@@ -335,7 +351,9 @@
 			#{shopId},
             2,
             #{agentType},
-            #{areaId}
+            #{areaId},
+            #{userProvinceId},
+            #{userCityId}
 		)
 	</insert>
     
@@ -380,7 +398,13 @@
             <if test="agentType != null">
                 t.agent_type = #{agentType},
             </if>
-            <if test="areaId != null and areaId != ''">
+            <if test="userProvinceId != null">
+                t.province_id = #{userProvinceId},
+            </if>
+            <if test="userCityId != null">
+                t.city_id = #{userCityId},
+            </if>
+            <if test="areaId != null">
                 t.area_id = #{areaId}
             </if>
         </set>  
@@ -428,7 +452,13 @@
             <if test="agentType != null">
                 t.agent_type = #{agentType},
             </if>
-            <if test="areaId != null and areaId != ''">
+            <if test="userProvinceId != null">
+                t.province_id = #{userProvinceId},
+            </if>
+            <if test="userCityId != null">
+                t.city_id = #{userCityId},
+            </if>
+            <if test="areaId != null">
                 t.area_id = #{areaId}
             </if>
         </set>	
@@ -493,42 +523,52 @@
 			u.id,
 			u.username,
 			u.agent_type agentType,
-			u.area_id areaId
+			u.area_id areaId,
+			u.province_id userProvinceId,
+			u.city_id userCityId,
+			s.type type
 		FROM
-			t_user u
+			t_user u,
+			t_shop s
 		WHERE
 			u.state = 2
 		AND
 		  u.username = #{username}
+		AND
+		  u.shop_id = s.id
 	</select>
 	
 	<!-- 省级经理管理的店铺 -->
 	<select id="listShopByProvinceAgent" resultType="com.cashier.entityVo.UserShopVo">
-		SELECT
+		SELECT DISTINCT
 			s.id shopId,
 			s.name shopName
 		FROM
 			t_user u,
 			t_shop s
 		WHERE
-			u.area_id = s.province_id
+			u.province_id = s.province_id
+		AND
+			u.province_id = #{userProvinceId}
 	</select>
 	
 	<!-- 市级经理管理的店铺 -->
 	<select id="listShopByCityAgent" resultType="com.cashier.entityVo.UserShopVo">
-		SELECT
+		SELECT DISTINCT
 			s.id shopId,
 			s.name shopName
 		FROM
 			t_user u,
 			t_shop s
 		WHERE
-			u.area_id = s.city_id
+			u.city_id = s.city_id
+		AND
+			u.city_id = #{userCityId}
 	</select>
 	
 	<!-- 区级经理管理的店铺 -->
 	<select id="listShopByAreaAgent" resultType="com.cashier.entityVo.UserShopVo">
-		SELECT
+		SELECT DISTINCT
 			s.id shopId,
 			s.name shopName
 		FROM
@@ -536,6 +576,8 @@
 			t_shop s
 		WHERE
 			u.area_id = s.area
+		AND
+			u.area_id = #{areaId}
 	</select>
 	
 	

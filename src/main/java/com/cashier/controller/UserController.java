@@ -475,25 +475,31 @@ public class UserController {
 		
 		List<UserShopVo> agentShops = new ArrayList<UserShopVo>();
 		
-		//判断代理的类型（0.不是代理；1.省级代理；2.市级代理；3.区级代理）
-		if(us.getAgentType() != null){
-			if(us.getAgentType() == 0){
-				agentShops = null;
-			}else if(us.getAgentType() == 1){
-				userShopVo.setProvinceId(us.getProvinceId());
-				agentShops = userService.listShopByProvinceAgent(userShopVo);
-				
-			}else if(us.getAgentType() == 2){
-				userShopVo.setAreaId(us.getCityId());
-				agentShops = userService.listShopByCityAgent(userShopVo);
-				
-			}else if(us.getAgentType() == 3){
-				userShopVo.setArea(us.getArea());
-				agentShops = userService.listShopByAreaAgent(userShopVo);
-				
+		//判断登陆用户是总店还是分店
+		if(us.getType() == 1){
+			agentShops = shopService.listAllShopIdAndName(userShopVo); //总店查看所有店铺
+		}else {
+			//是分店后，判断代理的类型（0.不是代理；1.省级代理；2.市级代理；3.区级代理）
+			if(us.getAgentType() != null){
+				if(us.getAgentType() == 0){
+					agentShops = null;
+				}else if(us.getAgentType() == 1){
+					userShopVo.setUserProvinceId(us.getUserProvinceId());
+					agentShops = userService.listShopByProvinceAgent(userShopVo);
+					
+				}else if(us.getAgentType() == 2){
+					userShopVo.setUserCityId(us.getUserCityId());
+					agentShops = userService.listShopByCityAgent(userShopVo);
+					
+				}else if(us.getAgentType() == 3){
+					userShopVo.setAreaId(us.getAreaId());
+					agentShops = userService.listShopByAreaAgent(userShopVo);
+					
+				}
 			}
 		}
 		
+		model.addAttribute("shopList", agentShops);  //存储区域经理管理的店铺
 		
 		Map<String , Object> result = new HashMap<String , Object>();		
 		result.put("code", 1);

@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.ibatis.annotations.Param;
 
 import com.cashier.entity.Inventory;
@@ -64,7 +66,7 @@ public interface InventoryService {
      * @author liujunkai
      * @createDate 2019年7月3日
      */
-    Map<String,Object> updateQuantity(Inventory inventory,Integer judge);
+    Map<String,Object> updateQuantity(BigInteger id, String inventory, Integer judge, HttpSession session);
     
     /**
      * 
@@ -75,7 +77,7 @@ public interface InventoryService {
      * @author liujunkai
      * @createDate 2019年7月8日
      */
-    List<Inventory> getInventoryByShopId(InventoryDTO inventoryDTO);
+    List<InventoryVo> getInventoryByShopId(InventoryDTO inventoryDTO);
     
     /**
      * 

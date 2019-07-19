@@ -203,7 +203,7 @@
 	
 	<!-- 条件筛选会员 -->
 	<select id="listMemberByOption" parameterType="com.cashier.entityVo.MemberVo" resultType="com.cashier.entityVo.MemberVo">
-		SELECT DISTINCT
+		(SELECT DISTINCT
 			m.id id,
 			m.number number,
 			m.phone phone,
@@ -229,9 +229,11 @@
 				and m.number like "%"#{phone}"%"
 			</if>
 		</where>
-		limit #{page},#{limit}
+		ORDER BY
+			m.id DESC
+		limit #{page},#{limit})
 		UNION
-		SELECT DISTINCT
+		(SELECT DISTINCT
 			m.id id,
 			m.number number,
 			m.phone phone,
@@ -257,7 +259,9 @@
                 and m.phone like "%"#{phone}"%"
             </if>
 		</where>
-		limit #{page},#{limit}
+		ORDER BY
+			m.id DESC
+		limit #{page},#{limit})
 	</select>
 	
 	<!-- 条件筛选会员的数量 -->
@@ -348,6 +352,8 @@
 				and m.phone like "%"#{phone}"%"
 			</if>
 		</where>
+		ORDER BY
+			m.id DESC
 		limit #{page},#{limit}
 	</select>
 	

@@ -52,10 +52,10 @@ public class ActivityServiceImpl implements ActivityService {
     public int insertActivity(SpecialOffersDTO specialOffersDTO) {
         SpecialOffers specialOffers = new SpecialOffers();
         // 先把与这次活动冲突的活动关闭
-        List<BigInteger> activityIds = specialOffersDTO.getActivityIds();
-        if (activityIds.size()>0) {
+        List<Integer> activityIds = specialOffersDTO.getActivityIds();
+        if (specialOffersDTO.getActivityIds()!=null && activityIds.size()>0) {
             for (int i = 0; i < activityIds.size(); i++) {
-                specialOffers.setId(activityIds.get(i));
+                specialOffers.setId(new BigInteger(""+activityIds.get(i)));
                 specialOffers.setState(3);
                 activityMapper.updateActivityById(specialOffers);
                 // 201907041802根据活动ID查询出动态商品表中的商品ID集合
@@ -78,8 +78,8 @@ public class ActivityServiceImpl implements ActivityService {
         if (specialOffersDTO.getType()==2) {
             specialOffers.setDiscount(specialOffersDTO.getDiscount());
         }
-        specialOffers.setStartTime(new Timestamp(Integer.parseInt(specialOffersDTO.getStartTime())*1000));
-        specialOffers.setEndTime(new Timestamp(Integer.parseInt(specialOffersDTO.getEndTime())*1000));
+        specialOffers.setStartTime(new Timestamp(Long.parseLong(specialOffersDTO.getStartTime())));
+        specialOffers.setEndTime(new Timestamp(Long.parseLong(specialOffersDTO.getEndTime())));
         //数据准备完毕，添加活动
         activityMapper.insertActivity(specialOffers);
         // 根据活动表返回的ID添加活动商品表数据到动态活动商品表
@@ -87,7 +87,7 @@ public class ActivityServiceImpl implements ActivityService {
             ActivitiesActive activitiesActive = new ActivitiesActive();
             activitiesActive.setActivityId(specialOffers.getId());
             for (int i = 0; i < specialOffersDTO.getIds().size(); i++) {
-                activitiesActive.setProductId(specialOffersDTO.getIds().get(i));
+                activitiesActive.setProductId(new BigInteger(""+specialOffersDTO.getIds().get(i)));
                 //201907041718根据活动ID添加参加活动的商品信息到动态活动商品表
                 activityMapper.insertActivityProductToAa(activitiesActive);
             } 
@@ -288,7 +288,7 @@ public class ActivityServiceImpl implements ActivityService {
             ActivitiesActive activitiesActive = new ActivitiesActive();
             activitiesActive.setActivityId(specialOffersDTO.getId());
             for (int i = 0; i < specialOffersDTO.getIds().size(); i++) {
-                activitiesActive.setProductId(specialOffersDTO.getIds().get(i));
+                activitiesActive.setProductId(new BigInteger(""+specialOffersDTO.getIds().get(i)));
                 //10102根据活动ID添加参加动态活动的商品信息
                 activityMapper.insertActivityProductToAa(activitiesActive);
             } 

@@ -149,9 +149,9 @@ public class GoodstrafficManagementServiceImpl implements GoodstrafficManagement
      * @createDate 2019年7月5日
      */
     @Override
-    public List<AddsubscriptionVo> listProductAndProductType(BigInteger id) {
+    public List<AddsubscriptionVo> listProductAndProductType(BigInteger shopId) {
 
-        return goodstrafficManagementMapper.listProductAndProductType(id);
+        return goodstrafficManagementMapper.listProductAndProductType(shopId);
     }
 
     /**

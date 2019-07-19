@@ -325,7 +325,7 @@ public class OrderController {
 	 */
 	@RequestMapping("/quershopping")
 	@ResponseBody
-	public Map<String, Object> quershopping(String barCode, int number, HttpSession session) {
+	public Map<String, Object> quershopping(String barCode, HttpSession session) {
 		Product product = orderService.querPreferences(barCode);
 		Map<String, Object> map = new HashMap<String, Object>();
 
@@ -340,7 +340,7 @@ public class OrderController {
 			return map;
 		}
 		if (product != null) {
-			map.put("code", 0);
+			map.put("code", 1);
 			map.put("msg", "Success");
 			map.put("data", product);
 		}
@@ -353,9 +353,8 @@ public class OrderController {
 	 */
 	@RequestMapping("/EnquiryonPreferentialPrice")
 	@ResponseBody
-	public Map<String, Object> EnquiryonPreferentialPrice(String barCode, HttpSession session, int type,
-			BigInteger shopId) {
-		// BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+	public Map<String, Object> EnquiryonPreferentialPrice(String barCode, HttpSession session, int type) {
+		 BigInteger shopId = (BigInteger) session.getAttribute("shopId");
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, BigDecimal> maps = orderService.querDiscount(barCode, shopId);
@@ -559,13 +558,15 @@ public class OrderController {
 	@RequestMapping(value = "/buyshuopping", produces = "application/json; charset=utf-8")
 
 	@ResponseBody
-	public String buyshuopping(int type, String authCode, String totalAmount,BigInteger shopId,int is_vip,String remark,String number) throws Exception {
+	public String buyshuopping(String barCode,int type, String authCode, String totalAmount,HttpSession session,int is_vip,String remark,String number) throws Exception {
+		BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+		 
 		String orderNumber=codnoutil.cood(shopId);
-		Map<String, Object> map = new HashMap<String, Object>();
 
+		
 		if (type == 1) {
              
-			int fig = orderService.updatetotalMoney(1, authCode, totalAmount,"",shopId,remark,is_vip,number);
+			int fig = orderService.updatetotalMoney(1, barCode, totalAmount,"",shopId,remark,is_vip,number);
 			if (fig > 0) {
 				
 				return JsonUtil.getResponseJson(1, "支付成功", null, null);
@@ -574,23 +575,20 @@ public class OrderController {
 				return JsonUtil.getResponseJson(1, "支付成功", null, null);
 
 			}
-		} else if (type == 3) {
-			List<OrderProduct> OrderProduct = orderProductService.listorderNumberOrderProduct(orderNumber);
-			List<GoodsDetail> goodsDetailList = new ArrayList<GoodsDetail>();
-			for (int i = 0; i < OrderProduct.size(); i++) {
-				goodsDetailList.add(GoodsDetail.newInstance(OrderProduct.get(i).getProductId().toString(),
-						OrderProduct.get(i).getProductId().toString(),
-						(OrderProduct.get(i).getSalePrice().multiply(new BigDecimal(100)).longValue()),
-						OrderProduct.get(i).getProductCount()));
-			}
+		} 
+		
+		else if (type == 4) {
+			 List<GoodsDetail> goodsDetailList = orderService.goodsDetailList(barCode, shopId);
+		       
 			// alipaySweepPaymentcontroller alipaySweepPaymentcontroller=new
 			// alipaySweepPaymentcontroller();
 
 			AlipayF2FPayResult result = alipaySweepPaymentcontroller.test_trade_pay(orderNumber, "小欧商城", totalAmount,
 					authCode, goodsDetailList);
+			     //orderService.severAlipayF2FPayResult(result);
 			switch (result.getTradeStatus()) {
 			case SUCCESS:
-				int fig = orderService.updatetotalMoney(3, authCode, totalAmount,"",shopId,remark,is_vip,number);
+				int fig = orderService.updatetotalMoney(3, barCode, totalAmount,result.getResponse().getOutTradeNo(),shopId,remark,is_vip,number);
 				//orderService.updatetotalMoney(3, orderNumber, result.getResponse().getOutTradeNo());
 				// fig=orderService.Increasecumulativeconsumptio(orderNumber,new
 				// BigDecimal(totalAmount));
@@ -610,13 +608,13 @@ public class OrderController {
 				return JsonUtil.getResponseJson(-1, "不支持的交易状态，交易返回异常!!!", null, null);
 			}
 
-		} else if (type == 4) {
+		} else if (type == 3) {
 			WechatPayConstants WechatPayConstants = new WechatPayConstants();
 
 			Map<String, String> result = WechatPayConstants.micropay(totalAmount, authCode, orderNumber);
-
+			
 			String result_code = result.get("result_code");
-
+             
 			if (!"SUCCESS".equals(result_code)) {
 				// 支付失败
 
@@ -624,7 +622,7 @@ public class OrderController {
 				return JsonUtil.getResponseJson(-1, result.get("err_code_des"), null, null);
 
 			}
-			int fig = orderService.updatetotalMoney(4, authCode, totalAmount,"",shopId,remark,is_vip,number);
+			int fig = orderService.updatetotalMoney(4, barCode, totalAmount,result.get("out_trade_no"),shopId,remark,is_vip,number);
 			// 支付成功
 			
 			// orderService.Increasecumulativeconsumptio(orderNumber, new
@@ -636,7 +634,7 @@ public class OrderController {
 			}
 			return JsonUtil.getResponseJson(1, "支付成功", null, null);
 		} else {
-			int fig = orderService.updatetotalMoney(2, authCode, totalAmount,"",shopId,remark,is_vip,number);
+			int fig = orderService.updatetotalMoney(2, barCode, totalAmount,"",shopId,remark,is_vip,number);
 			if (fig > 0) {
 				return JsonUtil.getResponseJson(2, "支付成功", null, null);
 
@@ -647,5 +645,6 @@ public class OrderController {
 		}
 
 	}
+	
 
 }

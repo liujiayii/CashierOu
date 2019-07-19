@@ -45,6 +45,9 @@
 				<if test="number != null and number !=''">
 				and o.number=#{number}
 			</if>
+				<if test="shopName != null and shopName !=''">
+				and s.name like "%"#{shopName}"%"
+			</if>
 		</where>
 		ORDER BY
 		o.id DESC
@@ -78,6 +81,9 @@
 			<if test="number != null and number !=''">
 				and o.number = #{number}
 			</if>
+				<if test="shopName != null and shopName !=''">
+				and s.name like "%"#{shopName}"%"
+			</if>
 		</where>
 	</select>
 
@@ -97,7 +103,8 @@
 		total_money,
 		state,
 		remark,
-		refund
+		refund,
+		outtradeno
 
 		)
 		VALUES
@@ -114,8 +121,8 @@
 		#{totalMoney},
 		1,
 		#{remark},
-		#{refund}
-
+		#{refund},
+        #{outtradeno}
 		)
 	</insert>
 
@@ -207,7 +214,7 @@
 	</select>
 	<select id="queractivitybyid" resultType="com.cashier.entityVo.unsteady">
 
-	SELECT   t.activity_id,(sum(s.sale_price)*#{orderProduct}) AS  sale_price,(sum(s.member_price)*#{orderProduct}) AS  member_price,ts.type  from   t_activities_active   t  join    t_product  s   on t.product_id=s.id   JOIN  t_special_offers  ts on ts.id=t.activity_id  WHERE  t.product_id=#{productId}  and  s.shop_id=#{shopId}  group by  t.activity_id 
+	SELECT   t.activity_id,(sum(s.sale_price)*#{orderProduct}) AS  sale_price,(sum(s.member_price)*#{orderProduct}) AS  member_price,ts.type  from   t_activities_active   t  join    t_product  s   on t.product_id=s.id   JOIN  t_special_offers  ts on ts.id=t.activity_id  WHERE  t.product_id=#{productId}  and  s.shop_id=#{shopId} 
 	</select>
 
 	<select id="querdiscountbyid" resultType="BigDecimal">
@@ -348,4 +355,13 @@ select id,
 		inventory from t_product where id=#{id}
 
 </select>
+<select id="queractivitybyidde" resultType="com.cashier.entityVo.unsteady">
+    
+	SELECT   (sum(s.sale_price)*#{orderProduct}) AS  sale_price,(sum(s.member_price)*#{orderProduct}) AS  member_price  from    t_product  s      WHERE  s.id=#{productId}  and  s.shop_id=#{shopId} 
+	</select>
+	<!-- 存放支付宝返回的数据 -->
+	<insert id="severAlipayF2FPayResult" parameterType="com.alipay.demo.trade.model.result.AlipayF2FPayResult">
+	    in
+	  
+	</insert>
 </mapper>
