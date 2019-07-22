@@ -82,7 +82,7 @@ public interface OrderProductMapper {
        * @param string
        * @param number
        */
-	public int upnumberbyid(@Param("id")BigInteger id, @Param("productCount")Integer productCount,@Param("shopId")BigInteger shopId);
+	public int upnumberbyid(@Param("product_id")BigInteger product_id, @Param("productCount")Integer productCount,@Param("shopId")BigInteger shopId);
      /**
       * 查询商品订单
       * @param orderNumber

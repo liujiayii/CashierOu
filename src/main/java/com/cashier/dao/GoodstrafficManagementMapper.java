@@ -133,4 +133,8 @@ public interface GoodstrafficManagementMapper {
      * @createDate 2019年7月9日
      */
     GoodstrafficManagement getGoodstrafficManagementByApp(BigInteger id);
+    
+    int selectSubscribe(BigInteger id);
+    
+    void deleteGoodstrafficManagement(BigInteger id);
 }

@@ -57,5 +57,12 @@
 		WHERE 
 			id = #{id}
 	</delete>
+	
+	<!--  删除生日表的数据  -->
+	<delete id="deleteAllBirthday">
+		DELETE
+		FROM
+			t_birthday
+	</delete>
  
 </mapper>

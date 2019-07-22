@@ -285,37 +285,31 @@ public class OrderController {
 	@RequestMapping("/Querymembershipstatus")
 	@ResponseBody
 	public Map<String, Object> Enquiriesmembershipcard(String number, String phone, HttpSession session) {
-		Member Member = orderService.Querymembershipstatus(number, phone);
+		Member Member = orderService.Querymembershipstatus (phone);
 		BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-		// shopId=new BigInteger("1");
-		// String shopName = (String) session.getAttribute("shopName");
-		// String orderNumber = codnoutil.cood(shopId);// 生成订单编号
-		/*
-		 * Order Order = new Order();
-		 * 
-		 * Order.setBankName(bankName); Order.setCardNumber(cardNumber);
-		 * 
-		 * 
-		 * Order.setNumber(orderNumber); Order.setShopId(shopId);
-		 * Order.setShopName(shopName); Order.setPayMethod(1); Order.setPayAdvance(new
-		 * BigDecimal(0)); //Order.setRemark(remark); Order.setShopName(shopName);
-		 * Order.setState(1); Order.setTotalMoney(new BigDecimal(0));
-		 */
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (Member == null) {
 
-			map.put("code", 1);
+			map.put("code", -1);
 			map.put("msg", "不是会员");
 			/* map.put("data", orderNumber); */
 		} else {
-			map.put("code", 0);
-			map.put("msg", "是会员");
-			/* map.put("data", orderNumber); */
-			map.put("Member", Member);
-			/* Order.setMemberNumber(Member.getNumber()); */
+			if(Member.getState()!=2) {
+				map.put("code", -1);
+				map.put("msg", "会员状态不正确");
+			
+				
+			}else {
+				map.put("code", 0);
+				map.put("msg", "是会员");
+				
+				map.put("Member", Member);
+			}
+		
+			
 		}
-		/* int fig = orderService.saveOrder(Order); */
+
 		return map;
 
 	}
@@ -326,7 +320,8 @@ public class OrderController {
 	@RequestMapping("/quershopping")
 	@ResponseBody
 	public Map<String, Object> quershopping(String barCode, HttpSession session) {
-		Product product = orderService.querPreferences(barCode);
+		 BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+		Product product = orderService.querPreferences(barCode,shopId);
 		Map<String, Object> map = new HashMap<String, Object>();
 
 		if (product == null) {
@@ -373,48 +368,7 @@ public class OrderController {
 
 	/*
 	
-		*//**
-			 * 会员购买商品
-			 */
-	/*
-	 * @RequestMapping("/buyshopping")
-	 * 
-	 * @ResponseBody public Map<String, Object> buyshopping(String orderNumber,
-	 * String barCode, Integer productCount, HttpSession session, BigDecimal
-	 * Discount) { BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-	 * // shopId=new BigInteger("1"); // String orderNumber =
-	 * codnoutil.cood(shopId);// 生成订单编号  Map<String, Object> map = new
-	 * HashMap<String, Object>(); 
-	 * 
-	 *  try {
-	 * 
-	 * orderProductService.upnumberbyid(product.getId(), productCount, shopId); }
-	 * catch (Exception e) { map.put("code", 0); map.put("msg", "库存不足"); }
-	 * List<OrderProduct> OrderProduct =
-	 * orderProductService.listorderNumberOrderProduct(orderNumber); if (fig > 0) {
-	 * map.put("code", 0); map.put("msg", "Success"); map.put("data", OrderProduct);
-	 * 
-	 * } else { map.put("code", 1); map.put("msg", "下单失败");
-	 * 
-	 * } return map; }
-	 * 
-	 *//**
-		 * 余额支付
-		 *//*
-			 * 
-			 * @RequestMapping("/buyshoppingpay")
-			 * 
-			 * @ResponseBody public Map<String, Object> buyshoppingpay(String orderNumber) {
-			 * Map<String, Object> map = new HashMap<String, Object>(); int fig =
-			 * orderService.updatetotalMoney(1, orderNumber, "");
-			 * 
-			 * if (fig > 0) { map.put("code", 0); map.put("msg", "付款成功"); map.put("date",
-			 * totalMoney);
-			 * 
-			 * } else { map.put("code", 1); map.put("msg", "下单失败");
-			 * 
-			 * } return map; }
-			 */
+	
 
 	/**
 	 * @Title: getSumOrderAndSumOrderMoney
@@ -517,8 +471,8 @@ public class OrderController {
 			BigInteger shopId,String number) {
 		// BigInteger shopId = (BigInteger) session.getAttribute("shopId");
 
-		orderVo.setPage((1 - 1) * 20);
-		orderVo.setLimit(20);
+		orderVo.setPage((page - 1) * page);//计算起始页数
+		orderVo.setLimit(limit);//每页的条数
 		orderVo.setShopId(shopId);
 		Map<String, Object> result = new HashMap<String, Object>();
 		List<Order> list = orderService.listOrderByOption(orderVo);
@@ -550,7 +504,7 @@ public class OrderController {
 	}
 
 	/**
-	 * 余额支付
+	 * 商品的购买
 	 * 
 	 * @throws Exception
 	 */

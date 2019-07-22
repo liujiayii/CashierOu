@@ -176,7 +176,7 @@ public class ShopController {
 			}
 		}
 		List<PermissionDTO> listPermissionDTO = new ArrayList<>();
-		for(PermissionVo p : currentPermissionVolist){
+		for(PermissionVo p : PermissionVolist){
 			PermissionDTO permissionDTO = new PermissionDTO();
 			permissionDTO.setId(p.getParentIds());
 			for(Permission per : p.getPermissions()){
@@ -213,10 +213,10 @@ public class ShopController {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (num == 1) {
-			map.put("code", 0);
+			map.put("code", 1);
 			map.put("msg", "Success");
 		} else {
-			map.put("code", 1);
+			map.put("code", 0);
 			map.put("msg", "修改失败了");
 		}
 
@@ -318,6 +318,7 @@ public class ShopController {
 		shopVo.setPage((page - 1) * limit);
 		shopVo.setLimit(limit);
 		List<ShopVo> shopList = shopService.listByShopNameVo(shopVo);
+		System.out.println(shopList);
 		if (shopList.size() > 0) {
 			for (int i = 0; i < shopList.size(); i++) {
 				shopList.get(i).setCount(0);
@@ -332,7 +333,7 @@ public class ShopController {
 		;
 
 		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("code", 0);
+		result.put("code", 1);
 		result.put("msg", "Success");
 		JSONArray array = JSONArray.fromObject(shopList);
 		result.put("data", array);

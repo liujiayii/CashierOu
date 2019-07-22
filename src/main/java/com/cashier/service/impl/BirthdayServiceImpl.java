@@ -130,4 +130,17 @@ public class BirthdayServiceImpl implements BirthdayService {
 		return birthdayMapper.removeBirthday(id);
 	}
 
+	/**
+	 * @Title: deleteAllBirthday
+	 * @description 删除生日表的所有数据
+	 * @return int    
+	 * @author dujiawei
+	 * @createDate 2019年7月19日
+	 */
+	@Override
+	public int deleteAllBirthday() {
+		// TODO Auto-generated method stub
+		return birthdayMapper.deleteAllBirthday();
+	}
+
 }

@@ -83,9 +83,10 @@ public interface OrderService {
 	 * 按条形码查询价格
 	 * 
 	 * @param barCode
+	 * @param shopId 
 	 * @return
 	 */
-	public Product querPreferences(String barCode);
+	public Product querPreferences(String barCode, BigInteger shopId);
 
 	/**
 	 * 查询会员状态
@@ -94,7 +95,7 @@ public interface OrderService {
 	 * @return
 	 */
 
-	public Member Querymembershipstatus(String number, String phone);
+	public Member Querymembershipstatus(String phone);
 
 	/**
 	 * 查询商品折扣的价格

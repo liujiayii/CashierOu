@@ -303,6 +303,16 @@
             id = #{id}    
     </update>
    
+    <!-- 查询状态 -->
+    <select id="selectSubscribe" resultType="int">
+        select 
+            transportation_state  
+        from
+            t_goodstraffic_management 
+        where
+            id = #{id}        
+    </select>
+    
     <!-- 财务进货管理用 -->
     <!-- 通过时间段查询本店的申购信息 -->
     <select id="listThisShopPurchase"  resultType="com.cashier.entityVo.GoodstrafficManagementVo"
@@ -333,7 +343,9 @@
         limit #{page},#{limit}               
     </select>
     
-   
+    <delete id="deleteGoodstrafficManagement" parameterType="BigInteger">
+        delete  from t_goodstraffic_management where id = #{id}
+    </delete>
 
     
 </mapper>  

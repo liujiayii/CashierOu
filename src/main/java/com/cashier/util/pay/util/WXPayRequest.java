@@ -24,7 +24,7 @@ import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 
-import static com.cashier.controller.wx.WXPayConstants.USER_AGENT;
+import static com.cashier.util.pay.util.WXPayConstants.USER_AGENT;
 
 public class WXPayRequest {
     private WXPayConfig config;

@@ -270,7 +270,7 @@ public class ProductController {
 			if(number==null||number.equals("")||number.length()<12) {
 				 
 			}
-			bi = jbarcode13.createBarcode(number);
+			bi = jbarcode13.createBarcode(number.substring(0,12));
             response.reset();
             response.setContentType("image/jpeg");
             OutputStream ops =

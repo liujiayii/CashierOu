@@ -49,11 +49,13 @@ public class GoodstrafficManagementServiceImpl implements GoodstrafficManagement
      * @createDate 2019年6月19日
      */
     @Override
-    public void addprocurement(GoodstrafficManagement goodstrafficManagement, String g) {
+    public void addprocurement(GoodstrafficManagement goodstrafficManagement, String g, BigInteger shopId) {
         JSONArray myJsonArray = JSONArray.fromObject(g);
         BigDecimal bigDecimal = new BigDecimal("0");
+        goodstrafficManagement.setShopId(shopId);          //店铺Id 
+        goodstrafficManagement.setShipmentsShopId(shopId); //发起店铺
         Shop shop = new Shop();
-        shop.setId(goodstrafficManagement.getShopId());
+        shop.setId(shopId);
         Shop shop2 = shopMapper.getShopByCondition(shop);
         if(shop2.getType()==2 && goodstrafficManagement.getGoodstrafficState()==2){
             Shop shop3 = new Shop();
@@ -283,5 +285,16 @@ public class GoodstrafficManagementServiceImpl implements GoodstrafficManagement
         
         return map;
     }
-
+    
+    @Override
+    public int selectSubscribe(BigInteger id){
+       
+        return goodstrafficManagementMapper.selectSubscribe(id);
+        
+    }
+    
+    @Override
+    public void deleteGoodstrafficManagement(BigInteger id){
+        goodstrafficManagementMapper.deleteGoodstrafficManagement(id);
+    }
 }

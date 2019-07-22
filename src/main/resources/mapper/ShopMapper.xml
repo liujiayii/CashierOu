@@ -191,7 +191,7 @@
 			t.create_time createTime,
 			t.state state,
 			t.remarks remarks,
-			t.bonus_type bonusType,
+			t.bonus_type bonusType
 		 
 		FROM
 			t_dm_area c,
@@ -205,7 +205,7 @@
 				c.pid = p.area_id
 			AND	
 				t.area = a.area_id
-			AND
+			
 				
 			<if test="name != null and name != ''">
 				and t.name like "%"#{name}"%"

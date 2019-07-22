@@ -131,9 +131,14 @@ public class ActivityServiceImpl implements ActivityService {
         // 根据商品活动级别查询对应的商品列表 1.通用级别 2.分类级别3.商品级别
         //10302查询商品列表根据活动ID
         Map<String, Object> map = new HashMap<>();
-        List<ProductType> productTypes = activityMapper.listProductTypeAndProductByActivityId(specialOffers);
-        map.put("productList", productTypes);
-        if (specialOffers.getType()==1) {
+        if (specialOffers.getState()==3) {
+            List<ProductType> productTypes = activityMapper.listProductTypeAndProductByActivityId(specialOffers);
+            map.put("productList", productTypes);
+        }else{
+            List<ProductType> productTypes = activityMapper.listProductTypeAndProductByActivityIdActive(specialOffers);
+            map.put("productList", productTypes);
+        }
+        if (specialOffers.getType()!=null && specialOffers.getType()==1) {
             //10303根据满减活动ID查询该活动的满减规则
             List<Regulation> regulationList = activityMapper.listRegulation(specialOffers);
             map.put("regulationList", regulationList);
@@ -154,7 +159,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public int updateActivityById(SpecialOffers specialOffers) {
         int result = activityMapper.updateActivityById(specialOffers);
-        return 0;
+        return result;
     }
 
     /**
@@ -188,7 +193,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public int deleteRegulationById(Regulation regulation) {
         int result = activityMapper.deleteRegulationById(regulation);
-        return 0;
+        return result;
     }
 
     /**
@@ -201,8 +206,7 @@ public class ActivityServiceImpl implements ActivityService {
      */
     @Override
     public int insertOneRegulation(Regulation regulation) {
-        activityMapper.insertRegulation(regulation);
-        return 0;
+        return activityMapper.insertRegulation(regulation);
     }
 
     /**
@@ -261,10 +265,10 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public Map<String, Object> selectPtAndPBySpecialOffersId(SpecialOffers specialOffers) {
         Map<String, Object> map = new HashMap<>();
-        List<ProductType> productTypeList = activityMapper.selectPtAndPBySpecialOffersId(specialOffers);
+        List<ProductType> productTypes = activityMapper.listProductTypeAndProductByActivityIdFlag(specialOffers);
+        map.put("productList", productTypes);
         map.put("code", 1);
         map.put("message", "查询成功");
-        map.put("data", productTypeList);
         return map; 
     }
 

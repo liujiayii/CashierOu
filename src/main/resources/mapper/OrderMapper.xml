@@ -185,7 +185,7 @@
 		specification,
 		color,
 		can_use canUse,
-		inventory from t_product where barcode=#{barcode}
+		inventory from t_product where barcode=#{barCode}  and shop_id=#{shopId}
 
 	</select>
 	<select id="Querymembershipstatus" resultType="com.cashier.entity.Member">

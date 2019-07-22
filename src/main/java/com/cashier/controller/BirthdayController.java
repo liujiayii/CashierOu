@@ -33,12 +33,12 @@ public class BirthdayController {
 	 * @author dujiawei
 	 * @createDate 2019年6月20日
 	 */
-	//@Scheduled(cron = "0 43 10 * * ?")
+	//@Scheduled(cron = "0 20 15 * * ?")
 	@Scheduled(cron = "0 00 1 * * ?")  //每天凌晨一点执行方法
 	public void saveBirthday() {
 		Birthday birthday = new Birthday();
-		
-		birthdayService.saveBirthday(birthday);
+		birthdayService.deleteAllBirthday(); //先清空整个生日表数据
+		birthdayService.saveBirthday(birthday); //存储当天过生日的会员信息
 	}
 	
 	/**

@@ -19,7 +19,7 @@ public interface GoodstrafficManagementService {
      * @author chenshuxian
      * @createDate 2019年6月19日
      */
-    void addprocurement(GoodstrafficManagement goodstrafficManagement,String g);
+    void addprocurement(GoodstrafficManagement goodstrafficManagement,String g,BigInteger shopId);
 
     /**
      * @Title: listProcurement
@@ -141,4 +141,7 @@ public interface GoodstrafficManagementService {
      */
     String SerialNumber();
 
+    int selectSubscribe(BigInteger id);
+    
+    void deleteGoodstrafficManagement(BigInteger id);
 }

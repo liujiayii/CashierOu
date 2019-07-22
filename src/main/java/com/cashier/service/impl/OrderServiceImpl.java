@@ -149,21 +149,21 @@ public class OrderServiceImpl implements OrderService {
 	/*
 	 * 按条形码选择商品(non-Javadoc)
 	 * 
-	 * @see com.cashier.service.OrderService#querPreferences(java.lang.String)
+	 * 
 	 */
 	@Override
-	public Product querPreferences(String barCode) {
+	public Product querPreferences(String barCode, BigInteger shopId) {
 
-		return orderMapper.querPreferences(barCode);
+		return orderMapper.querPreferences(barCode,shopId);
 	}
 
 	/**
 	 * 按照会员卡号查询
 	 */
 	@Override
-	public Member Querymembershipstatus(String number, String phone) {
+	public Member Querymembershipstatus(String phone) {
 		// TODO Auto-generated method stub
-		return orderMapper.Querymembershipstatus(number, phone);
+		return orderMapper.Querymembershipstatus(phone);
 	}
 
 	@Override
@@ -242,85 +242,96 @@ public class OrderServiceImpl implements OrderService {
 				 
 		String []shoping=productId.split(";");
 		for(int t=0;t<shoping.length;t++) {
-			String []shop=shoping[t].split(",");	         
-			  unsteady unsteady = orderMapper.queractivitybyid(shop[0],shopId,shop[1]);
-			  if(unsteady==null) {
-				  unsteady = orderMapper.queractivitybyidde(shop[0],shopId,shop[1]); 
-			  }
-			  Product product = orderMapper.querproductbyid(shop[0]);
-			  
-			  orderProduc.setProductId(product.getId());// 保存商品的id
-				 orderProduc.setProductCount(Integer.valueOf(shop[1]));// 购买数量
-				 orderProduc.setOrderNumber(orderNumber);
-				 orderProduc.setType(1); 
-				// orderProduc.setMemberPricediscount(unsteady.);// 获取活动折扣价格和商品的满减价格
-				 if(is_vip==1) {
-					 orderProduc.setSalePrice(product.getMemberPrice());// 获取单价
-					 orderProduc.setMemberPrice(unsteady.getMember_price());
-					 ser=ser.add(unsteady.getMember_price());
-				 }else {
-					 orderProduc.setSalePrice(product.getSalePrice());// 获取单价
-					 orderProduc.setMemberPrice(unsteady.getSale_price());
-					 ser=ser.add(unsteady.getSale_price());
-				 }
+			String []shop=shoping[t].split(",");
+			try {
+				BigInteger product_id=BigInteger.valueOf(Long.valueOf(shop[0]));
+				Integer productCount=Integer.valueOf(shop[1]);
+				orderProductMapper.upnumberbyid(product_id,productCount,shopId);
+			} catch (Exception e) {
+				
+			}finally {
+				 unsteady unsteady = orderMapper.queractivitybyid(shop[0],shopId,shop[1]);
+				  if(unsteady==null) {
+					  unsteady = orderMapper.queractivitybyidde(shop[0],shopId,shop[1]); 
+				  }
+				  Product product = orderMapper.querproductbyid(shop[0]);
 				  
-				  
-				  //(Integer.parseInt(productCount.toString()));
-				 // orderProduc.setMemberPrice(product.getSalePrice().multiply(ser));
-				  
-				  int fig =orderProductMapper.saveOrderProduct(orderProduc);
-				 
-		      
-			  }
-		 Order order = new Order();					  
-		  order.setNumber(orderNumber); 
-		  order.setShopId(shopId);
-		  order.setMemberNumber(nubber);
-		  order.setPayMethod(i); 
-		  order.setPayAdvance(ser); 
-		  order.setRemark(remark);
-		  order.setState(1); 
-		  order.setOuttradeno(out_trade_no);
-		  order.setTotalMoney(new BigDecimal(totalAmount));
-		  
-		  orderMapper.saveOrder(order);
-
-		
-		Order Order=orderMapper.OrderByOption(orderNumber);
-		/**
-		 * 更新会员累计金额
-		 */
-        if(Order.getMemberNumber()!=null) {
-	         int fig= orderMapper.Increasecumulativeconsumptio(Order.getMemberNumber(),new BigDecimal(totalAmount));
-        }
-
-		  /**
-		   * 更新订单的实际付款金额
-		   */
-
-		if(is_vip==1) {
-        //查询会员的累计消费金额，并更新会员等级
-        Member member = new Member();
-        Level level = new Level();
-        member.setNumber(Order.getMemberNumber());
-        Member message = memberMapper.getMemberByNumber(member);  //通过会员卡号获取会员信息---message
-        Level levelMSG = levelMapper.getMaxMoney(level);  //获取会员等级表中最高级别的消费上限金额
-        //累计消费金额如果等于或者超过最高会员等级的最高金额，那么当前会员的等级就是最高级别
-        if(message.getTotalMoney().compareTo(levelMSG.getMaximum()) == 1 || message.getTotalMoney().compareTo(levelMSG.getMaximum()) == 0){
-        	member.setLdLevelId(levelMSG.getId());
-        	member.setId(message.getId());
-        	memberMapper.updateMemberMoneyAndLevel(member);
-        	//System.out.println("最高级别*****");
-        } else {  //若没有超过，根据累计消费金额查询对应的会员等级
-        	level.setTotalMoney(message.getTotalMoney());
-        	Level nowLevel = levelMapper.getLevelByMoney(level);
-        	member.setLdLevelId(nowLevel.getId());
-        	member.setId(message.getId());
-        	memberMapper.updateMemberMoneyAndLevel(member);
-        	//System.out.println("其他级别#####");
-        }
-        
+				  orderProduc.setProductId(product.getId());// 保存商品的id
+					 orderProduc.setProductCount(Integer.valueOf(shop[1]));// 购买数量
+					 orderProduc.setOrderNumber(orderNumber);
+					 orderProduc.setType(1); 
+					// orderProduc.setMemberPricediscount(unsteady.);// 获取活动折扣价格和商品的满减价格
+					 if(is_vip==1) {
+						 orderProduc.setSalePrice(product.getMemberPrice());// 获取单价
+						 orderProduc.setMemberPrice(unsteady.getMember_price());
+						 ser=ser.add(unsteady.getMember_price());
+					 }else {
+						 orderProduc.setSalePrice(product.getSalePrice());// 获取单价
+						 orderProduc.setMemberPrice(unsteady.getSale_price());
+						 ser=ser.add(unsteady.getSale_price());
+					 }
+					  
+					  
+					  //(Integer.parseInt(productCount.toString()));
+					 // orderProduc.setMemberPrice(product.getSalePrice().multiply(ser));
+					  
+					  int fig =orderProductMapper.saveOrderProduct(orderProduc);
+					 
+			      
+				  }
 		}
+			 Order order = new Order();					  
+			  order.setNumber(orderNumber); 
+			  order.setShopId(shopId);
+			  order.setMemberNumber(nubber);
+			  order.setPayMethod(i); 
+			  order.setPayAdvance(ser); 
+			  order.setRemark(remark);
+			  order.setState(1); 
+			  order.setOuttradeno(out_trade_no);
+			  order.setTotalMoney(new BigDecimal(totalAmount));
+			  
+			  orderMapper.saveOrder(order);
+
+			
+			Order Order=orderMapper.OrderByOption(orderNumber);
+			/**
+			 * 更新会员累计金额
+			 */
+	        if(Order.getMemberNumber()!=null) {
+		         int fig= orderMapper.Increasecumulativeconsumptio(Order.getMemberNumber(),new BigDecimal(totalAmount));
+	        }
+
+			  /**
+			   * 更新订单的实际付款金额
+			   */
+
+			if(is_vip==1) {
+	        //查询会员的累计消费金额，并更新会员等级
+	        Member member = new Member();
+	        Level level = new Level();
+	        member.setNumber(Order.getMemberNumber());
+	        Member message = memberMapper.getMemberByNumber(member);  //通过会员卡号获取会员信息---message
+	        Level levelMSG = levelMapper.getMaxMoney(level);  //获取会员等级表中最高级别的消费上限金额
+	        //累计消费金额如果等于或者超过最高会员等级的最高金额，那么当前会员的等级就是最高级别
+	        if(message.getTotalMoney().compareTo(levelMSG.getMaximum()) == 1 || message.getTotalMoney().compareTo(levelMSG.getMaximum()) == 0){
+	        	member.setLdLevelId(levelMSG.getId());
+	        	member.setId(message.getId());
+	        	memberMapper.updateMemberMoneyAndLevel(member);
+	        	//System.out.println("最高级别*****");
+	        } else {  //若没有超过，根据累计消费金额查询对应的会员等级
+	        	level.setTotalMoney(message.getTotalMoney());
+	        	Level nowLevel = levelMapper.getLevelByMoney(level);
+	        	member.setLdLevelId(nowLevel.getId());
+	        	member.setId(message.getId());
+	        	memberMapper.updateMemberMoneyAndLevel(member);
+	        	//System.out.println("其他级别#####");
+	        }
+	        
+			
+		}
+			
+			 
 		return 1;
 	}
 

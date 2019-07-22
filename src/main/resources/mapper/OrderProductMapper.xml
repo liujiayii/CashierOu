@@ -129,7 +129,7 @@
 	
 	<update id="upnumberbyid">
 	
-	update   t_inventory  set quantity=quantity-#{productCount}  where  product_id=#{id}  and shop_id=#{shopId}
+	update   t_inventory  set quantity=quantity-#{productCount}  where  product_id=#{product_id}  and shop_id=#{shopId}
 	
 	</update>
 	

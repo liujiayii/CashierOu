@@ -150,7 +150,7 @@
     <select id="listProductAndTypeBefore" parameterType="com.cashier.entity.ProductType" resultMap="productAndProductTypeResultMap" >
         SELECT 
             t.id,
-            t.product_type,
+            t.product_type productTypeName,
             p.id pid,
             p.name
         FROM t_product_type t,t_product p
@@ -171,30 +171,85 @@
             <result property="name" column="name" />
         </collection>
     </resultMap>
+    
+    <!-- 活动详情，点击修改，回显商品列表（只有未开始的活动可以改） -->
+    <select id="listProductTypeAndProductByActivityIdFlag" parameterType="com.cashier.entity.SpecialOffers" resultMap="productTypeResultMap" >
+        SELECT
+		    ptp.id,
+		    ptp.product_type productTypeName,
+		    ptp.pid,
+		    ptp. NAME,
+		    myLeft.pid flag
+		FROM
+		    (
+		        SELECT
+		            pt.id,
+		            pt.product_type,
+		            p.id pid,
+		            p. NAME
+		        FROM
+		            t_product_type pt,
+		            t_product p
+		        WHERE
+		            pt.id = p.product_type_id
+		        AND pt.can_use = 1
+		        AND p.can_use = 1
+		        AND pt.shop_id = #{shopId}
+		    ) ptp
+		LEFT JOIN (
+		    SELECT
+		        pt.id,
+		        pt.product_type,
+		        p.id pid,
+		        p. NAME
+		    FROM
+		        t_activities a,
+		        t_product_type pt,
+		        t_product p
+		    WHERE
+		        a.product_id = p.id
+		    AND pt.id = p.product_type_id
+		    AND pt.can_use = 1
+		    AND p.can_use = 1
+		    AND a.special_offers_id = #{id}
+		) myLeft ON myLeft.pid = ptp.pid
+    </select>
 
-
+    <!-- 10302查询商品列表根据活动ID    去查动态活动商品表 -->
+    <select id="listProductTypeAndProductByActivityIdActive" parameterType="com.cashier.entity.SpecialOffers" resultMap="productTypeResultMap" >
+        SELECT
+	        pt.id,
+	        pt.product_type productTypeName,
+	        p.id pid,
+	        p.name
+	    FROM
+	        t_activities_active a,
+	        t_product_type pt,
+	        t_product p
+	    WHERE
+	        a.product_id = p.id
+	    AND pt.id = p.product_type_id
+	    AND pt.can_use = 1
+	    AND p.can_use = 1
+	    AND a.activity_id = #{id}
+    </select>
     <!-- 10302查询商品列表根据活动ID -->
     <select id="listProductTypeAndProductByActivityId" parameterType="com.cashier.entity.SpecialOffers" resultMap="productTypeResultMap" >
-        SELECT 
-            myLeft.id,
-            myLeft.product_type,
-            myLeft.pid,
-            myLeft.name,
-            aa.product_id flag
-        FROM
-	        (SELECT 
-	            pt.id,
-	            pt.product_type,
-	            p.id pid,
-	            p.name
-	        FROM t_activities a ,t_product_type pt,t_product p
-	        WHERE a.product_id = pt.id AND pt.id = p.product_type_id
-	        AND pt.can_use = 1 AND p.can_use = 1
-	        AND a.special_offers_id=#{id} 
-	        ) myLeft
-	    LEFT JOIN 
-	       t_activities_active aa
-	    ON myLeft.pid = aa.product_id
+        SELECT
+	        pt.id,
+	        pt.product_type,
+	        p.id pid,
+	        p.name
+	    FROM
+	        t_activities a,
+	        t_product_type pt,
+	        t_product p
+	    WHERE
+	        a.product_id = p.id
+	    AND pt.id = p.product_type_id
+	    AND pt.can_use = 1
+	    AND p.can_use = 1
+	    AND a.special_offers_id = #{id}
     </select>
     <resultMap type="com.cashier.entity.ProductType" id="productTypeResultMap">
         <id property="id" column="id" />
@@ -332,7 +387,7 @@
     <select id="selectPtAndPBySpecialOffersId" parameterType="com.cashier.entity.SpecialOffers" resultMap="productTypeResultMap" >
         SELECT 
             pt.id id,
-            pt.product_type,
+            pt.product_type productTypeName,
             p.id pid,
             p.name name,
             aso.product_id flag

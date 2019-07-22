@@ -86,7 +86,7 @@ public interface OrderMapper {
 	 * @param barCode
 	 * @return
 	 */
-	public Product querPreferences(String barCode);
+	public Product querPreferences(@Param("barCode")String barCode,@Param("shopId") BigInteger shopId);
 
 	/**
 	 * 按照手机号会员卡号查询会员信息
@@ -96,7 +96,7 @@ public interface OrderMapper {
 	 * @return
 	 */
 
-	public Member Querymembershipstatus(@Param("number") String number, @Param("phone") String phone);
+	public Member Querymembershipstatus(String phone);
 
 	/**
 	 * 查询活动id
@@ -229,6 +229,8 @@ public interface OrderMapper {
  * @param result
  */
 public void severAlipayF2FPayResult(AlipayF2FPayResult result);
+
+
 
 	
 	

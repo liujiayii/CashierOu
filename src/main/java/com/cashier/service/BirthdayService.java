@@ -56,5 +56,14 @@ public interface BirthdayService {
 	 * @createDate 2019年6月20日
 	 */
 	public int removeBirthday(@Param("id") BigInteger id);
+	
+	/**
+	 * @Title: deleteAllBirthday
+	 * @description 删除生日表的所有数据
+	 * @return int    
+	 * @author dujiawei
+	 * @createDate 2019年7月19日
+	 */
+	public int deleteAllBirthday();
 
 }

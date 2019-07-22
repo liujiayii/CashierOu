@@ -481,7 +481,18 @@ public class ActivityController {
      */
     @RequestMapping("/selectPtAndPBySpecialOffersId")
     @ResponseBody
-    public Map<String, Object> selectPtAndPBySpecialOffersId(Model model,SpecialOffers specialOffers){
+    public Map<String, Object> selectPtAndPBySpecialOffersId(Model model,SpecialOffers specialOffers,HttpSession session){
+        if (specialOffers.getShopId()==null) {
+            // 通过session获取shopId保存到活动表
+            Map<String, Object> map = new HashMap<>();
+            BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+            if (shopId==null) {
+                map.put("code", -2);
+                map.put("message", "店铺ID获取失败，请重新登录");
+                return map;
+            }
+            specialOffers.setShopId(shopId);
+        }
         return activityService.selectPtAndPBySpecialOffersId(specialOffers);
     }
     

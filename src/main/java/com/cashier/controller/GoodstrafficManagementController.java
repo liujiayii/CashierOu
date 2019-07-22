@@ -80,8 +80,18 @@ public class GoodstrafficManagementController {
             ts = Timestamp.valueOf(time);  
             goodstrafficManagement.setDeliveryDate(ts);
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-            goodstrafficManagement.setShopId(shopId);
-            goodstrafficManagementService.addprocurement(goodstrafficManagement,g);
+            if(goodstrafficManagement.getTransportationState()!=null){
+                Integer id = 
+                        goodstrafficManagementService.selectSubscribe(goodstrafficManagement.getId());
+                if(id != goodstrafficManagement.getTransportationState()){
+                    goodstrafficManagementService.addprocurement(goodstrafficManagement,g,shopId);
+                }else{
+                    map.put("code", 0);
+                    map.put("msg", "状态已变更，请刷新");
+                    
+                    return map;
+                }
+            }    
             map.put("code", 1);
             map.put("msg", "添加成功");
         } catch (Exception e) {
@@ -207,7 +217,25 @@ public class GoodstrafficManagementController {
     public Map<String, Object> updateSubscribe(GoodstrafficManagement goodstrafficManagement) {
         Map<String, Object> map = new HashMap<>();
         try {
-            goodstrafficManagementService.updateSubscribe(goodstrafficManagement);
+            if(goodstrafficManagement!=null){
+                //判断修改状态还是送货店
+                if(goodstrafficManagement.getTransportationState()!=null){
+                    Integer id = 
+                            goodstrafficManagementService.selectSubscribe(goodstrafficManagement.getId());
+                    if(id != goodstrafficManagement.getTransportationState()){
+                        goodstrafficManagementService.updateSubscribe(goodstrafficManagement);  
+                    }else{
+                        map.put("code", 0);
+                        map.put("msg", "状态已变更，请刷新");
+                        
+                        return map;
+                    }
+                }else if(goodstrafficManagement.getReceivingShopId()!=null){
+                    goodstrafficManagementService.updateSubscribe(goodstrafficManagement);  
+                }
+               
+               
+            }
             map.put("code", 1);
             map.put("msg", "修改成功");
         } catch (Exception e) {
@@ -233,6 +261,7 @@ public class GoodstrafficManagementController {
     public Map<String, Object> updateSettlementStatus(GoodstrafficManagement goodstrafficManagement) {
         Map<String, Object> map = new HashMap<>();
         try {
+            
             goodstrafficManagementService.updateSettlementStatus(goodstrafficManagement);
             map.put("code", 1);
             map.put("msg", "修改成功");
@@ -244,4 +273,34 @@ public class GoodstrafficManagementController {
 
         return map;
     }
+    
+    @RequestMapping("/deleteGoodstrafficManagement")
+    @ResponseBody
+    public Map<String, Object> deleteGoodstrafficManagement(GoodstrafficManagement goodstrafficManagement) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            if(goodstrafficManagement.getTransportationState()!=null){
+                Integer id = 
+                        goodstrafficManagementService.selectSubscribe(goodstrafficManagement.getId());
+                if(id != goodstrafficManagement.getTransportationState()){
+                    goodstrafficManagementService.deleteGoodstrafficManagement(goodstrafficManagement.getId());
+                }else{
+                    map.put("code", 0);
+                    map.put("msg", "状态已变更，请刷新");
+                    
+                    return map;
+                }
+            }
+           
+            map.put("code", 1);
+            map.put("msg", "删除成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            map.put("code", 0);
+            map.put("msg", "方法错误");
+        }
+
+        return map;
+    }
+   
 }

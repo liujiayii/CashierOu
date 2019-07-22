@@ -53,7 +53,7 @@ public interface ActivityMapper {
      * @author zhoujiaxin  
      * @createDate 2019年6月20日  
      */
-    void insertRegulation(Regulation regulation);
+    int insertRegulation(Regulation regulation);
 
     /**
      * @Title: listActivity
@@ -79,7 +79,7 @@ public interface ActivityMapper {
     
     /**
      * @Title: listProductTypeAndProductByActivityId
-     * @Description 10302查询商品列表根据活动ID
+     * @Description 10302查询商品列表根据活动ID----去查活动商品表
      * @param  SpecialOffers specialOffers
      * @return List<ProductType>
      * @author zhoujiaxin  
@@ -247,5 +247,29 @@ public interface ActivityMapper {
      * @createDate 2019年7月8日
      */
     int listActivityCount(SpecialOffers specialOffers);
+
+    /**
+     *
+     * @Title: listProductTypeAndProductByActivityIdActive
+     * @description 10302查询商品列表根据活动ID----去查动态活动商品表
+     * @param @param specialOffers
+     * @param @return  
+     * @return List<ProductType>    
+     * @author zhoujiaxin
+     * @createDate 2019年7月19日
+     */
+    List<ProductType> listProductTypeAndProductByActivityIdActive(SpecialOffers specialOffers);
+
+    /**
+     *
+     * @Title: listProductTypeAndProductByActivityIdFlag
+     * @description 活动详情，点击修改，回显商品列表（只有未开始的活动可以改）
+     * @param @param specialOffers
+     * @param @return  
+     * @return List<ProductType>    
+     * @author zhoujiaxin
+     * @createDate 2019年7月19日
+     */
+    List<ProductType> listProductTypeAndProductByActivityIdFlag(SpecialOffers specialOffers);
 
 }
