@@ -56,10 +56,8 @@ public class ProductController {
 	@ResponseBody
 	public Map<String,Object> addProduct(HttpServletRequest request,HttpSession session,Product product,BigInteger quantity,BigInteger inventoryWarning){
 		Map<String, Object> map = new HashMap<>();
-		
 		//设置店铺id，
 		product.setShopId(new BigInteger(session.getAttribute("shopId")+""));
-		
 		try {
 			if(product.getBarCode()==null||product.getBarCode().equals("")){
 				//自动生成商品条码
@@ -71,7 +69,6 @@ public class ProductController {
 				String check = productService.barCode(numStr);
 				//System.out.println(check+"check");
 				product.setBarCode(numStr+check);
-				
 			}
 			Integer row =productService.insertProduct(product,quantity,inventoryWarning);
 			if(row!=0){
@@ -82,19 +79,16 @@ public class ProductController {
 			map.put("code", 0); 
 			map.put("msg", e.getMessage());
 		}
-		
-		
 		return map ;
 	}
 	
 	/**
-	 * 
-	     * @Title: createProduct
-	     * @description 修改商品信息
-	     * @param  
-	     * @return    
-	     * @author chenshuxian
-	     * @createDate
+     * @Title: createProduct
+     * @description 修改商品信息
+     * @param  
+     * @return    
+     * @author chenshuxian
+     * @createDate
 	 */
 	@RequestMapping("/createProduct")
 	@ResponseBody
@@ -126,9 +120,16 @@ public class ProductController {
 	 */
 	@RequestMapping("/delProduct")
 	@ResponseBody
-	public Map<String,Object> delProduct(BigInteger productId){
-		
+	public Map<String,Object> delProduct(BigInteger productId,Product product){
 		Map<String, Object> map = new HashMap<>();
+		// 先判断分店铺或总店铺里是否还有库存，如果有则此分类不能删除---周嘉鑫20190729
+		product.setId(productId);
+        int count = productService.selectCountByProductId(product);
+        if (count>0) {
+            map.put("code", 0);
+            map.put("msg", "失败,总店或分店下还有商品库存，不能删除");
+            return map;
+        }
 		Integer row = productService.delProductById(productId);
 		if(row == 1){
 			map.put("code", 1);
@@ -140,13 +141,12 @@ public class ProductController {
 		return map ;
 	}
 	/**
-	 * 
-	     * @Title: 
-	     * @description 分页查询所有商品
-	     * @param   页数，条数
-	     * @return 商品列表
-	     * @author chenshuxian
-	     * @createDate 2019年6月18日
+     * @Title: 
+     * @description 分页查询所有商品
+     * @param   页数，条数
+     * @return 商品列表
+     * @author chenshuxian
+     * @createDate 2019年6月18日
 	 *//*
 	@RequestMapping("/listProduct")
 	@ResponseBody
@@ -166,9 +166,8 @@ public class ProductController {
 	 */
 	@RequestMapping("/ProductsByType")
 	@ResponseBody
-	public Map<String,Object> ProductsByType(BigInteger productTypeId,Integer page,Integer limit,HttpSession session){
-		BigInteger shopId = new BigInteger(session.getAttribute("shopId")+"");
-		Map<String, Object> map = productService.productsByType(productTypeId, shopId, page, limit);
+	public Map<String,Object> ProductsByType(BigInteger productTypeId,Integer page,Integer limit){
+		Map<String, Object> map = productService.productsByType(productTypeId,page, limit);
 		return map ;
 	}
 	/**
@@ -203,8 +202,7 @@ public class ProductController {
 	@ResponseBody
 	public Map<String,Object> groupByProductType(HttpSession session){
 		Map<String, Object> map = new HashMap<>();
-		BigInteger shopId = new BigInteger(session.getAttribute("shopId")+"");
-		List<ProductVo> product= productService.groupByProductType(shopId);
+		List<ProductVo> product= productService.groupByProductType();
 		map.put("code", 1);
 		map.put("msg", "成功");
 		map.put("product", product);
@@ -221,11 +219,8 @@ public class ProductController {
 	 */
 	@RequestMapping("/getProductByCondition")
 	@ResponseBody
-	public Map<String,Object> getProductByCondition(String productName,BigInteger shopId,BigInteger productTypeId,Integer page,Integer limit,HttpSession session){
-		if(shopId==null ){
-			shopId = new BigInteger(session.getAttribute("shopId")+"");
-		}
-		Map<String,Object> map=productService.getProductByCondition(productName, productTypeId, shopId, page, limit);
+	public Map<String,Object> getProductByCondition(String productName,BigInteger productTypeId,Integer page,Integer limit){
+		Map<String,Object> map=productService.getProductByCondition(productName, productTypeId, page, limit);
 		return map;
 	}
 	
@@ -240,19 +235,15 @@ public class ProductController {
 	 */
 	@RequestMapping("/missionCreateCodeImage")
 	public String createCodeImage(String number,HttpServletResponse response) {
-
         try {
-
 			BufferedImage bi = null;
-
 			// 实例化JBarcode
 			// 这里三个参数，必要填写
 			JBarcode jbarcode13 = new JBarcode(EAN13Encoder.getInstance(), WidthCodedPainter.getInstance(),
 					EAN13TextPainter.getInstance());
-
 			/*// 获取到校验位
 			String checkCode = jbarcode13.calcCheckSum(number.substring(0,11));
-*/
+            */
 			/*
 			 * 最重要的是这里的设置，如果明白了这里的设置就没有问题 如果是默认设置， 那么设置就是生成一般的条形码 如果不是默认
 			 * 设置，那么就可以根据自己需要设置
@@ -281,7 +272,6 @@ public class ProductController {
             e.printStackTrace();
         }
         return null;
-
     }
 	/**
 	 * 
@@ -318,16 +308,15 @@ public class ProductController {
 	//@RequiresPermissions("/updateProductState")
 	@RequestMapping("/updateProductState")
 	@ResponseBody
-	public Map<String, Object> updateProductState(Product product,HttpSession session) {
-		BigInteger shopId = new BigInteger(session.getAttribute("shopId")+"");
+	public Map<String, Object> updateProductState(Product product) {
 		int row = productService.updateProductState(product);
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (row == 1) {
-			map.put("code", 0);
+			map.put("code", 1);
 			map.put("msg", "成功");
 			
 		} else {
-			map.put("code", 1);
+			map.put("code", 0);
 			map.put("msg", "失败");
 		}
 		return map;

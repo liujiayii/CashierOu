@@ -2,7 +2,6 @@ package com.cashier.entityVo;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.util.List;
 
 import com.cashier.entity.Permission;

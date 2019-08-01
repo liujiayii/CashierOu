@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.cashier.entity.Permission;
 import com.cashier.entity.Shop;
+import com.cashier.entity.ShopListDTO;
 import com.cashier.entity.User;
 import com.cashier.entityDTO.PermissionDTO;
 import com.cashier.entityDTO.ShopUserPermissionDTO;
@@ -374,12 +375,46 @@ public class ShopController {
 	 */
 	@RequestMapping("/listShopIdAndName")
 	@ResponseBody
-	public Map<String, Object> listShopIdAndName() {
-		List<Shop> listShop = shopService.listShopIdAndName();
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("code", 1);
-		map.put("msg", "ok");
-		map.put("data", listShop);
+	public Map<String, Object> listShopIdAndName(HttpSession session,ShopListDTO shopListDTO) {
+	    User user = (User)session.getAttribute("user");
+	    Map<String, Object> map = new HashMap<String, Object>();
+	    if(user.getAgentType()==1 ||user.getAgentType()==2 || user.getAgentType()==3){
+	        if (user.getAgentType()== 1) {
+	            String userProvinceId = user.getUserProvinceId().toString().substring(0, 2);
+	            String beginNumber = userProvinceId+"0000";
+	            String endNumber = userProvinceId+"9999";
+	            shopListDTO.setBeginNumber(Integer.parseInt(beginNumber));
+	            shopListDTO.setEndNumber(Integer.parseInt(endNumber));
+	            // 101通过省级区域经理查询对应省里的店铺信息（ID和名称）
+	            List<Shop> shopList = userService.listShopMsgByProvince(shopListDTO);
+	            map.put("data", shopList);
+	            map.put("code", 1);
+	            map.put("msg", "查询成功");
+	        }else if (user.getAgentType()==2) {
+	            String userProvinceId = user.getUserCityId().toString().substring(0, 4);
+	            String beginNumber = userProvinceId+"00";
+	            String endNumber = userProvinceId+"99";
+	            shopListDTO.setBeginNumber(Integer.parseInt(beginNumber));
+	            shopListDTO.setEndNumber(Integer.parseInt(endNumber));
+	            // 102通过市级区域经理查询对应市里的店铺信息（ID和名称）
+	            List<Shop> shopList = userService.listShopMsgByCity(shopListDTO);
+	            map.put("data", shopList);
+	            map.put("code", 1);
+	            map.put("msg", "查询成功");
+	        }else {
+	            // 103通过区级区域经理查询对应区里的店铺信息（ID和名称）
+	            List<Shop> shopList = userService.listShopMsgByArea(user);
+	            map.put("data", shopList);
+	            map.put("code", 1);
+	            map.put("msg", "查询成功");
+	        }
+	    }else{
+	        List<Shop> listShop = shopService.listShopIdAndName();
+	        map.put("code", 1);
+	        map.put("msg", "ok");
+	        map.put("data", listShop); 
+	    }
 		return map;
 	}
+	
 }

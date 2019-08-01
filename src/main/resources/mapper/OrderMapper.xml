@@ -185,7 +185,7 @@
 		specification,
 		color,
 		can_use canUse,
-		inventory from t_product where barcode=#{barCode}  and shop_id=#{shopId}
+		inventory from t_product where barcode=#{barCode}
 
 	</select>
 	<select id="Querymembershipstatus" resultType="com.cashier.entity.Member">
@@ -252,12 +252,12 @@
 
 		SELECT
 		SUM(op.product_count) count,
-		SUM(op.member_pricediscount*op.product_count) sumPrice,
+		SUM(op.salePrice*op.product_count) sumPrice,
 		pt.product_type productType
 		FROM t_order o join t_order_product op on o.number = op.order_number JOIN
 		t_product p ON op.product_id=p.id JOIN t_product_type pt ON
-		p.product_type_id=pt.id JOIN t_shop s ON pt.shop_id=s.id
-		WHERE s.id=#{shopId} AND TO_DAYS(o.create_time)=TO_DAYS(NOW()) GROUP BY p.product_type_id
+		p.product_type_id=pt.id
+		WHERE o.shop_id=#{shopId} AND TO_DAYS(o.create_time)=TO_DAYS(NOW()) GROUP BY p.product_type_id
 	</select>
 
 	<!--增加  -->
@@ -313,12 +313,12 @@
 	<select id="getMonthSumOrderByProductType" resultType="com.cashier.entityDTO.OrderDTO">
 	SELECT
         SUM(op.product_count) count,
-        SUM(op.member_pricediscount*op.product_count) sumPrice,
+        SUM(op.salePrice*op.product_count) sumPrice,
         pt.product_type productType
         FROM t_order o join t_order_product op on o.number = op.order_number JOIN
         t_product p ON op.product_id=p.id JOIN t_product_type pt ON
-        p.product_type_id=pt.id JOIN t_shop s ON pt.shop_id=s.id
-        WHERE s.id=#{shopId} AND DATE_FORMAT(o.create_time,'%Y%m')=DATE_FORMAT( CURDATE( ) , '%Y%m' ) GROUP BY p.product_type_id
+        p.product_type_id=pt.id
+        WHERE o.shopId=#{shopId} AND DATE_FORMAT(o.create_time,'%Y%m')=DATE_FORMAT( CURDATE( ) , '%Y%m' ) GROUP BY p.product_type_id
 	</select>
 	<!-- 当月销售前十 商品名称及数量 -->
 	<select id="getTopTenProduct" resultType="com.cashier.entityDTO.TopTenProductDTO">

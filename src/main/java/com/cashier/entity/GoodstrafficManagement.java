@@ -27,7 +27,7 @@ public class GoodstrafficManagement implements Serializable {
 	/** 货流类型 1:采购 2:调拨  */
 	private Integer goodstrafficState;
 
-	/** 运输状态 1:未审批 2:备货中 3:已入库 4:已拒绝5:已入库 */
+	/** 运输状态 1:未审批 2:备货中 3:已出库 4:已拒绝5:已入库6:已取消 */
 	private Integer transportationState;
 	/** 备注 */
 	private String remark;

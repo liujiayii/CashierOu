@@ -144,7 +144,7 @@ public class ActivityServiceImpl implements ActivityService {
             map.put("regulationList", regulationList);
         }
         map.put("code", 1);
-        map.put("message", "查询成功");
+        map.put("msg", "查询成功");
         return map;
     }
     
@@ -245,11 +245,11 @@ public class ActivityServiceImpl implements ActivityService {
         int result = activityMapper.updateOneRegulation(regulation);
         if (result==1) {
             map.put("code", 1);
-            map.put("message", "修改成功");
+            map.put("msg", "修改成功");
             return map;    
         }else{
             map.put("code", -1);
-            map.put("message", "修改失败");
+            map.put("msg", "修改失败");
             return map;  
         }
     }
@@ -268,7 +268,7 @@ public class ActivityServiceImpl implements ActivityService {
         List<ProductType> productTypes = activityMapper.listProductTypeAndProductByActivityIdFlag(specialOffers);
         map.put("productList", productTypes);
         map.put("code", 1);
-        map.put("message", "查询成功");
+        map.put("msg", "查询成功");
         return map; 
     }
 
@@ -297,11 +297,11 @@ public class ActivityServiceImpl implements ActivityService {
                 activityMapper.insertActivityProductToAa(activitiesActive);
             } 
             map.put("code", 1);
-            map.put("message", "更新成功");
+            map.put("msg", "更新成功");
             return map; 
         }
         map.put("code", -1);
-        map.put("message", "更新失败");
+        map.put("msg", "更新失败");
         return map; 
     }
 
@@ -347,11 +347,11 @@ public class ActivityServiceImpl implements ActivityService {
         int result = activityMapper.updateActivityById(specialOffers);
         if (result==1) {
             map.put("code", 1);
-            map.put("message", "更改成功");
+            map.put("msg", "更改成功");
             return map; 
         }else{
             map.put("code", -1);
-            map.put("message", "更改失败");
+            map.put("msg", "更改失败");
             return map; 
         }
     }
@@ -380,7 +380,7 @@ public class ActivityServiceImpl implements ActivityService {
             activityMapper.deleteAaProductIdByActivityId(specialOffers);
         }
         map.put("code", 1);
-        map.put("message", "更改成功");
+        map.put("msg", "更改成功");
         return map; 
     }
 

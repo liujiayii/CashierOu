@@ -1,10 +1,13 @@
 package com.cashier.service;
 
 import java.util.List;
+
+import com.cashier.entity.Role;
 import com.cashier.entity.Shop;
 import com.cashier.entityDTO.ShopUserPermissionDTO;
 import com.cashier.entityVo.ShopVo;
 import com.cashier.entityVo.UserShopVo;
+import com.cashier.entityVo.UserVo;
 
 /**
  *
@@ -151,4 +154,16 @@ public interface ShopService {
      * @createDate 2019年7月19日
      */
     public List<UserShopVo> listAllShopIdAndName(UserShopVo userShopVo);
+
+    /**
+     *
+     * @Title: getRoleIdByShopId
+     * @description 通过分店ID获取分店超级管理员角色的ID
+     * @param @param userVo
+     * @param @return  
+     * @return Role    
+     * @author zhoujiaxin
+     * @createDate 2019年7月31日
+     */
+    public Role getRoleIdByShopId(UserVo userVo);
 }

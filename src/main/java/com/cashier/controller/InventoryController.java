@@ -33,9 +33,11 @@ public class InventoryController {
      */
     @RequestMapping("/listInventory")
     @ResponseBody
-    public Map<String, Object> listInventory(InventoryDTO inventoryDTO) {
+    public Map<String, Object> listInventory(InventoryDTO inventoryDTO,HttpSession session) {
         Map<String, Object> map = new HashMap<>();
         try {
+            BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+            inventoryDTO.setShopId(shopId);
             inventoryDTO.setPage((inventoryDTO.getPage() - 1) * inventoryDTO.getLimit());
             List<InventoryVo> listInventory = inventoryService.listInventory(inventoryDTO);
             int count = inventoryService.listInventoryCount(inventoryDTO);
@@ -93,7 +95,6 @@ public class InventoryController {
     public Map<String, Object> updateQuantity(BigInteger id, String inventory, Integer judge, HttpSession session) {
         Map<String, Object> map = new HashMap<>();
         map = inventoryService.updateQuantity(id, inventory, judge, session);
-
         return map;
     }
     

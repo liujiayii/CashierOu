@@ -49,12 +49,11 @@ public interface GoodstrafficManagementMapper {
      * 
      * @Title: listProductAndProductType
      * @description 采购商品显示
-     * @param id
      * @return List<AddsubscriptionVo>
      * @author liujunkai
      * @createDate 2019年7月5日
      */
-    List<AddsubscriptionVo> listProductAndProductType(@Param("id") BigInteger id);
+    List<AddsubscriptionVo> listProductAndProductType();
 
     /**
      * 
@@ -137,4 +136,14 @@ public interface GoodstrafficManagementMapper {
     int selectSubscribe(BigInteger id);
     
     void deleteGoodstrafficManagement(BigInteger id);
+
+    /*
+     * @Title: redirectToBranchShop
+     * @description 总店把调拨请求转发给分店
+     * @param GoodstrafficManagement goodstrafficManagement
+     * @return 
+     * @author zhoujiaxin
+     * @createDate 20190731
+      */
+    void redirectToBranchShop(GoodstrafficManagement goodstrafficManagement);
 }

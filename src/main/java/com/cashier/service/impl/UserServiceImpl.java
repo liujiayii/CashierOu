@@ -6,6 +6,8 @@ import java.util.List;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import com.cashier.dao.UserMapper;
+import com.cashier.entity.Shop;
+import com.cashier.entity.ShopListDTO;
 import com.cashier.entity.User;
 import com.cashier.entity.UserRoleRelationship;
 import com.cashier.entityVo.PermissionVo;
@@ -345,5 +347,46 @@ public class UserServiceImpl implements UserService {
 		// TODO Auto-generated method stub
 		return userMapper.listShopByAreaAgent(userShopVo);
 	}
+
+	/**
+    *
+    * @Title: listShopMsgByProvince
+    * @description 101通过省级区域经理查询对应省里的店铺信息（ID和名称）
+    * @param @param shopListDTO
+    * @param @return  
+    * @return List<Shop>    
+    * @author zhoujiaxin
+    * @createDate 2019年7月26日
+    */
+    @Override
+    public List<Shop> listShopMsgByProvince(ShopListDTO shopListDTO) {
+        return userMapper.listShopMsgByProvince(shopListDTO);
+    }
+
+    /**
+     * @Title: listShopMsgByCity
+     * @description 102通过市级区域经理查询对应市里的店铺信息（ID和名称）
+     * @param @param shopListDTO
+     * @return List<Shop>    
+     * @author zhoujiaxin
+     * @createDate 2019年7月29日
+     */
+    @Override
+    public List<Shop> listShopMsgByCity(ShopListDTO shopListDTO) {
+        return userMapper.listShopMsgByCity(shopListDTO);
+    }
+
+    /**
+     * @Title: listShopMsgByArea
+     * @description 103通过区级区域经理查询对应区里的店铺信息（ID和名称）
+     * @param @param user
+     * @return List<Shop>    
+     * @author zhoujiaxin
+     * @createDate 2019年7月29日
+     */
+    @Override
+    public List<Shop> listShopMsgByArea(User user) {
+        return userMapper.listShopMsgByArea(user);
+    }
 
 }

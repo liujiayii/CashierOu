@@ -27,7 +27,7 @@ public class Permission implements Serializable{
     private String url;
     /** 映射地址 */
     private String percode;
-    
+    /** 父权限1 子权限2*/
     private Integer state;
 
     /**

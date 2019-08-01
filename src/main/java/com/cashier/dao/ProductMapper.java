@@ -50,7 +50,7 @@ public interface ProductMapper {
 	     * @author chenshuxian
 	     * @createDate 2019年6月20
 	 */
-	List<ProductOnDisplayVo> productsByType(@Param("productTypeId")BigInteger productTypeId,@Param("shopId")BigInteger shopId,@Param("page")Integer page,@Param("limit")Integer limit);
+	List<ProductOnDisplayVo> productsByType(@Param("productTypeId")BigInteger productTypeId,@Param("page")Integer page,@Param("limit")Integer limit);
 	/**
 	 * 
 	     * @Title: 根据id得到商品详情
@@ -70,7 +70,7 @@ public interface ProductMapper {
 	     * @author 
 	     * @createDate
 	 */
-	List<Product> getProductByCondition(@Param("productName")String productName,@Param("productTypeId")BigInteger productTypeId,@Param("shopId")BigInteger shopId,@Param("page")Integer page,@Param("limit")Integer limit);
+	List<Product> getProductByCondition(@Param("productName")String productName,@Param("productTypeId")BigInteger productTypeId,@Param("page")Integer page,@Param("limit")Integer limit);
 	/**
 	 * 
 	     * @Title: getProductByConditionCount
@@ -80,7 +80,7 @@ public interface ProductMapper {
 	     * @author chenshuxian
 	     * @createDate 2019年7月9日
 	 */
-	Integer getProductByConditionCount(@Param("productName")String productName,@Param("productTypeId")BigInteger productTypeId,@Param("shopId")BigInteger shopId);
+	Integer getProductByConditionCount(@Param("productName")String productName,@Param("productTypeId")BigInteger productTypeId);
 	/**
 	 * 
 	     * @Title: listProductCount
@@ -100,7 +100,7 @@ public interface ProductMapper {
 	     * @author chenshuxian
 	     * @createDate 2019年6月20日
 	 */
-	List<ProductVo> groupByProductType(BigInteger shopId);
+	List<ProductVo> groupByProductType();
 	/**
 	 * 
 	     * @Title: getProductByNameAndBarcode
@@ -119,4 +119,15 @@ public interface ProductMapper {
 	 * @createDate 2019年7月18日 下午2:00
 	 */
 	public Integer updateProductState(Product product);
+	
+	/**
+     * @Title: selectCountByProductId
+     * @description 先判断分店铺或总店铺里是否还有库存，如果有则此分类不能删除---周嘉鑫20190729
+     * @param @param product
+     * @param @return  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年7月29日
+     */
+    int selectCountByProductId(Product product);
 }

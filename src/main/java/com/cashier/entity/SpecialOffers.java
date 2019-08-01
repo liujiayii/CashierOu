@@ -160,14 +160,15 @@ public class SpecialOffers implements Serializable{
             return false;
         return true;
     }
+   
+    public BigInteger getId() {
+        return id;
+    }
     @Override
     public String toString() {
         return "SpecialOffers [id=" + id + ", shopId=" + shopId + ", state=" + state + ", name=" + name + ", type="
                 + type + ", discount=" + discount + ", startTime=" + startTime + ", endTime=" + endTime + ", priority="
-                + priority + ", scope=" + scope + "]";
-    }
-    public BigInteger getId() {
-        return id;
+                + priority + ", scope=" + scope + ", beginNum=" + beginNum + ", limit=" + limit + "]";
     }
     public void setId(BigInteger id) {
         this.id = id;

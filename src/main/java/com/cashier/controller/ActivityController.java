@@ -142,7 +142,7 @@ public class ActivityController {
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             if (shopId==null) {
                 map.put("code", -2);
-                map.put("message", "店铺ID获取失败，请重新登录");
+                map.put("msg", "店铺ID获取失败，请重新登录");
                 return map;
             }
             activitiesActive.setShopId(shopId);
@@ -162,7 +162,7 @@ public class ActivityController {
             }
             if (map2.size()>0) {
                 map.put("code", -1);
-                map.put("message", "参加活动的商品重复");
+                map.put("msg", "参加活动的商品重复");
                 List<SpecialOffers> specialOffersList = new ArrayList<>();
                 SpecialOffers specialOffers = new SpecialOffers();
                 //键找值遍历
@@ -176,12 +176,12 @@ public class ActivityController {
                 return map;
             }else {
                 map.put("code", 1);
-                map.put("message", "参加活动的商品可以添加");
+                map.put("msg", "参加活动的商品可以添加");
                 return map;
             }
         }else {
             map.put("code", 1);
-            map.put("message", "参加活动的商品可以添加");
+            map.put("msg", "参加活动的商品可以添加");
             return map;
         }
     }
@@ -211,12 +211,12 @@ public class ActivityController {
                         RegulationDTO compareParam = regulationDTOList.get(j); 
                         if (regulationDTO.getMoney().equals(compareParam.getMoney())) {
                             map.put("code", -1);
-                            map.put("message", "满金额重复");
+                            map.put("msg", "满金额重复");
                             return map;
                         }else if (regulationDTO.getMoney()>compareParam.getMoney()) {
                             if (regulationDTO.getReduceMoney()<compareParam.getReduceMoney()) {
                                 map.put("code", -1);
-                                map.put("message", "满金额和减金额走势曲线不成正比");
+                                map.put("msg", "满金额和减金额走势曲线不成正比");
                                 return map;
                             }
                             //如果比到最后一个就直接添加到最后
@@ -227,7 +227,7 @@ public class ActivityController {
                         }else {
                             if (regulationDTO.getReduceMoney()>compareParam.getReduceMoney()) {
                                 map.put("code", -1);
-                                map.put("message", "满金额和减金额走势曲线不成正比");
+                                map.put("msg", "满金额和减金额走势曲线不成正比");
                                 return map;
                             }
                             regulationDTOList.add(j,regulationDTO);
@@ -237,11 +237,11 @@ public class ActivityController {
                 }
             }
             map.put("code", 1);
-            map.put("message", "满减规则没有问题");
+            map.put("msg", "满减规则没有问题");
             return map;
         }
         map.put("code", -1);
-        map.put("message", "数据传输异常，请从新传输");
+        map.put("msg", "数据传输异常，请从新传输");
         return map;
     }
     
@@ -262,7 +262,7 @@ public class ActivityController {
             shopId = (BigInteger) session.getAttribute("shopId");
             if (shopId==null) {
                 map.put("code", -2);
-                map.put("message", "店铺ID获取失败，请重新登录");
+                map.put("msg", "店铺ID获取失败，请重新登录");
                 return map;
             }
         }
@@ -270,7 +270,7 @@ public class ActivityController {
         List<ProductType> productTypes = activityService.listProductAndTypeBefore(productType);
         map.put("data", productTypes);
         map.put("code", 1);
-        map.put("message", "查询成功");
+        map.put("msg", "查询成功");
         return map;
     }
     /**
@@ -295,7 +295,7 @@ public class ActivityController {
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             if (shopId==null) {
                 map.put("code", -2);
-                map.put("message", "店铺ID获取失败，请重新登陆");
+                map.put("msg", "店铺ID获取失败，请重新登陆");
                 return map;
             }
             specialOffersDTO.setShopId(shopId);
@@ -304,11 +304,11 @@ public class ActivityController {
         int result = activityService.insertActivity(specialOffersDTO);
         if (result==1) {
             map.put("code", 1);
-            map.put("message", "活动添加成功");
+            map.put("msg", "活动添加成功");
             return map;
         }else{
             map.put("code", -1);
-            map.put("message", "活动添加失败");
+            map.put("msg", "活动添加失败");
             return map;
         }
     }
@@ -334,7 +334,7 @@ public class ActivityController {
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             if (shopId==null) {
                 map.put("code", -2);
-                map.put("message", "店铺ID获取失败，请重新登陆");
+                map.put("msg", "店铺ID获取失败，请重新登陆");
                 return map;
             }
             specialOffers.setShopId(shopId);
@@ -345,7 +345,7 @@ public class ActivityController {
         int count = activityService.listActivityCount(specialOffers);
         map.put("count", count);
         map.put("code", 1);
-        map.put("message", "查询成功");
+        map.put("msg", "查询成功");
         map.put("data", specialOffersList);
         return map;
     }
@@ -381,7 +381,7 @@ public class ActivityController {
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             if (shopId==null) {
                 map.put("code", -2);
-                map.put("message", "店铺ID获取失败，请重新登录");
+                map.put("msg", "店铺ID获取失败，请重新登录");
                 return map;
             }
             specialOffers.setShopId(shopId);
@@ -389,11 +389,11 @@ public class ActivityController {
         int result = activityService.updateActivityById(specialOffers);
         if (result==1) {
             map.put("code", 1);
-            map.put("message", "修改成功");
+            map.put("msg", "修改成功");
             return map;
         }else {
             map.put("code", -1);
-            map.put("message", "修改失败");
+            map.put("msg", "修改失败");
             return map;
         }
         
@@ -426,11 +426,11 @@ public class ActivityController {
         int result = activityService.deleteRegulationById(regulation);
         if (result==1) {
             map.put("code", 1);
-            map.put("message", "删除成功");
+            map.put("msg", "删除成功");
             return map;    
         }else{
             map.put("code", -1);
-            map.put("message", "删除失败");
+            map.put("msg", "删除失败");
             return map;  
         }
     }
@@ -449,11 +449,11 @@ public class ActivityController {
         int result = activityService.insertOneRegulation(regulation);
         if (result==1) {
             map.put("code", 1);
-            map.put("message", "添加成功");
+            map.put("msg", "添加成功");
             return map;    
         }else{
             map.put("code", -1);
-            map.put("message", "添加失败");
+            map.put("msg", "添加失败");
             return map;  
         }
     }
@@ -488,7 +488,7 @@ public class ActivityController {
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             if (shopId==null) {
                 map.put("code", -2);
-                map.put("message", "店铺ID获取失败，请重新登录");
+                map.put("msg", "店铺ID获取失败，请重新登录");
                 return map;
             }
             specialOffers.setShopId(shopId);

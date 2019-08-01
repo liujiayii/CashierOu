@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.cashier.entity.Permission;
 import com.cashier.entity.Shop;
+import com.cashier.entity.ShopListDTO;
 import com.cashier.entity.User;
 import com.cashier.entity.UserRoleRelationship;
 import com.cashier.entityDTO.ShopUserPermissionDTO;
@@ -25,7 +26,38 @@ import com.cashier.entityVo.UserVo2;
  */
 
 public interface UserMapper {
-	
+    /**
+     * @Title: listShopMsgByArea
+     * @description 103通过区级区域经理查询对应区里的店铺信息（ID和名称）
+     * @param @param user
+     * @return List<Shop>    
+     * @author zhoujiaxin
+     * @createDate 2019年7月29日
+     */
+    public List<Shop> listShopMsgByArea(User user);
+    
+    /**
+     * @Title: listShopMsgByCity
+     * @description 102通过市级区域经理查询对应市里的店铺信息（ID和名称）
+     * @param @param shopListDTO
+     * @return List<Shop>    
+     * @author zhoujiaxin
+     * @createDate 2019年7月29日
+     */
+    public List<Shop> listShopMsgByCity(ShopListDTO shopListDTO);
+
+    /**
+    *
+    * @Title: listShopMsgByProvince
+    * @description 101通过省级区域经理查询对应省里的店铺信息（ID和名称）
+    * @param @param shopListDTO
+    * @param @return  
+    * @return List<Shop>    
+    * @author zhoujiaxin
+    * @createDate 2019年7月26日
+    */
+   public List<Shop> listShopMsgByProvince(ShopListDTO shopListDTO);
+   
 	/**
 	 * @Title: listUser
 	 * @description 查询本店所有的用户（无分页，新增用户使用）

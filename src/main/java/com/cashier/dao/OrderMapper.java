@@ -86,7 +86,7 @@ public interface OrderMapper {
 	 * @param barCode
 	 * @return
 	 */
-	public Product querPreferences(@Param("barCode")String barCode,@Param("shopId") BigInteger shopId);
+	public Product querPreferences(@Param("barCode")String barCode);
 
 	/**
 	 * 按照手机号会员卡号查询会员信息

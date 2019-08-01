@@ -321,7 +321,7 @@ public class OrderController {
 	@ResponseBody
 	public Map<String, Object> quershopping(String barCode, HttpSession session) {
 		 BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-		Product product = orderService.querPreferences(barCode,shopId);
+		Product product = orderService.querPreferences(barCode);
 		Map<String, Object> map = new HashMap<String, Object>();
 
 		if (product == null) {
@@ -396,7 +396,7 @@ public class OrderController {
 	/**
 	 * 
 	 * @Title: getPercentageOfProductType
-	 * @description 获得每种商品种类下的商品今日销售百分比
+	 * @description 获得今日每种商品类型下商品的总销售额和销售数量以及百分比
 	 * @param 店铺id
 	 * @return
 	 * @author chenshuxian
@@ -405,6 +405,7 @@ public class OrderController {
 	@RequestMapping("/getPercentageOfProductType")
 	@ResponseBody
 	public Map<String, Object> getPercentageOfProductType(HttpSession session) {
+		System.out.println(session.getAttribute("shopId"));
 		BigInteger shopId = new BigInteger(session.getAttribute("shopId") + "");
 		Map<String, Object> map = orderService.getSumOrderByProductType(shopId);
 		return map;
@@ -413,7 +414,7 @@ public class OrderController {
 	/**
 	 * 
 	 * @Title: getPercentageOfProductTypeByMonth
-	 * @description 获得该月每种商品类型下商品的总销售额和销售数量
+	 * @description 获得该月每种商品类型下商品的总销售额和销售数量以及百分比
 	 * @param 店铺id
 	 * @return
 	 * @author chenshuxian

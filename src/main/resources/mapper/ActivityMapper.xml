@@ -101,10 +101,10 @@
             t_special_offers so
         <where>
             so.shop_id = #{shopId}
-            <if test="type != 0">
+            <if test="type != null">
                 and so.type = #{type}
             </if>
-            <if test="state != 0">
+            <if test="state != null">
                 and so.state = #{state} 
             </if>
             <if test="name != null and name != ''">
@@ -150,13 +150,12 @@
     <select id="listProductAndTypeBefore" parameterType="com.cashier.entity.ProductType" resultMap="productAndProductTypeResultMap" >
         SELECT 
             t.id,
-            t.product_type productTypeName,
+            t.product_type,
             p.id pid,
             p.name
         FROM t_product_type t,t_product p
         WHERE  t.id = p.product_type_id
         AND t.can_use = 1 AND p.can_use = 1
-        AND t.shop_id = #{shopId}
     </select>
     <resultMap type="productType" id="productAndProductTypeResultMap">
 	    <id property="id" column="id" />
@@ -186,7 +185,7 @@
 		            pt.id,
 		            pt.product_type,
 		            p.id pid,
-		            p. NAME
+		            p.NAME
 		        FROM
 		            t_product_type pt,
 		            t_product p
@@ -194,14 +193,13 @@
 		            pt.id = p.product_type_id
 		        AND pt.can_use = 1
 		        AND p.can_use = 1
-		        AND pt.shop_id = #{shopId}
 		    ) ptp
 		LEFT JOIN (
 		    SELECT
 		        pt.id,
 		        pt.product_type,
 		        p.id pid,
-		        p. NAME
+		        p.NAME
 		    FROM
 		        t_activities a,
 		        t_product_type pt,
@@ -237,7 +235,7 @@
     <select id="listProductTypeAndProductByActivityId" parameterType="com.cashier.entity.SpecialOffers" resultMap="productTypeResultMap" >
         SELECT
 	        pt.id,
-	        pt.product_type,
+	        pt.product_type productTypeName,
 	        p.id pid,
 	        p.name
 	    FROM

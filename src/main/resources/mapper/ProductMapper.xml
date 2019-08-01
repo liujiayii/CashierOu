@@ -100,8 +100,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         pt.product_type productType
     from t_product p, t_product_type pt
     WHERE 
-    p.product_type_id=pt.id and
-    p.shop_id=#{shopId}
+    p.product_type_id=pt.id
     and p.can_use=1
     <if test="productTypeId!=null">
      and p.product_type_id=#{productTypeId}
@@ -137,8 +136,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         count(id)
        
     from t_product
-    WHERE shop_id=#{shopId}
-    and can_use=1
+    WHERE can_use=1
     <if test="productTypeId!=null">
      and product_type_id=#{productTypeId}
     </if>
@@ -161,8 +159,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         p.image,
         i.quantity quantity
     FROM t_inventory i JOIN t_product p on i.product_id=p.id
-    WHERE p.shop_id=#{shopId}
-    and p.can_use=1
+    WHERE p.can_use=1
     and p.product_type_id=#{productTypeId}
     and p.state=1    
     limit #{page},#{limit}
@@ -249,7 +246,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             i.quantity quantity
         FROM t_inventory i JOIN t_product p on i.product_id=p.id left
         JOIN t_product_type pt on p.product_type_id=pt.id
-        WHERE p.can_use=1 and p.state=1 and p.shop_Id=#{shopId} 
+        WHERE p.can_use=1 and p.state=1 
     
     </select>
     <resultMap type="com.cashier.entityVo.ProductVo" id="products">
@@ -271,10 +268,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateProductState" parameterType="Product">
         update t_product p
         <set>
-            
            p.state = #{state}
-           
         </set>
         where p.id= #{id}
     </update>
+    
+    <!-- 先判断分店铺或总店铺里是否还有库存，如果有则此分类不能删除   周嘉鑫20190729 -->
+    <select id="selectCountByProductId" parameterType="Product" resultType="java.lang.Integer">
+        select
+        count(*)
+        from
+        t_inventory inv
+        where
+            inv.product_id = #{id}
+            and inv.quantity between 1 and 999999
+    </select>
+    
+    
 </mapper>

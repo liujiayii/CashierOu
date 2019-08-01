@@ -285,6 +285,7 @@ public class ShopServiceImpl implements ShopService{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			shopUserPermissionDTO.setAgentType(0);
 			rows = userMapper.saveUserByDTO(shopUserPermissionDTO);
 			if(rows == 0){
 				throw new DataNotExistsException("添加失败，请联系管理员");
@@ -453,6 +454,21 @@ public class ShopServiceImpl implements ShopService{
 		// TODO Auto-generated method stub
 		return shopMapper.listAllShopIdAndName(userShopVo);
 	}
+
+	/**
+    *
+    * @Title: getRoleIdByShopId
+    * @description 通过分店ID获取分店超级管理员角色的ID
+    * @param @param userVo
+    * @param @return  
+    * @return Role    
+    * @author zhoujiaxin
+    * @createDate 2019年7月31日
+    */
+    @Override
+    public Role getRoleIdByShopId(UserVo userVo) {
+        return shopMapper.getRoleIdByShopId(userVo);
+    }
     
    
 }

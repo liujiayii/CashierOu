@@ -53,7 +53,7 @@ public interface ProductService {
 	     * @author chenshuxian
 	     * @createDate 2019年6月18
 	 */
-	Map<String,Object> getProductByCondition(String productName,BigInteger productTypeId,BigInteger shopId,Integer page,Integer limit);
+	Map<String,Object> getProductByCondition(String productName,BigInteger productTypeId,Integer page,Integer limit);
 	/**
 	 * 
 	     * @Title:条件查询所有商品
@@ -63,7 +63,7 @@ public interface ProductService {
 	     * @author chenshuxian
 	     * @createDate 2019年6月18
 	 */
-	Map<String,Object> productsByType(BigInteger productTypeId,BigInteger shopId,Integer page,Integer limit);
+	Map<String,Object> productsByType(BigInteger productTypeId,Integer page,Integer limit);
 	/**
 	 * 
 	     * @Title: 根据id得到商品详情
@@ -93,7 +93,7 @@ public interface ProductService {
 	     * @author chenshuxian
 	     * @createDate 2019年6月20日
 	 */
-	List<ProductVo> groupByProductType(BigInteger shopId);
+	List<ProductVo> groupByProductType();
 	
 	 /**
      * 获得商品条码最后一位验证码
@@ -122,5 +122,16 @@ public interface ProductService {
 	 * @createDate 2019年7月18日 下午2:00
 	 */
 	Integer updateProductState(Product product);
+	
+    /**
+     * @Title: selectCountByProductId
+     * @description 先判断分店铺或总店铺里是否还有库存，如果有则此分类不能删除---周嘉鑫20190729
+     * @param @param product
+     * @param @return  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年7月29日
+     */
+    int selectCountByProductId(Product product);
 	
 }

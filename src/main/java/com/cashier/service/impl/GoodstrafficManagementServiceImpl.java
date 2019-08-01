@@ -2,7 +2,6 @@ package com.cashier.service.impl;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,17 +12,18 @@ import org.springframework.stereotype.Service;
 
 import com.cashier.dao.GoodstrafficManagementMapper;
 import com.cashier.dao.GoodstrafficOrdersProductMapper;
+import com.cashier.dao.InventoryMapper;
 import com.cashier.dao.ProductMapper;
 import com.cashier.dao.ShopMapper;
 import com.cashier.entity.GoodstrafficManagement;
 import com.cashier.entity.GoodstrafficOrdersProduct;
+import com.cashier.entity.Inventory;
 import com.cashier.entity.Product;
 import com.cashier.entity.Shop;
 import com.cashier.entityDTO.GoodstrafficManagementDTO;
 import com.cashier.entityVo.AddsubscriptionVo;
 import com.cashier.entityVo.GoodstrafficManagementVo;
 import com.cashier.entityVo.GoodstrafficManagementVo2;
-import com.cashier.entityVo.GoodstrafficOrdersProductVo;
 import com.cashier.service.GoodstrafficManagementService;
 
 import net.sf.json.JSONArray;
@@ -39,6 +39,8 @@ public class GoodstrafficManagementServiceImpl implements GoodstrafficManagement
     private ShopMapper shopMapper;
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private InventoryMapper inventoryMapper;
     
     /**
      * @Title: addprocurement
@@ -54,21 +56,37 @@ public class GoodstrafficManagementServiceImpl implements GoodstrafficManagement
         BigDecimal bigDecimal = new BigDecimal("0");
         goodstrafficManagement.setShopId(shopId);          //店铺Id 
         goodstrafficManagement.setShipmentsShopId(shopId); //发起店铺
-        Shop shop = new Shop();
+        /*Shop shop = new Shop();
         shop.setId(shopId);
-        Shop shop2 = shopMapper.getShopByCondition(shop);
-        if(shop2.getType()==2 && goodstrafficManagement.getGoodstrafficState()==2){
+        Shop shop2 = shopMapper.getShopByCondition(shop);*/
+        // 货流类型 1:采购 2:调拨  Integer goodstrafficState;
+        //店铺类型：1.总店;2.分店; Integer type;
+        if (goodstrafficManagement.getGoodstrafficState()==2) {
+            Shop shop = shopMapper.selectTotalShopMessage();
+            goodstrafficManagement.setReceivingShopId(shop.getId());
+        }
+        /*if(shop2.getType()==2 && goodstrafficManagement.getGoodstrafficState()==2){
             Shop shop3 = new Shop();
             shop3.setType(1);
             Shop s = shopMapper.getShopByCondition(shop3);
             goodstrafficManagement.setReceivingShopId(s.getId());
-        }
+        }*/
+        Inventory inventory = new Inventory();
         for (int i = 0; i < myJsonArray.size(); i++) {
             JSONObject obj = JSONObject.fromObject(myJsonArray.get(i));
             Product product = 
                     productMapper.getProductByGoodstraffic(new BigInteger(obj.getString("productId")));
             BigDecimal decimal = product.getPleased().multiply(new BigDecimal(obj.getString("quantity")));
             bigDecimal = bigDecimal.add(decimal);
+            if(goodstrafficManagement.getGoodstrafficState()==1){
+                // 采购，直接更新库存就行，订单状态为已入库
+                // 在库存表中添加相应的商品及库存数量
+                inventory.setProductId(product.getId());
+                inventory.setQuantity(new BigInteger(obj.getString("quantity")));
+                inventory.setShopId(shopId);
+                // 采购时添加库存操作
+                inventoryMapper.updateInventoryForAdd(inventory);
+            }
             
         }
         //流水号
@@ -151,9 +169,9 @@ public class GoodstrafficManagementServiceImpl implements GoodstrafficManagement
      * @createDate 2019年7月5日
      */
     @Override
-    public List<AddsubscriptionVo> listProductAndProductType(BigInteger shopId) {
+    public List<AddsubscriptionVo> listProductAndProductType() {
 
-        return goodstrafficManagementMapper.listProductAndProductType(shopId);
+        return goodstrafficManagementMapper.listProductAndProductType();
     }
 
     /**
@@ -288,13 +306,24 @@ public class GoodstrafficManagementServiceImpl implements GoodstrafficManagement
     
     @Override
     public int selectSubscribe(BigInteger id){
-       
         return goodstrafficManagementMapper.selectSubscribe(id);
-        
     }
     
     @Override
     public void deleteGoodstrafficManagement(BigInteger id){
         goodstrafficManagementMapper.deleteGoodstrafficManagement(id);
+    }
+
+    /*
+    * @Title: redirectToBranchShop
+    * @description 总店把调拨请求转发给分店
+    * @param GoodstrafficManagement goodstrafficManagement
+    * @return 
+    * @author zhoujiaxin
+    * @createDate 20190731
+     */
+    @Override
+    public void redirectToBranchShop(GoodstrafficManagement goodstrafficManagement) {
+        goodstrafficManagementMapper.redirectToBranchShop(goodstrafficManagement);
     }
 }

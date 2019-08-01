@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cashier.dao.PermissionMapper">
+    <!-- 添加权限 -->
+    <insert id="insertPermission" parameterType="com.cashier.entity.Permission">
+        insert into t_permission (
+            id,
+            name,
+            parent_id,
+            parent_name,
+            url,
+            percode,
+            state
+            
+        )
+        values(
+            #{id},
+            #{name},
+            #{parentId},
+            #{parent_name},
+            #{url},
+            #{percode},
+            #{state}
+        )
+    </insert>
+    <!-- 根据id修改权限信息 -->
+	<update id="updatePermissionById" parameterType="com.cashier.entity.Permission">
+	   UPDATE t_permission 
+	   set
+	   <if test="name!=null and name!=''">
+	       name=#{name}
+	   </if>
+	   <if test="parentId!=null">
+	       ,parent_id=#{parentId}
+	   </if>
+	   <if test="parent_name!=null and parent_name!=''">
+	       ,parent_name=#{parent_name}
+	   </if>
+	   <if test="url!=null and url!=''">
+	      , url=#{url}
+	   </if>
+	   <if test="percode!=null and percode!=''">
+	      , percode=#{percode}
+	   </if>
+	   WHERE id=#{id}
+	</update>
+	<!-- 根据权限id删除相对应权限 -->
+    <delete id="delPerssionById" >
+        delete from t_permission where id =#{permissionId}
+    </delete>
+    <!-- 根据父类id获得所有相对应子权限 -->
+    <select id="getPermissionsByParentId" resultType="com.cashier.entity.Permission">
+        select 
+            id,
+            name,
+            parentId parent_id,
+            parent_name,
+            url,
+            percode
+        from t_permission
+        where parent_id=#{parentId}
+    
+    </select>
+    <!-- 根据id获得相对应权限信息 -->
+    <select id="getPermissionById" resultType="com.cashier.entity.Permission">
+         select 
+            id,
+            name,
+            parent_id parentId,
+            parent_name,
+            url,
+            percode,
+            state
+        from t_permission
+        where id=#{permissionId}
+        
+    </select>
+    <!--根据父类id删除相对应所有子类权限  -->
+    <delete id="delPermissionByParentId">
+        delete from t_permission where parent_id=#{parentId}
+    </delete>
+    <!--获得所有父类权限，供下拉选使用  -->
+    <select id="getAllParentPermission" resultType="com.cashier.entity.Permission">
+       select 
+       DISTINCT
+            id,
+            name
+            from t_permission
+        WHERE state = 1
+    </select>
+    <!-- 根据父类id修改父类名称 -->
+    <update id="updateParentNameById" parameterType="com.cashier.entity.Permission">
+        update t_permission
+        set parent_name =#{parent_name}
+        where parent_id=#{parentId}
+    </update>
+    <select id="getAllPermission" resultMap="allPermissionsMap">
+        select 
+        DISTINCT
+        b.id parentIds,
+        b.name parent_names,
+        a.name name,
+        a.id id,
+        a.url url,
+        a.percode percode
+        FROM t_permission a right JOIN t_permission b ON b.id=a.parent_id
+          
+    </select>
+    <resultMap type="com.cashier.entityVo.PermissionVo" id="allPermissionsMap">
+        <id column="parentIds" property="parentIds"/>
+        <result column="parent_names" property="parent_names"/>
+   <collection property="permissions" ofType="com.cashier.entity.Permission">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="url" property="url"/>
+        <result column="percode" property="percode"/>
+    </collection> 
+    </resultMap>
+</mapper>

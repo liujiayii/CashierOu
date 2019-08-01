@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.cashier.entity.Product;
 import com.cashier.entity.ProductType;
 
 public interface ProductTypeService {
@@ -49,7 +50,7 @@ public interface ProductTypeService {
 	     * @author chenshuxian
 	     * @createDate 2019年6月18日
 	 */
-	List<ProductType> listProductType(BigInteger shopId);
+	List<ProductType> listProductType();
 	/**
 	 * 
 	     * @Title: 根据id得到商品分类详情
@@ -79,7 +80,7 @@ public interface ProductTypeService {
 	     * @author 
 	     * @createDate
 	 */
-	List<ProductType> dimSelectProductType(BigInteger shopId,String productType,Integer page,Integer limit);
+	List<ProductType> dimSelectProductType(String productType,Integer page,Integer limit);
 	/**
 	 * 
 	     * @Title: 模糊查询商品类型（也可分页查询所有商品 productType传null）数量
@@ -101,4 +102,15 @@ public interface ProductTypeService {
      * @createDate 2019年7月12日
      */
 	List<ProductType> selectByCanUse(BigInteger id);
+	
+    /**
+     * @Title: selectCountByTypeId
+     * @description 先判断产品分类下是否还有商品，如果有则此分类不能删除---周嘉鑫20190729
+     * @param @param product
+     * @param @return  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年7月29日
+     */
+    int selectCountByTypeId(Product product);
 }

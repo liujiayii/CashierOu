@@ -61,7 +61,7 @@
     </insert>
     
      <!-- 查询采购商品订单  -->
-    <select id="listProductAndProductType" resultMap="AllProductMap" parameterType="BigInteger">
+    <select id="listProductAndProductType" resultMap="AllProductMap" >
         select 
             pt.id productTypeId  ,
             pt.product_type productTypeName ,
@@ -73,10 +73,6 @@
             t_product p 
         on 
             pt.id = p.product_type_id    
-            <if test=" id !=null and id !='' ">
-        and 
-            p.shop_id = #{id}  
-            </if>
         order by 
             pt.id
     </select>    
@@ -153,8 +149,10 @@
     parameterType="com.cashier.entityDTO.GoodstrafficManagementDTO">
         select
 	        tgm.id,
+	        ts.id                    shipmentsShopId,
 			ts.name                  shipmentsShopName,
 			tgm.total_money          totalMoney,
+			tgm.order_date           orderDate,
 			tgm.delivery_date        deliveryDate,
 			tgm.remark,
 			tgm.serial_number        serialNumber,
@@ -231,6 +229,7 @@
             ts.name                  receivingShopName,
             tgm.total_money          totalMoney,
             tgm.delivery_date        deliveryDate,
+            tgm.order_date           orderDate,
             tgm.remark,
             tgm.serial_number        serialNumber,
             tgm.transportation_state transportationState
@@ -347,5 +346,13 @@
         delete  from t_goodstraffic_management where id = #{id}
     </delete>
 
-    
+    <!-- 总店把调拨请求转发给分店 -->
+    <update id="redirectToBranchShop" parameterType="com.cashier.entity.GoodstrafficManagement">
+        update 
+            t_goodstraffic_management        
+        set
+            receiving_shop_id = #{receivingShopId}
+        where 
+            id = #{id}    
+    </update>
 </mapper>  

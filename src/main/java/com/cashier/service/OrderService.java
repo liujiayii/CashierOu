@@ -86,7 +86,7 @@ public interface OrderService {
 	 * @param shopId 
 	 * @return
 	 */
-	public Product querPreferences(String barCode, BigInteger shopId);
+	public Product querPreferences(String barCode);
 
 	/**
 	 * 查询会员状态

@@ -19,11 +19,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.cashier.entity.CustomException;
 import com.cashier.entity.MySessionContex;
+import com.cashier.entity.Permission;
 import com.cashier.entity.Product;
 import com.cashier.entity.Regulation;
 import com.cashier.entity.Shop;
 import com.cashier.entity.User;
+import com.cashier.entityDTO.PermissionDTO;
+import com.cashier.entityVo.PermissionVo;
 import com.cashier.service.LoginService;
+import com.cashier.service.RoleService;
 import com.cashier.service.ShopService;
 import com.cashier.util.JedisClientSingle;
 import com.cashier.util.pay.util.JsonUtil;
@@ -47,6 +51,8 @@ public class LoginController {
     JedisClientSingle jedisClientSingle;
     @Autowired
     private ShopService shopService;
+    @Autowired
+    private RoleService roleService;
    /* @Autowired
     private SpecialOffersMapper specialOffersMapper;
     @Autowired
@@ -85,9 +91,6 @@ public class LoginController {
         if (usernames!="" && usernames!=null && usernames.matches("[0-9]{1,}")) {
             if (Integer.parseInt(usernames)>=3) {
                 //throw new CustomException("你可能忘记你的用户名密码了，等10分钟再试试吧");
-                /*model.addAttribute("username", username);
-                model.addAttribute("password", password);
-                model.addAttribute("message", "你可能忘记用户名密码了，等10分钟再试试吧");*/
             	map.put("code", -1);
             	map.put("username", username);
             	map.put("password", password);
@@ -114,10 +117,6 @@ public class LoginController {
             }else{
                 jedisClientSingle.set(username, "1");
             }
-            
-           /* model.addAttribute("username", username);
-            model.addAttribute("password", password);
-            model.addAttribute("message", "你输入的用户名和密码不匹配");*/
             map.put("code", -1);
         	map.put("username", username);
         	map.put("password", password);
@@ -148,6 +147,21 @@ public class LoginController {
             
             // 存shopId username 到session
             User user = loginService.selectUserByUsername(username);
+            // 根据分店ID获取当前分店的权限信息
+    		List<PermissionVo> PermissionVolist = roleService.getPermissionListByShopId(user);
+    		List<PermissionDTO> listPermissionDTO = new ArrayList<>();
+    		for(PermissionVo p : PermissionVolist){
+    			PermissionDTO permissionDTO = new PermissionDTO();
+    			permissionDTO.setId(p.getParentIds());
+    			for(Permission per : p.getPermissions()){
+    				PermissionDTO permission = new PermissionDTO();
+    				permission.setId(per.getId());
+    				listPermissionDTO.add(permission);
+    			}
+    			listPermissionDTO.add(permissionDTO);
+    		}
+    		// 权限信息
+    		map.put("PermissionVolist", listPermissionDTO);
             Shop s = new Shop();
             s.setId(user.getShopId());
             Shop shop = shopService.getId(s);

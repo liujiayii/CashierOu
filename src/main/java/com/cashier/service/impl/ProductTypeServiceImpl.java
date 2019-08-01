@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cashier.dao.ProductTypeMapper;
+import com.cashier.entity.Product;
 import com.cashier.entity.ProductType;
 import com.cashier.service.ProductTypeService;
 import com.cashier.service.ex.ProductTypeNameConflictException;
@@ -89,9 +90,8 @@ public class ProductTypeServiceImpl implements ProductTypeService {
 	     * @createDate 2019年6月18日
 	 */
 	@Override
-	public List<ProductType> listProductType(BigInteger shopId) {
-		
-		return productTypeMapper.listProductType(shopId);
+	public List<ProductType> listProductType() {
+		return productTypeMapper.listProductType();
 	}
 
 	/**
@@ -134,9 +134,9 @@ public class ProductTypeServiceImpl implements ProductTypeService {
 	     * @createDate
 	 */
 	@Override
-	public List<ProductType> dimSelectProductType(BigInteger shopId, String productType, Integer page, Integer limit) {
+	public List<ProductType> dimSelectProductType(String productType, Integer page, Integer limit) {
 		Integer beginPage = limit*(page-1);
-		return productTypeMapper.dimSelectProductType(shopId, productType, beginPage, limit);
+		return productTypeMapper.dimSelectProductType(productType, beginPage, limit);
 	}
 	/**
 	 * 
@@ -164,6 +164,20 @@ public class ProductTypeServiceImpl implements ProductTypeService {
     @Override
     public List<ProductType> selectByCanUse(BigInteger id) {
         return productTypeMapper.selectByCanUse(id);
+    }
+
+    /**
+     * @Title: selectCountByTypeId
+     * @description 先判断产品分类下是否还有商品，如果有则此分类不能删除---周嘉鑫20190729
+     * @param @param product
+     * @param @return  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年7月29日
+     */
+    @Override
+    public int selectCountByTypeId(Product product) {
+        return productTypeMapper.selectCountByTypeId(product);
     }
 
 }

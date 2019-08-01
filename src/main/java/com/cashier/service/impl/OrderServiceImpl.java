@@ -152,9 +152,9 @@ public class OrderServiceImpl implements OrderService {
 	 * 
 	 */
 	@Override
-	public Product querPreferences(String barCode, BigInteger shopId) {
+	public Product querPreferences(String barCode) {
 
-		return orderMapper.querPreferences(barCode,shopId);
+		return orderMapper.querPreferences(barCode);
 	}
 
 	/**
@@ -260,7 +260,7 @@ public class OrderServiceImpl implements OrderService {
 					 orderProduc.setProductCount(Integer.valueOf(shop[1]));// 购买数量
 					 orderProduc.setOrderNumber(orderNumber);
 					 orderProduc.setType(1); 
-					// orderProduc.setMemberPricediscount(unsteady.);// 获取活动折扣价格和商品的满减价格
+					//orderProduc.setMemberPricediscount(unsteady.);// 获取活动折扣价格和商品的满减价格
 					 if(is_vip==1) {
 						 orderProduc.setSalePrice(product.getMemberPrice());// 获取单价
 						 orderProduc.setMemberPrice(unsteady.getMember_price());
@@ -272,8 +272,8 @@ public class OrderServiceImpl implements OrderService {
 					 }
 					  
 					  
-					  //(Integer.parseInt(productCount.toString()));
-					 // orderProduc.setMemberPrice(product.getSalePrice().multiply(ser));
+					 // (Integer.parseInt(productCount.toString()));
+					  //orderProduc.setMemberPrice(product.getSalePrice().multiply(ser));
 					  
 					  int fig =orderProductMapper.saveOrderProduct(orderProduc);
 					 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.cashier.entity.Product;
 import com.cashier.entity.ProductType;
 
 public interface ProductTypeMapper {
@@ -38,7 +39,7 @@ public interface ProductTypeMapper {
 	     * @author chenshuxian
 	     * @createDate 2019年6月18日
 	 */
-	List<ProductType> listProductType(BigInteger shopId);
+	List<ProductType> listProductType();
 	/**
 	 * 
 	     * @Title: 根据id得到商品分类详情
@@ -68,7 +69,7 @@ public interface ProductTypeMapper {
 	     * @author 
 	     * @createDate
 	 */
-	List<ProductType> dimSelectProductType(@Param("shopId")BigInteger shopId,@Param("productTypeName")String productTypeName,@Param("page")Integer page,@Param("limit")Integer limit);
+	List<ProductType> dimSelectProductType(@Param("productTypeName")String productTypeName,@Param("page")Integer page,@Param("limit")Integer limit);
 	/**
 	 * 
 	     * @Title: 软删除商品类型
@@ -92,4 +93,15 @@ public interface ProductTypeMapper {
 	 * @createDate 2019年7月12日
 	 */
 	List<ProductType> selectByCanUse(BigInteger id);
+	
+	/**
+     * @Title: selectCountByTypeId
+     * @description 先判断产品分类下是否还有商品，如果有则此分类不能删除---周嘉鑫20190729
+     * @param @param product
+     * @param @return  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年7月29日
+     */
+    int selectCountByTypeId(Product product);
 }

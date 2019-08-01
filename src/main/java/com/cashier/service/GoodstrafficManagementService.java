@@ -51,7 +51,7 @@ public interface GoodstrafficManagementService {
      * @author liujunkai
      * @createDate 2019年7月5日
      */
-    List<AddsubscriptionVo> listProductAndProductType(BigInteger shopId);
+    List<AddsubscriptionVo> listProductAndProductType();
 
     /**
      * 
@@ -144,4 +144,15 @@ public interface GoodstrafficManagementService {
     int selectSubscribe(BigInteger id);
     
     void deleteGoodstrafficManagement(BigInteger id);
+
+    /**
+     *
+     * @Title: redirectToBranchShop
+     * @description 总店把调拨请求转发给分店
+     * @param @param goodstrafficManagement  
+     * @return void    
+     * @author zhoujiaxin
+     * @createDate 2019年7月31日
+     */
+    void redirectToBranchShop(GoodstrafficManagement goodstrafficManagement);
 }

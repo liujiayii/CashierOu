@@ -17,6 +17,7 @@ import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.CustomException;
 import com.cashier.entity.Role;
 import com.cashier.entity.Shop;
+import com.cashier.entity.ShopListDTO;
 import com.cashier.entity.User;
 import com.cashier.entity.UserOperation;
 import com.cashier.entityVo.UserShopVo;
@@ -27,11 +28,8 @@ import com.cashier.service.UserService;
 import com.cashier.util.MD5Util;
 
 /**
- *
  * @ClassName: UserController
- * 
  * @description 用户表的控制层
- *
  * @author dujiawei
  * @createDate 2018年12月3日
  */
@@ -48,6 +46,51 @@ public class UserController {
 	private UserOperationMapper userOperationMapper;
 	
 	/**
+     * @Title: listShopIdAndName
+     * @description 添加区域经理时异步加载区域下的店铺信息
+     * @param User user
+     * @return List<Shop>    
+     * @author zhou jiaxin
+     * @createDate 2019年7月26日
+     */
+    @RequestMapping("/listShopIdAndNameForManager")
+    @ResponseBody
+    public Map<String, Object> listShopIdAndNameForManager(Model model,User user,ShopListDTO shopListDTO) {
+        Map<String, Object> map = new HashMap<>();
+        if (user.getAgentType()== 1) {
+            String userProvinceId = user.getUserProvinceId().toString().substring(0, 2);
+            String beginNumber = userProvinceId+"0000";
+            String endNumber = userProvinceId+"9999";
+            shopListDTO.setBeginNumber(Integer.parseInt(beginNumber));
+            shopListDTO.setEndNumber(Integer.parseInt(endNumber));
+            // 101通过省级区域经理查询对应省里的店铺信息（ID和名称）
+            List<Shop> shopList = userService.listShopMsgByProvince(shopListDTO);
+            map.put("data", shopList);
+            map.put("code", 1);
+            map.put("msg", "查询成功");
+        }else if (user.getAgentType()==2) {
+            String userProvinceId = user.getUserCityId().toString().substring(0, 4);
+            String beginNumber = userProvinceId+"00";
+            String endNumber = userProvinceId+"99";
+            shopListDTO.setBeginNumber(Integer.parseInt(beginNumber));
+            shopListDTO.setEndNumber(Integer.parseInt(endNumber));
+            // 102通过市级区域经理查询对应市里的店铺信息（ID和名称）
+            List<Shop> shopList = userService.listShopMsgByCity(shopListDTO);
+            map.put("data", shopList);
+            map.put("code", 1);
+            map.put("msg", "查询成功");
+        }else {
+            // 103通过区级区域经理查询对应区里的店铺信息（ID和名称）
+            List<Shop> shopList = userService.listShopMsgByArea(user);
+            map.put("data", shopList);
+            map.put("code", 1);
+            map.put("msg", "查询成功");
+        }
+        return map;
+    }
+	
+	
+	/**
 	 * @Title: ZtselectAllRole
 	 * @description 跳转本店用户列表页面
 	 * @param @param model
@@ -62,7 +105,6 @@ public class UserController {
         List<Shop> shopList = shopService.listShopIdAndName();
         model.addAttribute("shopList", shopList);
         model.addAttribute("shopId", 0);
-        
 		return "/views/entireManage/userManage/userManage";
 	}
 	
@@ -276,7 +318,7 @@ public class UserController {
 	//@RequiresPermissions("/saveUser")
 	@RequestMapping("/saveUser")
 	@ResponseBody
-	public Map<String , Object> saveUser(String shopID, UserVo userVo, HttpSession session) throws CustomException {
+	public Map<String , Object> saveUser(UserVo userVo, HttpSession session) throws CustomException {
 		if (userVo.getPassword() != null && userVo.getPassword() != "") {
             try {
             	userVo.setPassword(MD5Util.md5Encode(userVo.getPassword()));
@@ -284,23 +326,20 @@ public class UserController {
                 throw new CustomException("用户注册时加密出现错误，请联系管理员！！！");
             }
         }
-		//如果未传店铺id，则是当前登陆用户添加用户；否则，是区域经理添加各自店铺的用户
-		BigInteger shopId;
-		if(shopID == null || shopID == ""){
-			shopId = (BigInteger)session.getAttribute("shopId");
-			//shopId = new BigInteger("1");
-			userVo.setShopId(shopId);
-		}else{
-			shopId =  new BigInteger(shopID);
-	        userVo.setShopId(shopId);
-		}
-		
+		if (userVo.getAgentType()==0) {
+		    BigInteger shopId = (BigInteger)session.getAttribute("shopId");
+		    userVo.setShopId(shopId);
+        }else{
+            //添加区域经理，区域经理的角色ID是通过分店ID获取分店超级管理员角色的ID来进行添加的
+            Role role = shopService.getRoleIdByShopId(userVo);
+            userVo.setRoleId(role.getId());
+        }
 		int num = userService.saveUser(userVo);
 		
 		// 添加一条操作记录
         User user = (User)session.getAttribute("user");
         UserOperation userOperation = new UserOperation();
-        userOperation.setShopId(shopId);
+        userOperation.setShopId(userVo.getShopId());
         userOperation.setUserName(user.getUsername());
         userOperation.setName(user.getName());
         userOperation.setOperatingContent("新增用户");
@@ -456,6 +495,11 @@ public class UserController {
 	/**
 	 * @Title: listAgentShop
 	 * @description 区域经理管理的店铺（下拉单）
+	 * 
+	 * 周嘉鑫190726
+	 * 1.区域经理属于区域下的一个分店用户，首次登陆时显示的是所属分店的信息
+	 * 2.区域经理的增删该查由总店统一管理
+	 * 
 	 * @param @param model
 	 * @param @param userShopVo
 	 * @param @param session
@@ -466,47 +510,35 @@ public class UserController {
 	@RequestMapping("/listAgentShop")
 	@ResponseBody
 	public Object listAgentShop(Model model, UserShopVo userShopVo, HttpSession session) {
-		//String userName =  (String) session.getAttribute("username");
-		//String userName = "admin";
 		User user = (User)session.getAttribute("user");
+		Shop shop = (Shop)session.getAttribute("shop");
 		userShopVo.setUsername(user.getUsername());
 		//通过用户账号获取用户信息
-		UserShopVo us = userService.getUserByName(userShopVo); 
-		
+		//UserShopVo us = userService.getUserByName(userShopVo); 
 		List<UserShopVo> agentShops = new ArrayList<UserShopVo>();
-		
 		//判断登陆用户是总店还是分店
-		if(us.getType() == 1){
+		if(shop.getType() == 1){
 			agentShops = shopService.listAllShopIdAndName(userShopVo); //总店查看所有店铺
 		}else {
 			//是分店后，判断代理的类型（0.不是代理；1.省级代理；2.市级代理；3.区级代理）
-			if(us.getAgentType() != null){
-				if(us.getAgentType() == 0){
-					agentShops = null;
-				}else if(us.getAgentType() == 1){
-					userShopVo.setUserProvinceId(us.getUserProvinceId());
+			if(user.getAgentType() != null){
+				if(user.getAgentType() == 1){
+					userShopVo.setUserProvinceId(user.getUserProvinceId());
 					agentShops = userService.listShopByProvinceAgent(userShopVo);
-					
-				}else if(us.getAgentType() == 2){
-					userShopVo.setUserCityId(us.getUserCityId());
+				}else if(user.getAgentType() == 2){
+					userShopVo.setUserCityId(user.getUserCityId());
 					agentShops = userService.listShopByCityAgent(userShopVo);
-					
-				}else if(us.getAgentType() == 3){
-					userShopVo.setAreaId(us.getAreaId());
+				}else if(user.getAgentType() == 3){
+					userShopVo.setAreaId(user.getAreaId());
 					agentShops = userService.listShopByAreaAgent(userShopVo);
-					
 				}
 			}
 		}
-		
 		model.addAttribute("shopList", agentShops);  //存储区域经理管理的店铺
-		
 		Map<String , Object> result = new HashMap<String , Object>();		
 		result.put("code", 1);
 		result.put("msg", "Success");
-		//JSONArray array = JSONArray.fromObject(agentShops);
 		result.put("data", agentShops);
-		
 		return result;	
 	}
 

@@ -80,4 +80,24 @@ public interface InventoryMapper {
      * @createDate 2019年7月8日
      */
     int getInventoryByShopIdCount(InventoryDTO inventoryDTO);
+
+    /**
+     * @Title: updateInventoryForAdd
+     * @description 采购时添加库存操作
+     * @param @param inventory  
+     * @return void    
+     * @author zhoujiaxin
+     * @createDate 2019年7月30日
+     */
+    void updateInventoryForAdd(Inventory inventory);
+
+    /**
+     * @Title: updateSubscribeForPurchasing
+     * @description 取消采购订单是减库存
+     * @param @param inventory  
+     * @return void    
+     * @author zhoujiaxin
+     * @createDate 2019年7月30日
+     */
+    void updateSubscribeForPurchasing(Inventory inventory);
 }

@@ -187,13 +187,13 @@ public class ProductServiceImpl implements ProductService {
 	 * @createDate 2019年6月18
 	 */
 	@Override
-	public Map<String, Object> getProductByCondition(String productName, BigInteger productTypeId, BigInteger shopId,
+	public Map<String, Object> getProductByCondition(String productName, BigInteger productTypeId,
 			Integer page, Integer limit) {
 		Map<String, Object> map = new HashMap<>();
 		Integer beginPage = limit * (page - 1);
-		List<Product> listProduct = productMapper.getProductByCondition(productName, productTypeId, shopId, beginPage,
+		List<Product> listProduct = productMapper.getProductByCondition(productName, productTypeId,  beginPage,
 				limit);
-		Integer count = productMapper.getProductByConditionCount(productName, productTypeId, shopId);
+		Integer count = productMapper.getProductByConditionCount(productName, productTypeId);
 		
 		map.put("code", 1);
 		map.put("count", count);
@@ -211,11 +211,11 @@ public class ProductServiceImpl implements ProductService {
 	 * @createDate 2019年6月20日
 	 */
 	@Override
-	public Map<String, Object> productsByType(BigInteger productTypeId, BigInteger shopId, Integer page,
+	public Map<String, Object> productsByType(BigInteger productTypeId,Integer page,
 			Integer limit) {
 		Map<String, Object> map = new HashMap<>();
 		Integer beginPage = limit * (page - 1);
-		List<ProductOnDisplayVo> listProduct = productMapper.productsByType(productTypeId, shopId, beginPage, limit);
+		List<ProductOnDisplayVo> listProduct = productMapper.productsByType(productTypeId,beginPage, limit);
 		Map<String, ProductOnDisplayVo> m = new HashMap<>();
 		for (ProductOnDisplayVo p : listProduct) {
 			if (m.containsKey(p.getName())) {
@@ -263,8 +263,8 @@ public class ProductServiceImpl implements ProductService {
 	 * @createDate 2019年6月20日
 	 */
 	@Override
-	public List<ProductVo> groupByProductType(BigInteger shopId) {
-		List<ProductVo> listProducts = productMapper.groupByProductType(shopId);
+	public List<ProductVo> groupByProductType() {
+		List<ProductVo> listProducts = productMapper.groupByProductType();
 		Map<String, ProductOnDisplayVo> m = new HashMap<>();
 		for (ProductVo pv : listProducts) {
 			for (ProductOnDisplayVo p : pv.getListProduct()) {
@@ -387,5 +387,19 @@ public class ProductServiceImpl implements ProductService {
 
 		return productMapper.updateProductState(product);
 	}
+	
+	/**
+     * @Title: selectCountByProductId
+     * @description 先判断分店铺或总店铺里是否还有库存，如果有则此分类不能删除---周嘉鑫20190729
+     * @param @param product
+     * @param @return  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年7月29日
+     */
+    @Override
+    public int selectCountByProductId(Product product) {
+        return productMapper.selectCountByProductId(product);
+    }
 	
 }

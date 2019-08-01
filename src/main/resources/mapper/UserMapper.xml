@@ -3,7 +3,36 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cashier.dao.UserMapper">
+    <!--  101通过省级区域经理查询对应省里的店铺信息（ID和名称） -->
+    <select id="listShopMsgByProvince" parameterType="com.cashier.entity.ShopListDTO" resultType="com.cashier.entity.Shop" >
+        SELECT 
+	        s.id,
+	        s.`name`
+		FROM t_shop s
+		WHERE s.area BETWEEN #{beginNumber} AND #{endNumber}
+		AND s.type =2 AND s.state =1
+    </select>
+    
+    <!--  102通过市级区域经理查询对应市里的店铺信息（ID和名称） -->
+    <select id="listShopMsgByCity" parameterType="com.cashier.entity.ShopListDTO" resultType="com.cashier.entity.Shop" >
+        SELECT 
+            s.id,
+            s.`name`
+        FROM t_shop s
+        WHERE s.area BETWEEN #{beginNumber} AND #{endNumber}
+        AND s.type =2 AND s.state =1
+    </select>
 
+    <!--  103通过区级区域经理查询对应区里的店铺信息（ID和名称） -->
+    <select id="listShopMsgByArea" parameterType="User" resultType="com.cashier.entity.Shop" >
+        SELECT 
+            s.id,
+            s.`name`
+        FROM t_shop s
+        WHERE s.area = #{areaId}
+        AND s.type =2 AND s.state =1
+    </select>
+    
     <!--  先查询总店超级管理员所有权限 -->
     <select id="listPermissionBySuperUser"  resultType="Permission" >
         SELECT      
@@ -65,7 +94,12 @@
     <!-- 通过用户名查询整张表查看用户名是否重复 -->
     <select id="selectUserByUsername" parameterType="com.cashier.entityVo.UserVo" resultType="com.cashier.entityVo.UserVo">
         SELECT
-            u.username
+            u.shop_id shopId,
+            u.username,
+            u.agent_type agentType,
+            u.province_id userProvinceId,
+            u.city_id userCityId,
+            u.area_id areaId
         FROM t_user u 
         WHERE u.username = #{username}
     </select>

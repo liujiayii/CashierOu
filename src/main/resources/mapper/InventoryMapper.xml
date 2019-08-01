@@ -13,8 +13,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="inventoryWarning!=null">
             inventory_warning,
             </if>
-			shop_id
-			
+			shop_id,
+			purchase_state
 		)
 		values
 		(
@@ -23,8 +23,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="inventoryWarning!=null">
             #{inventoryWarning},
             </if>
-			#{shopId}
-			
+			#{shopId},
+			#{purchaseState}
 		)
 	</insert>
 	
@@ -153,6 +153,32 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		    id = #{id}
 	</update>
 	
-	
+    <!-- 采购时添加库存操作 -->
+    <update id="updateInventoryForAdd" parameterType="com.cashier.entity.Inventory">
+        update
+            t_inventory
+        <set>
+            <if test="quantity!=null">
+            quantity=quantity+#{quantity}
+            </if>
+        </set>     
+        where
+            product_id = #{productId}
+        AND shop_id = #{shopId}
+    </update>
+
+    <!-- 取消采购订单是减库存 -->
+    <update id="updateSubscribeForPurchasing" parameterType="com.cashier.entity.Inventory">
+        update
+            t_inventory
+        <set>
+            <if test="quantity!=null">
+            quantity=quantity-#{quantity}
+            </if>
+        </set>     
+        where
+            product_id = #{productId}
+        AND shop_id = #{shopId}
+    </update>
 	
 </mapper>

@@ -13,14 +13,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.cashier.dao.InventoryMapper;
+import com.cashier.dao.ProductMapper;
 import com.cashier.entity.GoodstrafficManagement;
-import com.cashier.entity.Shop;
+import com.cashier.entity.Inventory;
 import com.cashier.entityDTO.GoodstrafficManagementDTO;
 import com.cashier.entityVo.AddsubscriptionVo;
 import com.cashier.entityVo.GoodstrafficManagementVo;
-import com.cashier.entityVo.GoodstrafficOrdersProductVo;
 import com.cashier.service.GoodstrafficManagementService;
 import com.cashier.service.ShopService;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 @Controller
 public class GoodstrafficManagementController {
@@ -28,6 +32,10 @@ public class GoodstrafficManagementController {
     private GoodstrafficManagementService goodstrafficManagementService;
     @Autowired
     private ShopService shopService;
+    @Autowired
+    private InventoryMapper inventoryMapper;
+    @Autowired
+    private ProductMapper productMapper;
     /**
      * 
      * @Title: listProcurement
@@ -65,10 +73,10 @@ public class GoodstrafficManagementController {
 
     /**
      * @Title: addprocurement
-     * @description 添加采购订单
+     * @description 添加采购订单、调拨订单（分店先去找总店调拨，总店可以选择给或者转发给其他分店）zhoujiaixin 20190730
      * @param goodstrafficManagement
      * @return Map<String,Object>
-     * @author chenshuxian
+     * @author chenshuxian  
      * @createDate 2019年6月19日
      */
     @RequestMapping("/addprocurement")
@@ -80,18 +88,28 @@ public class GoodstrafficManagementController {
             ts = Timestamp.valueOf(time);  
             goodstrafficManagement.setDeliveryDate(ts);
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-            if(goodstrafficManagement.getTransportationState()!=null){
-                Integer id = 
-                        goodstrafficManagementService.selectSubscribe(goodstrafficManagement.getId());
-                if(id != goodstrafficManagement.getTransportationState()){
+            // 判断他是调拨还是采购
+            if (goodstrafficManagement.getGoodstrafficState()==1) {
+                // 采购
+                if (goodstrafficManagement.getTransportationState()==null) {
+                    goodstrafficManagement.setTransportationState(5);
+                }
+                goodstrafficManagementService.addprocurement(goodstrafficManagement,g,shopId);
+            }else{
+                // 调拨
+                if (goodstrafficManagement.getTransportationState()==null) {
+                    goodstrafficManagement.setTransportationState(1);
+                }
+                goodstrafficManagementService.addprocurement(goodstrafficManagement,g,shopId);
+                //Integer id = goodstrafficManagementService.selectSubscribe(goodstrafficManagement.getId());
+                /*if(id != goodstrafficManagement.getTransportationState()){
                     goodstrafficManagementService.addprocurement(goodstrafficManagement,g,shopId);
                 }else{
                     map.put("code", 0);
                     map.put("msg", "状态已变更，请刷新");
-                    
                     return map;
-                }
-            }    
+                }*/
+            }
             map.put("code", 1);
             map.put("msg", "添加成功");
         } catch (Exception e) {
@@ -114,12 +132,11 @@ public class GoodstrafficManagementController {
      */
     @RequestMapping("/listProductAndProductType")
     @ResponseBody
-    public Map<String, Object> listProductAndProductType(HttpSession session) {
+    public Map<String, Object> listProductAndProductType() {
         Map<String, Object> map = new HashMap<>();
         try {
-            BigInteger shopId = (BigInteger) session.getAttribute("shopId");
             List<AddsubscriptionVo> listProductAndProductType = 
-                    goodstrafficManagementService.listProductAndProductType(new BigInteger("1"));
+                    goodstrafficManagementService.listProductAndProductType();
             map.put("code", 1);
             map.put("data", listProductAndProductType);
             map.put("msg", "显示成功");
@@ -300,6 +317,67 @@ public class GoodstrafficManagementController {
             map.put("msg", "方法错误");
         }
 
+        return map;
+    }
+    
+    /**
+     * 
+     * @Title: updateSubscribeForPurchasing
+     * @description 取消采购订单
+     * @param goodstrafficManagement
+     *            状态码 id
+     * @return void
+     * @author zhoujiaxin
+     * @createDate 20190730
+     */
+    @RequestMapping("/updateSubscribeForPurchasing")
+    @ResponseBody
+    public Map<String, Object> updateSubscribeForPurchasing(GoodstrafficManagement goodstrafficManagement,String g,HttpSession session) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+            JSONArray myJsonArray = JSONArray.fromObject(g);
+            Inventory inventory = new Inventory();
+            for (int i = 0; i < myJsonArray.size(); i++) {
+                JSONObject obj = JSONObject.fromObject(myJsonArray.get(i));
+                    inventory.setProductId(new BigInteger(obj.getString("productId")));
+                    inventory.setQuantity(new BigInteger(obj.getString("quantity")));
+                    inventory.setShopId(shopId);
+                    // 取消采购订单是减库存
+                    inventoryMapper.updateSubscribeForPurchasing(inventory);
+            }
+            goodstrafficManagementService.updateSubscribe(goodstrafficManagement);  
+            map.put("code", 1);
+            map.put("msg", "修改成功");
+        } catch (Exception e) {
+            map.put("code", 0);
+            map.put("msg", "修改失败");
+        }
+        return map;
+    }
+    
+    /**
+     * 
+     * @Title: redirectToBranchShop
+     * @description 总店把调拨请求转发给分店
+     * @param goodstrafficManagement
+     *            状态码 id
+     * @return void
+     * @author zhoujiaxin
+     * @createDate 20190731
+     */
+    @RequestMapping("/redirectToBranchShop")
+    @ResponseBody
+    public Map<String, Object> redirectToBranchShop(GoodstrafficManagement goodstrafficManagement,HttpSession session) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            goodstrafficManagementService.redirectToBranchShop(goodstrafficManagement);  
+            map.put("code", 1);
+            map.put("msg", "转发成功");
+        } catch (Exception e) {
+            map.put("code", 0);
+            map.put("msg", "转发失败");
+        }
         return map;
     }
    

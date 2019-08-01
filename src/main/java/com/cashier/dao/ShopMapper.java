@@ -1,10 +1,13 @@
 package com.cashier.dao;
 
 import java.util.List;
+
+import com.cashier.entity.Role;
 import com.cashier.entity.Shop;
 import com.cashier.entityDTO.ShopUserPermissionDTO;
 import com.cashier.entityVo.ShopVo;
 import com.cashier.entityVo.UserShopVo;
+import com.cashier.entityVo.UserVo;
 
 /**
  *
@@ -173,4 +176,24 @@ public interface ShopMapper {
      * @createDate 2019年7月19日
      */
     public List<UserShopVo> listAllShopIdAndName(UserShopVo userShopVo);
+    
+    /**
+     * @Title: selectTotalShopMessage
+     * @description 分店调拨总店的东西时需要先查出总店的ID
+     * @param @return  
+     * @return Shop    
+     * @author zhoujiaxin
+     * @createDate 2019年7月30日
+     */
+    public Shop selectTotalShopMessage();
+    /**
+    * @Title: getRoleIdByShopId
+    * @description 通过分店ID获取分店超级管理员角色的ID
+    * @param @param userVo
+    * @param @return  
+    * @return Role    
+    * @author zhoujiaxin
+    * @createDate 2019年7月31日
+    */
+   public Role getRoleIdByShopId(UserVo userVo);
 }
