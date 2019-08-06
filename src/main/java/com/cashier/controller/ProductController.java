@@ -1,9 +1,6 @@
 package com.cashier.controller;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
@@ -12,37 +9,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jbarcode.JBarcode;
-import org.jbarcode.encode.Code128Encoder;
 import org.jbarcode.encode.EAN13Encoder;
-import org.jbarcode.paint.BaseLineTextPainter;
 import org.jbarcode.paint.EAN13TextPainter;
 import org.jbarcode.paint.WidthCodedPainter;
-import org.jbarcode.util.ImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.Product;
+import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.entityVo.ProductVo;
 import com.cashier.service.ProductService;
 import com.cashier.service.ex.ServiceException;
-import com.cashier.service.impl.ProductServiceImpl;
-import com.cashier.util.pay.util.JsonUtil;
 
 @Controller
 public class ProductController {
 	@Autowired
-	ProductService productService;
+	private ProductService productService;
+	@Autowired
+	private UserOperationMapper userOperationMapper;
 	/**
 	 * 
 	     * @Title: addProduct
@@ -53,6 +47,7 @@ public class ProductController {
 	     * @createDate
 	 */
 	@RequestMapping("/addProduct")
+	@RequiresPermissions("/addProduct")
 	@ResponseBody
 	public Map<String,Object> addProduct(HttpServletRequest request,HttpSession session,Product product,BigInteger quantity,BigInteger inventoryWarning){
 		Map<String, Object> map = new HashMap<>();
@@ -72,6 +67,14 @@ public class ProductController {
 			}
 			Integer row =productService.insertProduct(product,quantity,inventoryWarning);
 			if(row!=0){
+				 // 添加一条操作记录
+	            User user = (User)session.getAttribute("user");
+	            UserOperation userOperation = new UserOperation();
+	            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+	            userOperation.setUserName(user.getUsername());
+	            userOperation.setName(user.getName());
+	            userOperation.setOperatingContent("添加商品");
+	            userOperationMapper.saveUserOperation(userOperation);
 				map.put("code", 1);
 				map.put("msg", "添加成功");
 			}
@@ -91,6 +94,7 @@ public class ProductController {
      * @createDate
 	 */
 	@RequestMapping("/createProduct")
+	@RequiresPermissions("/createProduct")
 	@ResponseBody
 	public Map<String,Object> updateProduct(Product product,HttpSession session){
 		Map<String, Object> map = new HashMap<>();
@@ -98,6 +102,14 @@ public class ProductController {
 		try {
 			Integer row = productService.updateProductById(product);
 			if(row == 1){
+				 // 添加一条操作记录
+	            User user = (User)session.getAttribute("user");
+	            UserOperation userOperation = new UserOperation();
+	            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+	            userOperation.setUserName(user.getUsername());
+	            userOperation.setName(user.getName());
+	            userOperation.setOperatingContent("修改商品");
+	            userOperationMapper.saveUserOperation(userOperation);
 				map.put("code", 1);
 				map.put("msg", "成功");
 			}
@@ -119,8 +131,9 @@ public class ProductController {
 	     * @createDate
 	 */
 	@RequestMapping("/delProduct")
+	@RequiresPermissions("/delProduct")
 	@ResponseBody
-	public Map<String,Object> delProduct(BigInteger productId,Product product){
+	public Map<String,Object> delProduct(BigInteger productId,Product product,HttpSession session){
 		Map<String, Object> map = new HashMap<>();
 		// 先判断分店铺或总店铺里是否还有库存，如果有则此分类不能删除---周嘉鑫20190729
 		product.setId(productId);
@@ -132,6 +145,14 @@ public class ProductController {
         }
 		Integer row = productService.delProductById(productId);
 		if(row == 1){
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("删除商品");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "成功");
 		}else{
@@ -218,6 +239,7 @@ public class ProductController {
 	     * @createDate 2019年7月3日
 	 */
 	@RequestMapping("/getProductByCondition")
+	@RequiresPermissions("/getProductByCondition")
 	@ResponseBody
 	public Map<String,Object> getProductByCondition(String productName,BigInteger productTypeId,Integer page,Integer limit){
 		Map<String,Object> map=productService.getProductByCondition(productName, productTypeId, page, limit);
@@ -249,11 +271,11 @@ public class ProductController {
 			 * 设置，那么就可以根据自己需要设置
 			 */
 			// 尺寸，面积，大小
-			jbarcode13.setXDimension(Double.valueOf(0.8).doubleValue());
+			jbarcode13.setXDimension(Double.valueOf(0.7).doubleValue());
 			// 条形码高度
-			jbarcode13.setBarHeight(Double.valueOf(20).doubleValue());
+			jbarcode13.setBarHeight(Double.valueOf(15).doubleValue());
 			// 宽度率
-			jbarcode13.setWideRatio(Double.valueOf(20).doubleValue());
+			jbarcode13.setWideRatio(Double.valueOf(7).doubleValue());
 			// 是否校验最后一位，默认是false
 			jbarcode13.setShowCheckDigit(true);
 			// 生成二维码
@@ -305,13 +327,21 @@ public class ProductController {
 	 * @author chenshuxian
 	 * @createDate 2019 年7月18日 下午2:00
 	 */
-	//@RequiresPermissions("/updateProductState")
 	@RequestMapping("/updateProductState")
+	@RequiresPermissions("/updateProductState")
 	@ResponseBody
-	public Map<String, Object> updateProductState(Product product) {
+	public Map<String, Object> updateProductState(Product product,HttpSession session) {
 		int row = productService.updateProductState(product);
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (row == 1) {
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("修改商品状态");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "成功");
 			

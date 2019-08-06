@@ -3,6 +3,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cashier.dao.UserMapper">
+
     <!--  101通过省级区域经理查询对应省里的店铺信息（ID和名称） -->
     <select id="listShopMsgByProvince" parameterType="com.cashier.entity.ShopListDTO" resultType="com.cashier.entity.Shop" >
         SELECT 
@@ -143,6 +144,7 @@
 			r.name='超级管理员'
 		AND 
 			u.shop_id = #{shopId}
+	    AND u.agent_type = 0
     </select>
 
 	<!-- 查询所有用户（无分页） -->
@@ -179,6 +181,43 @@
 			r.name !='超级管理员'
 		order by entry_time
 	</select>
+    
+    <!-- 列表查询区域经理列表 -->
+    <select id="listManagerUserVo" resultType="com.cashier.entityVo.UserVo">
+        SELECT DISTINCT
+            u.id id,
+            u.username username,
+            u.password password,
+            u.name name,
+            u.phone phone,
+            u.sex sex,
+            u.age age,
+            u.role_id roleId,
+            u.entry_time entryTime,
+            r.name roleName,
+            u.birthday birthday,
+            u.remarks remarks,
+            u.state,
+            u.shop_id shopId,
+            u.agent_type agentType,
+            u.area_id areaId,
+            u.province_id userProvinceId,
+            u.city_id userCityId
+        FROM 
+            t_user u ,
+            t_role r ,
+            t_user_role_relationship ur
+        WHERE 
+            u.id = ur.user_id
+        AND 
+            r.id = ur.role_id
+        AND 
+            r.name ='超级管理员'
+        AND u.agent_type IN(1,2,3)
+        order by 
+            u.id DESC
+        limit #{page},#{limit}
+    </select>
 
   	<!-- 查询所有用户 -->
 	<select id="listUserVo" resultType="com.cashier.entityVo.UserVo">
@@ -217,6 +256,22 @@
 			u.id DESC
 		limit #{page},#{limit}
 	</select>
+	<!-- 查询区域经理列表数量 -->
+    <select id="countManagerUser" parameterType="com.cashier.entityVo.UserVo" resultType="java.lang.Integer">
+        SELECT 
+            COUNT(DISTINCT u.id) count
+        FROM 
+            t_user u ,
+            t_role r ,
+            t_user_role_relationship ur
+        WHERE 
+            u.id = ur.user_id
+        AND 
+            r.id = ur.role_id
+        AND 
+            r.name ='超级管理员'
+         AND u.agent_type IN(1,2,3)
+    </select>
 	
 	<!-- 查询本店用户数据数量 -->
 	<select id="countUser" resultType="com.cashier.entityVo.UserVo">

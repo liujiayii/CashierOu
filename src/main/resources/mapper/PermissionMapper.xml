@@ -106,7 +106,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         a.id id,
         a.url url,
         a.percode percode
-        FROM t_permission a right JOIN t_permission b ON b.id=a.parent_id
+        FROM t_permission a  JOIN t_permission b ON b.id=a.parent_id
           
     </select>
     <resultMap type="com.cashier.entityVo.PermissionVo" id="allPermissionsMap">

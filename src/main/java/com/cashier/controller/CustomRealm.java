@@ -1,5 +1,7 @@
 package com.cashier.controller;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -12,6 +14,9 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+
+import com.cashier.entity.Permission;
+import com.cashier.entity.Role;
 import com.cashier.entity.User;
 import com.cashier.service.LoginService;
 import redis.clients.jedis.JedisPool;
@@ -53,19 +58,19 @@ public class CustomRealm extends AuthorizingRealm {
         User user = (User)subject.getPrincipal();
         
         // 通过用户名调用业务层查询角色
-        /*List<Role> roleList = loginService.listRolesByUser(user);
+        List<Role> roleList = loginService.listRolesByUser(user);
         if (roleList.size()>0) {
             for (Role role :roleList) {
                 simpleAuthorizationInfo.addRole(role.getName());
             }
-        }*/
+        }
         // 通过用户名调用业务层查询角色
-        /*List<Permission> permissionList = loginService.listPermissionsByUser(user);
+        List<Permission> permissionList = loginService.listPermissionsByUser(user);
         if (permissionList.size()>0) {
             for (Permission permission :permissionList) {
                 simpleAuthorizationInfo.addStringPermission(permission.getPercode());
             }
-        }*/
+        }
         return simpleAuthorizationInfo;
     }
     

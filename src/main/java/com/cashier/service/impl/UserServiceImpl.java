@@ -389,4 +389,33 @@ public class UserServiceImpl implements UserService {
         return userMapper.listShopMsgByArea(user);
     }
 
+    /**
+     * @Title: listManagerUserVo
+     * @description 列表查询区域经理列表
+     * @param @param userVo
+     * @param @return  
+     * @return List<UserVo>    
+     * @author zhoujiaxin
+     * @createDate 2019年7月31日
+     */
+    @Override
+    public List<UserVo> listManagerUserVo(UserVo userVo) {
+        return userMapper.listManagerUserVo(userVo);
+    }
+
+    /**
+     * @Title: countManagerUser
+     * @description 查询区域经理列表数量
+     * @param @param userVo
+     * @param @return  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年7月31日
+     */
+    @Override
+    public int countManagerUser(UserVo userVo) {
+        return userMapper.countManagerUser(userVo);
+    }
+
+
 }

@@ -58,7 +58,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!-- 根据分店ID获取当前分店的权限信息 -->
     <select id="getPermissionListByShopId" parameterType="user" resultMap="listPermissionMap" >
         SELECT
-			p.parent_id parentIds,
+			<!-- p.parent_id parentIds, -->
 			p.parent_name parent_names,
 			p.id id,
 			p.name name
@@ -74,7 +74,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <resultMap id="listPermissionMap" type="com.cashier.entityVo.PermissionVo">
-        <id column="parentIds" jdbcType="BIGINT" property="parentIds" />
+       <!--  <id column="parentIds" jdbcType="BIGINT" property="parentIds" /> -->
         <result column="parent_names" jdbcType="VARCHAR" property="parent_names" />
         
         <collection property="permissions" ofType="com.cashier.entity.Permission" > 

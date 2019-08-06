@@ -226,4 +226,27 @@ public interface UserService {
      */
     public List<Shop> listShopMsgByArea(User user);
 
+    /**
+     * @Title: listManagerUserVo
+     * @description 列表查询区域经理列表
+     * @param @param userVo
+     * @param @return  
+     * @return List<UserVo>    
+     * @author zhoujiaxin
+     * @createDate 2019年7月31日
+     */
+    public List<UserVo> listManagerUserVo(UserVo userVo);
+
+    /**
+     * @Title: countManagerUser
+     * @description 查询区域经理列表数量
+     * @param @param userVo
+     * @param @return  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年7月31日
+     */
+    public int countManagerUser(UserVo userVo);
+
+
 }

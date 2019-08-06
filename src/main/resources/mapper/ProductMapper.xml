@@ -97,6 +97,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         p.specification,
         p.color,
         p.inventory,
+        pt.id productTypeId,
         pt.product_type productType
     from t_product p, t_product_type pt
     WHERE 
@@ -283,6 +284,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             inv.product_id = #{id}
             and inv.quantity between 1 and 999999
     </select>
+    
+    <!--  删除商品时删除库存为零的库存数据 -->
+    <delete id="delInventoryByPid"  parameterType="BigInteger">
+        DELETE from t_inventory
+        WHERE 
+        product_id  = #{productId}
+    </delete>
     
     
 </mapper>

@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -135,7 +137,7 @@ public class JurisdictionController {
      * @author zhou jiaxin
      * @createDate 2019年1月30日
      */
-    //@RequiresPermissions("/updateOneRolePermission")
+    @RequiresPermissions("/updateOneRolePermission")
     @RequestMapping("/updateOneRolePermission")
     @ResponseBody
     public Map<String , Object> updateOneRolePermission(String shopID, Model model,Role role,String ids,HttpSession session){
@@ -274,6 +276,25 @@ public class JurisdictionController {
 			
 			return result;
 		}
-	
-	
+		/**
+		 * 
+		     * @Title: getRolePermissions
+		     * @description 角色分配权限页面数据回显
+		     * @param  角色id
+		     * @return    
+		     * @author chenshuxian
+		     * @createDate 2019年8月5日
+		 */
+		@RequestMapping("/getRolePermissions")
+		@ResponseBody
+		public Map<String,Object> getRolePermissions(HttpSession session){
+			BigInteger shopId = new BigInteger(session.getAttribute("shopId")+"");
+			User user = (User) session.getAttribute("user");
+			List<PermissionVo> getRolePermissions= jurisdictionService.getRolePermission(shopId, user.getRoleId());
+			Map<String,Object> map = new HashMap<>();
+			map.put("listRolePermissions",getRolePermissions);
+			map.put("code", 1);
+			map.put("msg", "成功");
+			return map;
+		}
 }

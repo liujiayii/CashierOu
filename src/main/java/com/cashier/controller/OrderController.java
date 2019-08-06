@@ -11,6 +11,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,10 +20,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alipay.demo.trade.model.GoodsDetail;
 import com.alipay.demo.trade.model.result.AlipayF2FPayResult;
 import com.alipay.demo.trade.model.result.AlipayF2FRefundResult;
+import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.Member;
 import com.cashier.entity.Order;
 import com.cashier.entity.OrderProduct;
 import com.cashier.entity.Product;
+import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.entityDTO.TopTenProductDTO;
 import com.cashier.entityVo.OrderProductVo;
 import com.cashier.entityVo.OrderVo;
@@ -53,6 +57,8 @@ public class OrderController {
 	private OrderProductService orderProductService;
 	@Resource
 	private ProductService productService;
+	@Resource
+	private UserOperationMapper userOperationMapper;
 
 	/**
 	 * @Title: ZtorderManagement
@@ -81,14 +87,16 @@ public class OrderController {
 	 * @createDate 2019年6月19日
 	 */
 	@RequestMapping("/listOrderByOption")
+	@RequiresPermissions("/listOrderByOption")
 	@ResponseBody
 	public Map<String, Object> listOrderByOption(Model model, Integer page, Integer limit, OrderVo orderVo,
 			HttpSession session) {
-		BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-
+	    if(orderVo.getShopId()==null){
+            BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+            orderVo.setShopId(shopId);
+        }
 		orderVo.setPage((page - 1) * limit);
 		orderVo.setLimit(limit);
-		orderVo.setShopId(shopId);
 		Map<String, Object> result = new HashMap<String, Object>();
 		List<Order> list = orderService.listOrderByOption(orderVo);
 		if (list.size() > 0) {
@@ -163,6 +171,14 @@ public class OrderController {
 		order.setShopId(shopId);
 		int num = orderService.saveOrder(order);
 		if (num == 1) {
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("新增一条订单");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 0);
 			map.put("msg", "Success");
 
@@ -220,7 +236,7 @@ public class OrderController {
 	@RequestMapping(value = "/updateOrderState", produces = "application/json; charset=utf-8")
 
 	@ResponseBody
-	public String  updateOrderState(Order order,String outTradeNo,String refundAmount) throws Exception {
+	public String  updateOrderState(Order order,String outTradeNo,String refundAmount,HttpSession session) throws Exception {
 		if(order.getPayMethod()==4) {
 		AlipayF2FRefundResult result = alipaySweepPaymentcontroller.test_trade_refund(outTradeNo, refundAmount);
 		switch (result.getTradeStatus()) {
@@ -255,7 +271,7 @@ public class OrderController {
 			}
 
 			// 支付成功
-
+			
 			int num = orderService.updateOrderState(order);
 			System.out.println("退款查询接口" + result);
 
@@ -266,6 +282,14 @@ public class OrderController {
 			int num = orderService.updateOrderState(order);
 			Map<String, Object> map = new HashMap<String, Object>();
 			if (num == 1) {
+				 // 添加一条操作记录
+	            User user = (User)session.getAttribute("user");
+	            UserOperation userOperation = new UserOperation();
+	            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+	            userOperation.setUserName(user.getUsername());
+	            userOperation.setName(user.getName());
+	            userOperation.setOperatingContent("修改订单状态（退款）");
+	            userOperationMapper.saveUserOperation(userOperation);
 				map.put("code", 0);
 				map.put("msg", "Success");
 			} else {
@@ -285,17 +309,18 @@ public class OrderController {
 	@RequestMapping("/Querymembershipstatus")
 	@ResponseBody
 	public Map<String, Object> Enquiriesmembershipcard(String number, String phone, HttpSession session) {
-		Member Member = orderService.Querymembershipstatus (phone);
+		Member member = orderService.Querymembershipstatus (phone);
 		BigInteger shopId = (BigInteger) session.getAttribute("shopId");
 
 		Map<String, Object> map = new HashMap<String, Object>();
-		if (Member == null) {
+		if (member == null) {
 
 			map.put("code", -1);
 			map.put("msg", "不是会员");
+			
 			/* map.put("data", orderNumber); */
 		} else {
-			if(Member.getState()!=2) {
+			if(member.getState()!=2) {
 				map.put("code", -1);
 				map.put("msg", "会员状态不正确");
 			
@@ -304,7 +329,7 @@ public class OrderController {
 				map.put("code", 0);
 				map.put("msg", "是会员");
 				
-				map.put("Member", Member);
+				map.put("Member", member);
 			}
 		
 			

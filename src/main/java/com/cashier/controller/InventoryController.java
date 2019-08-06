@@ -7,12 +7,16 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.Inventory;
+import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.entityDTO.InventoryDTO;
 import com.cashier.entityVo.InventoryVo;
 import com.cashier.service.InventoryService;
@@ -21,7 +25,8 @@ import com.cashier.service.InventoryService;
 public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
-
+    @Autowired
+    private UserOperationMapper userOperationMapper;
     /**
      * 
      * @Title: listInventory
@@ -32,12 +37,15 @@ public class InventoryController {
      * @createDate 2019年7月5日
      */
     @RequestMapping("/listInventory")
+    @RequiresPermissions("/listInventory")
     @ResponseBody
     public Map<String, Object> listInventory(InventoryDTO inventoryDTO,HttpSession session) {
         Map<String, Object> map = new HashMap<>();
         try {
-            BigInteger shopId = (BigInteger) session.getAttribute("shopId");
-            inventoryDTO.setShopId(shopId);
+            if(inventoryDTO.getShopId()==null){
+                BigInteger shopId = (BigInteger) session.getAttribute("shopId");
+                inventoryDTO.setShopId(shopId);
+            }
             inventoryDTO.setPage((inventoryDTO.getPage() - 1) * inventoryDTO.getLimit());
             List<InventoryVo> listInventory = inventoryService.listInventory(inventoryDTO);
             int count = inventoryService.listInventoryCount(inventoryDTO);
@@ -64,12 +72,20 @@ public class InventoryController {
      * @createDate 2019年7月5日
      */
     @RequestMapping("/updateInventory")
+    @RequiresPermissions("/updateInventory")
     @ResponseBody
-    public Map<String, Object> updateInventory(Inventory inventory) {
+    public Map<String, Object> updateInventory(Inventory inventory,HttpSession session) {
         Map<String, Object> map = new HashMap<>();
         try {
             inventoryService.updateInventory(inventory);
-
+            // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("修改库存");
+            userOperationMapper.saveUserOperation(userOperation);
             map.put("msg", "修改成功");
             map.put("code", 1);
         } catch (Exception e) {
@@ -95,6 +111,14 @@ public class InventoryController {
     public Map<String, Object> updateQuantity(BigInteger id, String inventory, Integer judge, HttpSession session) {
         Map<String, Object> map = new HashMap<>();
         map = inventoryService.updateQuantity(id, inventory, judge, session);
+        // 添加一条操作记录
+        User user = (User)session.getAttribute("user");
+        UserOperation userOperation = new UserOperation();
+        userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+        userOperation.setUserName(user.getUsername());
+        userOperation.setName(user.getName());
+        userOperation.setOperatingContent("出库入库操作");
+        userOperationMapper.saveUserOperation(userOperation);
         return map;
     }
     

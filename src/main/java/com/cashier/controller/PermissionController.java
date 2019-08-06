@@ -5,12 +5,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+import javax.servlet.http.HttpSession;
+
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.Permission;
+import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.entityVo.PermissionVo;
 import com.cashier.service.PermissionService;
 import com.cashier.service.ex.ServiceException;
@@ -19,6 +28,8 @@ import com.cashier.service.ex.ServiceException;
 public class PermissionController {
 	@Autowired
 	private PermissionService permissionService;
+	@Autowired
+	private UserOperationMapper userOperationMapper;
 	/**
 	 * 
 	     * @Title: getAllPermission
@@ -48,6 +59,7 @@ public class PermissionController {
 	     * @createDate 2019年7月29日
 	 */
 	@RequestMapping("/showSavePermission")
+	@RequiresPermissions("/savePermission")
 	@ResponseBody
 	public Map<String,Object> showSavePermission(){
 		Map<String,Object> map = new HashMap<String, Object>();
@@ -67,14 +79,23 @@ public class PermissionController {
 	     * @createDate 2019年7月29日
 	 */
 	@RequestMapping("/savePermission")
+	@RequiresPermissions("/savePermission")
 	@ResponseBody
-	public Map<String,Object> savePermission(Permission permission){
+	public Map<String,Object> savePermission(Permission permission,HttpSession session){
 		Map<String,Object> map = new HashMap<String, Object>();
 		Integer row = permissionService.insertPermission(permission);
 		if( row == 0 ) {
 			map.put("code", 0);
 			map.put("msg", "添加失败");
 		} else {
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("添加权限");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "添加成功");
 		}
@@ -90,6 +111,7 @@ public class PermissionController {
 	     * @createDate 2019年7月29日
 	 */
 	@RequestMapping("/showUpdatePermission")
+	@RequiresPermissions("/savePermission")
 	@ResponseBody
 	public Map<String,Object> showUpdatePermission(BigInteger permissionId){
 		Map<String,Object> map = new HashMap<>();
@@ -112,11 +134,20 @@ public class PermissionController {
 	     * @createDate 2019年7月29日
 	 */
 	@RequestMapping("/updatePermission")
+	@RequiresPermissions("/savePermission")
 	@ResponseBody
-	public Map<String,Object> updatePermission(Permission permission){
+	public Map<String,Object> updatePermission(Permission permission,HttpSession session){
 		Map<String,Object> map = new HashMap<>();
 		try {
 			permissionService.updatePermissionById(permission);
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("修改权限");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "修改成功");
 		} catch (ServiceException e) {
@@ -135,19 +166,26 @@ public class PermissionController {
 	     * @createDate 2019年7月29日
 	 */
 	@RequestMapping("/delPerssionById")
+	@RequiresPermissions("/savePermission")
 	@ResponseBody
-	public Map<String,Object> delPerssionById(BigInteger permissionId){
+	public Map<String,Object> delPerssionById(BigInteger permissionId,HttpSession session){
 		Map<String,Object> map = new HashMap<>();
 		try {
 			Integer row = permissionService.delPerssionById(permissionId);
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("删除权限");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "删除成功");
 		} catch (ServiceException e) {
 			map.put("code", 0);
 			map.put("msg", e.getMessage());
 		}
-		
-		
 		return map;
 	}
 }

@@ -7,13 +7,17 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.Product;
 import com.cashier.entity.ProductType;
+import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.service.ProductTypeService;
 import com.cashier.service.ex.ServiceException;
 
@@ -21,6 +25,8 @@ import com.cashier.service.ex.ServiceException;
 public class ProductTypeController {
 	@Autowired
 	private ProductTypeService productTypeService;
+	@Autowired
+	private UserOperationMapper userOperationMapper;
 	/**
 	 * 
 	     * @Title: 添加商品种类（以判重）
@@ -31,6 +37,7 @@ public class ProductTypeController {
 	     * @createDate
 	 */
 	@RequestMapping("/addProductType")
+	@RequiresPermissions("/addProductType")
 	@ResponseBody
 	public Map<String,Object> insertProductType(ProductType productType,HttpSession session){
 		Map<String,Object> map = new HashMap<>();
@@ -38,6 +45,14 @@ public class ProductTypeController {
 		try {
 			Integer row = productTypeService.insertProductType(productType);
 			if( row != 0 ) {
+				 // 添加一条操作记录
+	            User user = (User)session.getAttribute("user");
+	            UserOperation userOperation = new UserOperation();
+	            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+	            userOperation.setUserName(user.getUsername());
+	            userOperation.setName(user.getName());
+	            userOperation.setOperatingContent("添加商品类型");
+	            userOperationMapper.saveUserOperation(userOperation);
 				map.put("code", 1);
 				map.put("msg", "添加成功");
 			}
@@ -58,6 +73,7 @@ public class ProductTypeController {
 	     * @createDate
 	 */
 	@RequestMapping("/createProductType")
+	@RequiresPermissions("/createProductType")
 	@ResponseBody
 	public Map<String,Object> updateProductType(ProductType productType,HttpSession session){
 		Map<String, Object> map = new HashMap<>();
@@ -65,6 +81,14 @@ public class ProductTypeController {
 		try {
 			Integer row = productTypeService.updateProductType(productType);
 			if(row == 1){
+				 // 添加一条操作记录
+	            User user = (User)session.getAttribute("user");
+	            UserOperation userOperation = new UserOperation();
+	            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+	            userOperation.setUserName(user.getUsername());
+	            userOperation.setName(user.getName());
+	            userOperation.setOperatingContent("修改商品类型");
+	            userOperationMapper.saveUserOperation(userOperation);
 				map.put("code", 1);
 				map.put("msg", "成功");
 			}
@@ -86,8 +110,9 @@ public class ProductTypeController {
 	     * @createDate
 	 */
 	@RequestMapping("/delProductType")
+	@RequiresPermissions("/delProductType")
 	@ResponseBody
-	public Map<String,Object> delProductType(BigInteger productTypeId,Product product){
+	public Map<String,Object> delProductType(BigInteger productTypeId,Product product,HttpSession session){
 	    Map<String, Object> map = new HashMap<>();
 	    // 先判断产品分类下是否还有商品，如果有则此分类不能删除---周嘉鑫20190729
 	    int count = productTypeService.selectCountByTypeId(product);
@@ -98,6 +123,14 @@ public class ProductTypeController {
         }
 		Integer row = productTypeService.delProductType(productTypeId);
 		if(row == 1){
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("删除商品类型");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "成功");
 		}else{
@@ -156,6 +189,7 @@ public class ProductTypeController {
 	     * @createDate 2019年7月3日
 	 */
 	@RequestMapping("/dimOrSelectAllproducts")
+	@RequiresPermissions("/dimOrSelectAllproducts")
 	@ResponseBody
 	public Map<String,Object> allOrDimSelectProductType(String productTypeName,Integer page,Integer limit){
 		Map<String,Object> map = new HashMap<>();

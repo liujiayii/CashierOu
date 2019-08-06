@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -205,7 +207,7 @@ public class RoleController {
 	 * @author dujiawei
 	 * @createDate 2019年7月4日
 	 */
-	//@RequiresPermissions("/saveRole")
+	@RequiresPermissions("/saveRole")
 	@RequestMapping("/saveRole")
 	@ResponseBody
 	public Map<String , Object> saveRole(String shopID, Role role, HttpSession session) {
@@ -316,7 +318,7 @@ public class RoleController {
 	 * @author dujiawei
 	 * @createDate 2019年7月4日
 	 */
-	//@RequiresPermissions("/deleteRoleById")
+	@RequiresPermissions("/deleteRoleById")
 	@RequestMapping("/deleteRoleById")
 	@ResponseBody
 	public Map<String , Object> deleteRoleById(Model model, BigInteger id,HttpSession session) {

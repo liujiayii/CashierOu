@@ -1,6 +1,10 @@
 package com.cashier.dao;
 
+import java.math.BigInteger;
 import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.cashier.entity.Permission;
 import com.cashier.entity.Role;
 import com.cashier.entity.RolePermission;
@@ -89,5 +93,15 @@ public interface JurisdictionMapper {
 	
 	
 	public List<RolePermission> listRolePermissions(RolePermission rolePermission);
+	/**
+	 * 
+	     * @Title: getRolePermission
+	     * @description 获得当前登陆角色所有权限（包含权限名称）
+	     * @param  
+	     * @return    
+	     * @author 
+	     * @createDate
+	 */
+	public List<PermissionVo> getRolePermission(@Param("shopId")BigInteger shopId,@Param("roleId")BigInteger roleId);
 
 }

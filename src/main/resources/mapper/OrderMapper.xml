@@ -43,7 +43,7 @@
 				and o.create_time between '${startTime}' AND '${endTime}'
 			</if>
 				<if test="number != null and number !=''">
-				and o.number=#{number}
+				and o.number like "%"#{number}"%"
 			</if>
 				<if test="shopName != null and shopName !=''">
 				and s.name like "%"#{shopName}"%"
@@ -209,12 +209,12 @@
 		t_level_discount ld
 		WHERE
 		m.ld_level_id = ld.id
-		and ( m.number=#{number} or m.phone=#{phone}) and m.state='0'
+		and ( m.number=#{number} or m.phone=#{phone})
 
 	</select>
 	<select id="queractivitybyid" resultType="com.cashier.entityVo.unsteady">
 
-	SELECT   t.activity_id,(sum(s.sale_price)*#{orderProduct}) AS  sale_price,(sum(s.member_price)*#{orderProduct}) AS  member_price,ts.type  from   t_activities_active   t  join    t_product  s   on t.product_id=s.id   JOIN  t_special_offers  ts on ts.id=t.activity_id  WHERE  t.product_id=#{productId}  and  s.shop_id=#{shopId} 
+	SELECT   t.activity_id,(sum(s.sale_price)*#{orderProduct}) AS  sale_price,(sum(s.member_price)*#{orderProduct}) AS  member_price,ts.type  from   t_activities_active   t  join    t_product  s   on t.product_id=s.id   JOIN  t_special_offers  ts on ts.id=t.activity_id  WHERE  t.product_id=#{productId}  
 	</select>
 
 	<select id="querdiscountbyid" resultType="BigDecimal">
@@ -257,7 +257,7 @@
 		FROM t_order o join t_order_product op on o.number = op.order_number JOIN
 		t_product p ON op.product_id=p.id JOIN t_product_type pt ON
 		p.product_type_id=pt.id
-		WHERE o.shop_id=#{shopId} AND TO_DAYS(o.create_time)=TO_DAYS(NOW()) GROUP BY p.product_type_id
+		WHERE o.shop_id=#{shopId} AND TO_DAYS(o.create_time)=TO_DAYS(NOW()) AND o.state=1 GROUP BY p.product_type_id
 	</select>
 
 	<!--增加  -->
@@ -318,7 +318,7 @@
         FROM t_order o join t_order_product op on o.number = op.order_number JOIN
         t_product p ON op.product_id=p.id JOIN t_product_type pt ON
         p.product_type_id=pt.id
-        WHERE o.shopId=#{shopId} AND DATE_FORMAT(o.create_time,'%Y%m')=DATE_FORMAT( CURDATE( ) , '%Y%m' ) GROUP BY p.product_type_id
+        WHERE o.shop_id=#{shopId} AND o.state=1 AND DATE_FORMAT(o.create_time,'%Y%m')=DATE_FORMAT( CURDATE( ) , '%Y%m' ) GROUP BY p.product_type_id
 	</select>
 	<!-- 当月销售前十 商品名称及数量 -->
 	<select id="getTopTenProduct" resultType="com.cashier.entityDTO.TopTenProductDTO">
@@ -327,7 +327,7 @@
         SUM(op.product_count) count
         FROM t_order o join t_order_product op on o.number = op.order_number JOIN
         t_product p ON op.product_id=p.id JOIN t_shop s ON p.shop_id=s.id
-        WHERE s.id=#{shopId} AND DATE_FORMAT(o.create_time,'%Y%m')=DATE_FORMAT( CURDATE( ) , '%Y%m' ) GROUP BY op.product_id ORDER BY count DESC limit 0,10
+        WHERE s.id=#{shopId} AND o.state=1 AND  DATE_FORMAT(o.create_time,'%Y%m')=DATE_FORMAT( CURDATE( ) , '%Y%m' ) GROUP BY op.product_id ORDER BY count DESC limit 0,10
 	
 	</select>
 	<!-- 插入临时表数据 -->
@@ -357,7 +357,7 @@ select id,
 </select>
 <select id="queractivitybyidde" resultType="com.cashier.entityVo.unsteady">
     
-	SELECT   (sum(s.sale_price)*#{orderProduct}) AS  sale_price,(sum(s.member_price)*#{orderProduct}) AS  member_price  from    t_product  s      WHERE  s.id=#{productId}  and  s.shop_id=#{shopId} 
+	SELECT   (sum(s.sale_price)*#{orderProduct}) AS  sale_price,(sum(s.member_price)*#{orderProduct}) AS  member_price  from    t_product  s      WHERE  s.id=#{productId} 
 	</select>
 	<!-- 存放支付宝返回的数据 -->
 	<insert id="severAlipayF2FPayResult" parameterType="com.alipay.demo.trade.model.result.AlipayF2FPayResult">

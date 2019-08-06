@@ -26,6 +26,29 @@ import com.cashier.entityVo.UserVo2;
  */
 
 public interface UserMapper {
+
+    /**
+     * @Title: countManagerUser
+     * @description 查询区域经理列表数量
+     * @param @param userVo
+     * @param @return  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年7月31日
+     */
+    public int countManagerUser(UserVo userVo);
+    
+    /**
+     * @Title: listManagerUserVo
+     * @description 列表查询区域经理列表
+     * @param @param userVo
+     * @param @return  
+     * @return List<UserVo>    
+     * @author zhoujiaxin
+     * @createDate 2019年7月31日
+     */
+    public List<UserVo> listManagerUserVo(UserVo userVo);
+    
     /**
      * @Title: listShopMsgByArea
      * @description 103通过区级区域经理查询对应区里的店铺信息（ID和名称）

@@ -130,4 +130,14 @@ public interface ProductMapper {
      * @createDate 2019年7月29日
      */
     int selectCountByProductId(Product product);
+    /**
+     * @Title: delInventoryByPid
+     * @description 删除商品时删除库存为零的库存数据
+     * @param @param productId
+     * @param @return  
+     * @return int    
+     * @author zhoujiaxin
+     * @createDate 2019年8月2日
+     */
+    int delInventoryByPid(BigInteger productId);
 }

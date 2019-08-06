@@ -131,5 +131,10 @@ public class JurisdictionServiceImpl implements JurisdictionService{
 		// TODO Auto-generated method stub
 		return jurisdictionMapper.listRolePermissions(rolePermission);
 	}
+	@Override
+	public List<PermissionVo> getRolePermission(BigInteger shopId, BigInteger roleId) {
+		
+		return jurisdictionMapper.getRolePermission(shopId, roleId);
+	}
 
 }

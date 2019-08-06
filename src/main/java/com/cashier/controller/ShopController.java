@@ -12,10 +12,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.Permission;
 import com.cashier.entity.Shop;
 import com.cashier.entity.ShopListDTO;
 import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.entityDTO.PermissionDTO;
 import com.cashier.entityDTO.ShopUserPermissionDTO;
 import com.cashier.entityVo.PermissionVo;
@@ -45,7 +48,8 @@ public class ShopController {
 	private UserService userService;
 	@Resource
 	private RoleService roleService;
-
+	@Resource
+	private UserOperationMapper userOperationMapper;
 	/**
 	 * @Title: getGeneralScopeById
 	 * @description 通过店铺id查询店铺省市区号和会员消费范围
@@ -154,10 +158,10 @@ public class ShopController {
 		// 超级管理员信息
 		map.put("userVo2", userVo2);
 		map.put("shop", shop);
-		List<PermissionVo> currentPermissionVolist = userService.listPermissionByCurrentUser(username);
+		//List<PermissionVo> currentPermissionVolist = userService.listPermissionByCurrentUser(username);
 		// 根据分店ID获取当前分店的权限信息
 		List<PermissionVo> PermissionVolist = roleService.getPermissionListByShopId(user);
-		// 数据对比，用于修改页面回显
+	/*	// 数据对比，用于修改页面回显
 		for (int j = 0; j < currentPermissionVolist.size(); j++) {
 			PermissionVo curPermissionVo = currentPermissionVolist.get(j);
 			for (int i = 0; i < PermissionVolist.size(); i++) {
@@ -175,7 +179,7 @@ public class ShopController {
 					break;
 				}
 			}
-		}
+		}*/
 		List<PermissionDTO> listPermissionDTO = new ArrayList<>();
 		for(PermissionVo p : PermissionVolist){
 			PermissionDTO permissionDTO = new PermissionDTO();
@@ -187,6 +191,7 @@ public class ShopController {
 			}
 			listPermissionDTO.add(permissionDTO);
 		}
+		
 		// 权限信息
 		map.put("PermissionVolist", listPermissionDTO);
 		//map.put("listCity", listCity);
@@ -205,15 +210,23 @@ public class ShopController {
 	 * @author dujiawei
 	 * @createDate 2018年12月5日
 	 */
-	// @RequiresPermissions("/updateShop")
 	@RequestMapping("/updateShop")
+	@RequiresPermissions("/updateShop")
 	@ResponseBody
-	public Object updateShop(Model model, ShopVo shopVo, ShopUserPermissionDTO shopUserPermissionDTO, String ids) {
+	public Object updateShop(Model model, ShopVo shopVo, ShopUserPermissionDTO shopUserPermissionDTO, String ids,HttpSession session) {
 		int num = shopService.updateShop(shopVo, shopUserPermissionDTO, ids);
 
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (num == 1) {
+			 // 添加一条操作记录
+	        User u = (User)session.getAttribute("user");
+	        UserOperation userOperation = new UserOperation();
+	        userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+	        userOperation.setUserName(u.getUsername());
+	        userOperation.setName(u.getName());
+	        userOperation.setOperatingContent("修改店铺信息");
+	        userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "Success");
 		} else {
@@ -257,14 +270,22 @@ public class ShopController {
 	 * @author chenshuxian
 	 * @createDate 2019年7月4日
 	 */
-	// @RequiresPermissions("/insertShop")
 	@RequestMapping("/insertShop")
+	@RequiresPermissions("/insertShop")
 	@ResponseBody
-	public Map<String, Object> insertShop(ShopUserPermissionDTO shopUserPermissionDTO, String ids) {
+	public Map<String, Object> insertShop(ShopUserPermissionDTO shopUserPermissionDTO, String ids,HttpSession session) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		try {
 			int num = shopService.insertShop(shopUserPermissionDTO, ids);
 			if (num != 0) {
+				 // 添加一条操作记录
+		        User u = (User)session.getAttribute("user");
+		        UserOperation userOperation = new UserOperation();
+		        userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+		        userOperation.setUserName(u.getUsername());
+		        userOperation.setName(u.getName());
+		        userOperation.setOperatingContent("添加店铺信息");
+		        userOperationMapper.saveUserOperation(userOperation);
 				map.put("code", 1);
 				map.put("msg", "添加成功");
 			}
@@ -285,18 +306,26 @@ public class ShopController {
 	 * @author dujiawei
 	 * @createDate 2018年12月5日
 	 */
-	// @RequiresPermissions("/deleteShop")
+	@RequiresPermissions("/deleteShop")
 	@RequestMapping("/deleteShop")
 	@ResponseBody
-	public Object deleteShop(Shop shop) {
+	public Object deleteShop(Shop shop,HttpSession session) {
 		int num = shopService.deleteShop(shop);
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (num == 1) {
-			map.put("code", 0);
+			 // 添加一条操作记录
+	        User u = (User)session.getAttribute("user");
+	        UserOperation userOperation = new UserOperation();
+	        userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+	        userOperation.setUserName(u.getUsername());
+	        userOperation.setName(u.getName());
+	        userOperation.setOperatingContent("删除店铺");
+	        userOperationMapper.saveUserOperation(userOperation);
+			map.put("code", 1);
 			map.put("msg", "Success");
 		} else {
-			map.put("code", 1);
+			map.put("code", 0);
 			map.put("msg", "删除失败了");
 		}
 
@@ -312,8 +341,8 @@ public class ShopController {
 	 * @author chenshuxian
 	 * @createDate 2019年7月6日
 	 */
-	// @RequiresPermissions("/listAllShopVo")
 	@RequestMapping("/listByShopNameVo")
+	@RequiresPermissions("/listByShopNameVo")
 	@ResponseBody
 	public Object listByShopNameVo(Model model, Integer page, Integer limit, ShopVo shopVo) {
 		shopVo.setPage((page - 1) * limit);
@@ -374,6 +403,7 @@ public class ShopController {
 	 * @createDate 2019年7月6日
 	 */
 	@RequestMapping("/listShopIdAndName")
+	@RequiresPermissions("/listShopIdAndName")
 	@ResponseBody
 	public Map<String, Object> listShopIdAndName(HttpSession session,ShopListDTO shopListDTO) {
 	    User user = (User)session.getAttribute("user");

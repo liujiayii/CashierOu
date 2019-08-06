@@ -4,17 +4,22 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
-import org.apache.ibatis.annotations.Param;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.Level;
-import com.cashier.entity.Member;
+import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.service.LevelService;
+
 import net.sf.json.JSONArray;
 
 
@@ -31,7 +36,8 @@ public class LevelController {
 	
 	@Resource
 	private LevelService levelService;
-	
+	@Resource
+	private UserOperationMapper userOperationMapper;
 	
 	/**
 	 * @Title: ZtlistLevel
@@ -60,6 +66,7 @@ public class LevelController {
 	 * @createDate 2019年6月20日
 	 */
 	@RequestMapping("/listLevel")
+	@RequiresPermissions("/listLevel")
 	@ResponseBody
 	public Object listLevel(Model model, Integer page, Integer limit, Level level, HttpSession session) {
 		level.setPage((page-1)*limit);
@@ -110,11 +117,20 @@ public class LevelController {
 	 * @createDate 2019年6月20日
 	 */
 	@RequestMapping("/saveLevel")
+	@RequiresPermissions("/listLevel")
 	@ResponseBody
 	public Map<String , Object> saveLevel(Level level, HttpSession session) {
 		int num = levelService.saveLevel(level);
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1){
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("添加会员等级");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "Success");
 		} else {
@@ -149,11 +165,20 @@ public class LevelController {
 	 * @createDate 2019年6月20日
 	 */
 	@RequestMapping("/updateLevel")
+	@RequiresPermissions("/listLevel")
 	@ResponseBody
 	public Map<String , Object> updateLevel(Level level, HttpSession session) {
 		int num = levelService.updateLevel(level);
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1){
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("修改会员等级");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "Success");
 		}else if(num == -1) {
@@ -177,11 +202,20 @@ public class LevelController {
 	 * @createDate 2019年6月20日
 	 */
 	@RequestMapping("/removeLevel")
+	@RequiresPermissions("/listLevel")
 	@ResponseBody
 	public Map<String , Object> removeLevel(BigInteger id,HttpSession session) {		
 		int num = levelService.removeLevel(id);
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1){
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("删除会员等级");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "Success");
 		} else {

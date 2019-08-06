@@ -153,7 +153,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM t_role r,t_role_permission_relationship rp ,t_permission p
         WHERE r.id = rp.role_id
         AND rp.permission_id = p.id
+        
         AND r.id = #{roleId}
         AND r.shop_id = #{shopId}
 	</select>
+	
+	
+	 <select id="getRolePermission" resultMap="allPermissionsMap">
+        select 
+        DISTINCT
+        b.id parentIds,
+        b.name parent_names,
+        a.name name,
+        a.id id,
+        a.url url,
+        a.percode percode
+        FROM t_permission a  JOIN t_permission b ON b.id=a.parent_id join t_role_permission_relationship rp on rp.permission_id = a.id
+        join t_role r on r.id = rp.role_id where r.id=#{roleId} and r.shop_id=#{shopId}
+          
+    </select>
+    <resultMap type="com.cashier.entityVo.PermissionVo" id="allPermissionsMap">
+        <id column="parentIds" property="parentIds"/>
+        <result column="parent_names" property="parent_names"/>
+   <collection property="permissions" ofType="com.cashier.entity.Permission">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="url" property="url"/>
+        <result column="percode" property="percode"/>
+    </collection> 
+    </resultMap>
 </mapper>

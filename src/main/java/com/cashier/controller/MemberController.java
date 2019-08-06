@@ -4,15 +4,21 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+
 import org.apache.ibatis.annotations.Param;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.Member;
+import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.entityVo.MemberVo;
 import com.cashier.service.MemberService;
 
@@ -29,7 +35,8 @@ public class MemberController {
 	
 	@Resource
 	private MemberService memberService;
-	
+	@Resource
+	private UserOperationMapper userOperationMapper;
 	/**
 	 * @Title: ZtmembersManagement
 	 * @description 跳转会员列表页面
@@ -133,6 +140,7 @@ public class MemberController {
 	 * @createDate 2019年6月18日
 	 */
 	@RequestMapping("/saveMember")
+	@RequiresPermissions("/saveMember")
 	@ResponseBody
 	public Map<String, Object> saveMember(MemberVo memberVo, HttpSession session ,Model model) {
 		Map<String , Object> map = new HashMap<String , Object>();
@@ -140,7 +148,14 @@ public class MemberController {
 		if(num == 1){
 			map.put("code", 1);
 			map.put("msg", "Success");
-			
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("添加会员");
+            userOperationMapper.saveUserOperation(userOperation);
 		} else if(num == -1) {
 			map.put("code", 0);
 			map.put("msg", "该会员已存在！");
@@ -161,7 +176,7 @@ public class MemberController {
 	 * @author dujiawei
 	 * @createDate 2019年7月3日
 	 */
-	@RequiresPermissions("/updateMember")
+	
 	@RequestMapping("/ZtupdateMember")
 	public String ZtupdateMember(Model model, Member member){
 		//回显的数据
@@ -181,11 +196,21 @@ public class MemberController {
 	 * @createDate 2019年6月18日
 	 */
 	@RequestMapping("/updateMember")
+	@RequiresPermissions("/updateMember")
 	@ResponseBody
-	public Map<String , Object> updateMember(Member member) {
+	public Map<String , Object> updateMember(Member member,HttpSession session) {
 		Map<String , Object> map = new HashMap<String , Object>();
         int num = memberService.updateMember(member);
 		if(num == 1){
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            System.out.println(user+"user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("修改会员信息");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "Success");
 		}else if(num == -1){
@@ -208,12 +233,21 @@ public class MemberController {
 	 * @createDate 2019年6月18日
 	 */
 	@RequestMapping("/updateMemberState")
+	@RequiresPermissions("/updateMemberState")
 	@ResponseBody
-	public Map<String , Object> updateMemberState(Member member) {
+	public Map<String , Object> updateMemberState(Member member,HttpSession session) {
 		int num = memberService.updateMemberState(member);
 		
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1){
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("修改会员状态");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "Success");
 		} else {
@@ -233,12 +267,21 @@ public class MemberController {
 	 * @createDate 2019年7月3日
 	 */
 	@RequestMapping("/removeMember")
+	@RequiresPermissions("/removeMember")
 	@ResponseBody
-	public Map<String , Object> removeMember(Member member) {
+	public Map<String , Object> removeMember(Member member,HttpSession session) {
 		int num = memberService.removeMember(member);
 		
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1){
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("删除会员");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "Success");
 		} else {
@@ -262,6 +305,7 @@ public class MemberController {
 	 * @createDate 2019年6月18日
 	 */
 	@RequestMapping("/listMemberByOption")
+	@RequiresPermissions("/listMemberByOption")
 	@ResponseBody
 	public Map<String,Object> listMemberByOption(Model model, Integer page, Integer limit, MemberVo memberVo, HttpSession session) {
 		//BigInteger branchId = (BigInteger)session.getAttribute("shopId");
@@ -300,11 +344,19 @@ public class MemberController {
 	 */
 	@RequestMapping("/updateMemberMoneyAndLevel")
 	@ResponseBody
-	public Map<String , Object> updateMemberMoneyAndLevel(Member member) {
+	public Map<String , Object> updateMemberMoneyAndLevel(Member member,HttpSession session) {
 		
 		Map<String , Object> map = new HashMap<String , Object>();
         int num = memberService.updateMemberMoneyAndLevel(member);
 		if(num == 1){
+			 // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("修改会员累计消费金额和等级");
+            userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "Success");
 		}else {

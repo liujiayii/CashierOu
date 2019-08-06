@@ -106,6 +106,7 @@ public class LoginController {
         try {
             subject.login(token);
         } catch (Exception e) {
+        	e.printStackTrace();
             //throw new CustomException("你输入的用户名和密码不匹配");
             String usernamess = jedisClientSingle.get(username);
             if (usernamess != "" && usernamess!=null && usernamess.matches("[0-9]{1,}")) {
@@ -221,6 +222,7 @@ public class LoginController {
             
             // 存shopId username 到session
             User user = loginService.selectUserByUsername(username);
+            session.setAttribute("user", user);
             session.setAttribute("username", username);
             session.setAttribute("shopId", user.getShopId());
            // System.out.println(session.getAttribute("shopId")+"shopid");

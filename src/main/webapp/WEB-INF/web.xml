@@ -4,64 +4,62 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5">
 	<display-name>CashierOu</display-name>
-
-	<!-- spring核心监听器 -->
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
-
-	<listener>
-		<listener-class>com.cashier.entity.MySessionListener</listener-class>
-	</listener>
-
+    
+    <!-- spring核心监听器 -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>com.cashier.entity.MySessionListener</listener-class>
+    </listener>
+    
 	<!-- 配置post乱码 -->
-	<filter>
-		<filter-name>CharacterEncoding</filter-name>
-		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
-		<init-param>
-			<param-name>encoding</param-name>
-			<param-value>UTF-8</param-value>
-		</init-param>
-	</filter>
-	<filter-mapping>
-		<filter-name>CharacterEncoding</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
+     <filter>
+         <filter-name>CharacterEncoding</filter-name>
+         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+         <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+         </init-param>
+      </filter>
+      <filter-mapping>
+         <filter-name>CharacterEncoding</filter-name>
+         <url-pattern>/*</url-pattern>
+      </filter-mapping>
+      
+    <context-param> 
+        <param-name>contextConfigLocation</param-name> 
+        <param-value> 
+           classpath:spring-configs.xml
+        </param-value> 
+    </context-param>
 
 	<!-- 配置前端控制器 -->
-
-	<servlet>
-		<servlet-name>DispatcherServlet</servlet-name>
-		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-		<init-param>
-			<param-name>contextConfigLocation</param-name>
-			<param-value></param-value>
-		</init-param>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-
-	<!-- shiro的Filter -->
-	<filter>
-		<!-- 去spring配置文件中寻找同名bean -->
-		<filter-name>shiroFilter</filter-name>
-		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>shiroFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-
-	<servlet-mapping>
-		<servlet-name>DispatcherServlet</servlet-name>
-		<url-pattern>*.action</url-pattern>
-	</servlet-mapping>
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value> 
-           classpath:spring-configs.xml
-        </param-value>
-	</context-param>
-
+    <servlet>
+        <servlet-name>DispatcherServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value></param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DispatcherServlet</servlet-name>
+        <url-pattern>*.action</url-pattern>
+    </servlet-mapping>
+    
+    <!-- shiro的Filter  -->
+    <filter> 
+        <!-- 去spring配置文件中寻找同名bean  -->
+        <filter-name>shiroFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>shiroFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
 	<welcome-file-list>
 		<welcome-file>/index.html</welcome-file>
 	</welcome-file-list>

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,8 +16,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cashier.dao.InventoryMapper;
 import com.cashier.dao.ProductMapper;
+import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.GoodstrafficManagement;
 import com.cashier.entity.Inventory;
+import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.entityDTO.GoodstrafficManagementDTO;
 import com.cashier.entityVo.AddsubscriptionVo;
 import com.cashier.entityVo.GoodstrafficManagementVo;
@@ -36,6 +40,8 @@ public class GoodstrafficManagementController {
     private InventoryMapper inventoryMapper;
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private UserOperationMapper userOperationMapper;
     /**
      * 
      * @Title: listProcurement
@@ -110,6 +116,14 @@ public class GoodstrafficManagementController {
                     return map;
                 }*/
             }
+         // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(shopId);
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("添加采购，调拨订单");
+            userOperationMapper.saveUserOperation(userOperation);
             map.put("code", 1);
             map.put("msg", "添加成功");
         } catch (Exception e) {
@@ -194,6 +208,7 @@ public class GoodstrafficManagementController {
      * @createDate 2019年7月5日
      */
     @RequestMapping("/listShipmentsShopName")
+    @RequiresPermissions("/listShipmentsShopName")
     @ResponseBody
     public Map<String, Object> listShipmentsShopName(GoodstrafficManagementDTO goodstrafficManagementDTO,
             HttpSession session) {
@@ -231,7 +246,7 @@ public class GoodstrafficManagementController {
      */
     @RequestMapping("/updateSubscribe")
     @ResponseBody
-    public Map<String, Object> updateSubscribe(GoodstrafficManagement goodstrafficManagement) {
+    public Map<String, Object> updateSubscribe(GoodstrafficManagement goodstrafficManagement,HttpSession session) {
         Map<String, Object> map = new HashMap<>();
         try {
             if(goodstrafficManagement!=null){
@@ -253,6 +268,14 @@ public class GoodstrafficManagementController {
                
                
             }
+         // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("修改运输状态");
+            userOperationMapper.saveUserOperation(userOperation);
             map.put("code", 1);
             map.put("msg", "修改成功");
         } catch (Exception e) {
@@ -275,11 +298,19 @@ public class GoodstrafficManagementController {
      */
     @RequestMapping("/updateSettlementStatus")
     @ResponseBody
-    public Map<String, Object> updateSettlementStatus(GoodstrafficManagement goodstrafficManagement) {
+    public Map<String, Object> updateSettlementStatus(GoodstrafficManagement goodstrafficManagement,HttpSession session) {
         Map<String, Object> map = new HashMap<>();
         try {
             
             goodstrafficManagementService.updateSettlementStatus(goodstrafficManagement);
+            // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("修改分店结算状态");
+            userOperationMapper.saveUserOperation(userOperation);
             map.put("code", 1);
             map.put("msg", "修改成功");
         } catch (Exception e) {
@@ -293,7 +324,7 @@ public class GoodstrafficManagementController {
     
     @RequestMapping("/deleteGoodstrafficManagement")
     @ResponseBody
-    public Map<String, Object> deleteGoodstrafficManagement(GoodstrafficManagement goodstrafficManagement) {
+    public Map<String, Object> deleteGoodstrafficManagement(GoodstrafficManagement goodstrafficManagement,HttpSession session) {
         Map<String, Object> map = new HashMap<>();
         try {
             if(goodstrafficManagement.getTransportationState()!=null){
@@ -308,7 +339,14 @@ public class GoodstrafficManagementController {
                     return map;
                 }
             }
-           
+            // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("删除采购，调拨订单");
+            userOperationMapper.saveUserOperation(userOperation);
             map.put("code", 1);
             map.put("msg", "删除成功");
         } catch (Exception e) {
@@ -347,6 +385,14 @@ public class GoodstrafficManagementController {
                     inventoryMapper.updateSubscribeForPurchasing(inventory);
             }
             goodstrafficManagementService.updateSubscribe(goodstrafficManagement);  
+            // 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("取消采购，调拨订单");
+            userOperationMapper.saveUserOperation(userOperation);
             map.put("code", 1);
             map.put("msg", "修改成功");
         } catch (Exception e) {
@@ -367,6 +413,7 @@ public class GoodstrafficManagementController {
      * @createDate 20190731
      */
     @RequestMapping("/redirectToBranchShop")
+    @RequiresPermissions("/redirectToBranchShop")
     @ResponseBody
     public Map<String, Object> redirectToBranchShop(GoodstrafficManagement goodstrafficManagement,HttpSession session) {
         Map<String, Object> map = new HashMap<>();

@@ -173,8 +173,9 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	@Override
 	public Integer delProductById(BigInteger productId) {
-
-		return productMapper.delProductById(productId);
+		int result =  productMapper.delProductById(productId);
+		int result2 = productMapper.delInventoryByPid(productId);
+		return result;
 	}
 
 	/**

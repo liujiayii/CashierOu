@@ -24,15 +24,14 @@
        http://www.springframework.org/schema/context/spring-context-4.3.xsd">
 
     <!-- 加载其他的配置文件 -->
-    <import resource="classpath:spring-applicationContext-shiro.xml" />
+    <import resource="classpath:spring-applicationContext-shiro.xml"/>
 
     <!-- 自动扫描该包 -->
-    <context:component-scan base-package="com.cashier" />
+    <context:component-scan base-package="com.cashier"/>
     <!-- 启用MVC注解 -->
     <mvc:annotation-driven />
-    <task:annotation-driven scheduler="qbScheduler"
-        mode="proxy" />
-    <task:scheduler id="qbScheduler" pool-size="10" />
+    <task:annotation-driven scheduler="qbScheduler" mode="proxy"/>
+    <task:scheduler id="qbScheduler" pool-size="10"/>
     <!-- 放行静态资源 -->
     <mvc:default-servlet-handler />
     <!-- 定义跳转的文件的前后缀 ，视图模式配置 -->
@@ -75,12 +74,8 @@
         class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"></property>
     </bean>
-    
-    
-
     <!-- 开启事务控制的注解支持 -->
     <tx:annotation-driven transaction-manager="txManager"/>
-    
     <!-- 配置事务处理方式 -->
     <tx:advice id="txAdvice" transaction-manager="txManager">
         <tx:attributes>
@@ -102,10 +97,6 @@
         <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointCut" />
     </aop:config>
     
-    <!-- 描述conctroller -->
-    <context:component-scan base-package="com.cashier.controller"/>
-
-
     <!-- 连接池配置 -->
     <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
         <!-- 最大连接数 -->

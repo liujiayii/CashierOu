@@ -7,17 +7,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!-- 通过用户名查询用户信息 -->
     <select id="selectUserByUsername" parameterType="User" resultType="User">
         SELECT
-            id,
-            username,
-            name,
-            password,
-            shop_id shopId,
-            agent_type agentType,
-            province_id provinceId,
-            city_id cityId,
-            area_id areaId
+            u.id,
+            u.username,
+            u.name,
+            u.password,
+            u.shop_id shopId,
+            u.role_id roleId,
+            u.agent_type agentType,
+            u.province_id userProvinceId,
+            u.city_id userCityId,
+            u.area_id areaId
         FROM
-            t_user
+            t_user u join t_role r on r.id = u.role_id
         <where>
             <if test="username != null and username != ''">
                 username = #{username} 
@@ -44,5 +45,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         AND r.id = rp.role_id
         AND p.id = rp.permission_id
         AND u.id = #{id}
+        AND p.parent_id >0
     </select>
 </mapper>

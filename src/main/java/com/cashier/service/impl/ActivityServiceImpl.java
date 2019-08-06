@@ -424,5 +424,19 @@ public class ActivityServiceImpl implements ActivityService {
         return activityMapper.listActivityCount(specialOffers);
     }
 
+    /**
+     * @Title: listActivitiesActiveNoAid
+     * @description 修改折扣或满减活动前先检验添加的商品其他活动添加过没有
+     * @param @param activitiesActive
+     * @param @return  
+     * @return List<ActivitiesActive>    
+     * @author zhoujiaxin
+     * @createDate 2019年8月2日
+     */
+    @Override
+    public List<ActivitiesActive> listActivitiesActiveNoAid(ActivitiesActive activitiesActive) {
+        return activityMapper.listActivitiesActiveNoAid(activitiesActive);
+    }
+
     
 }

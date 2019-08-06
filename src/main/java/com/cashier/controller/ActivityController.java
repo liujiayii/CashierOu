@@ -29,10 +29,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+
+import com.cashier.dao.UserOperationMapper;
+
+import com.alibaba.druid.wall.WallFilter;
+
 import com.cashier.entity.ActivitiesActive;
 import com.cashier.entity.ProductType;
 import com.cashier.entity.Regulation;
 import com.cashier.entity.SpecialOffers;
+import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.entityDTO.RegulationDTO;
 import com.cashier.entityDTO.SpecialOffersDTO;
 import com.cashier.service.ActivityService;
@@ -51,7 +58,8 @@ public class ActivityController {
     
     @Resource
     private ActivityService activityService;
-    
+    @Resource
+    private UserOperationMapper userOperationMapper;
     /**
      * @Title: updateToBegin
      * @Description 00定时任务每天凌晨把当天未开始活动变更为进行时
@@ -101,26 +109,38 @@ public class ActivityController {
      * @createDate 2019年6月26日  
      */
     @RequestMapping("/checkUpdateActivityProduct")
-    public String checkUpdateActivityProduct(Model model,ActivitiesActive activitiesActive,HttpSession session,@RequestParam("productIdArray[]") List<BigInteger> productIdArray,@RequestParam("productNameArray[]") List<String> productNameArray){
+    @ResponseBody
+    public Map<String, Object> checkUpdateActivityProduct(Model model,ActivitiesActive activitiesActive,HttpSession session,String productIdArray){
+        Map<String, Object> map = new HashMap<>();
         // 通过session获取shopId保存到活动表
         BigInteger shopId = (BigInteger) session.getAttribute("shopId");
         activitiesActive.setShopId(shopId);
-        List<ActivitiesActive> activitiesActiveList = activityService.listActivitiesActive(activitiesActive);
+        List<ActivitiesActive> activitiesActiveList = activityService.listActivitiesActiveNoAid(activitiesActive);
         if (activitiesActiveList.size()>0) {
-            List<String> productNameList = new ArrayList<>();
-            for (int i = 0; i < activitiesActiveList.size(); i++) {
+            int flag = 0;
+            String[] productIdStrArray = productIdArray.split(",");
+            wf:for (int i = 0; i < activitiesActiveList.size(); i++) {
                 ActivitiesActive activitiesActive2 = activitiesActiveList.get(i);
-                if (productIdArray.indexOf(activitiesActive2.getProductId())==-1) {
-                    productNameList.add(productNameArray.get(i));
+                for (int j = 0; j < productIdStrArray.length; j++) {
+                    if (activitiesActive2.getProductId().compareTo(new BigInteger(productIdStrArray[j]))==0) {
+                        flag = 1;
+                        break wf;
+                    }
                 }
             }
-            if (productNameList.size()>0) {
-                return"商品有重复，报错返回";
+            if (flag == 1) {
+                map.put("code", -1);
+                map.put("msg", "商品有重复，报错返回");
+                return map;
             }else {
-                return"正常";
+                map.put("code", 1);
+                map.put("msg", "商品无重复，可以修改");
+                return map;
             }
         }else {
-            return "正常";
+            map.put("code", 1);
+            map.put("msg", "商品无重复，可以修改");
+            return map;
         }
     }
     
@@ -164,10 +184,10 @@ public class ActivityController {
                 map.put("code", -1);
                 map.put("msg", "参加活动的商品重复");
                 List<SpecialOffers> specialOffersList = new ArrayList<>();
-                SpecialOffers specialOffers = new SpecialOffers();
                 //键找值遍历
                 Set<BigInteger> set1=map2.keySet();
                 for(BigInteger key:set1) {
+                    SpecialOffers specialOffers = new SpecialOffers();
                     specialOffers.setId(key);
                     specialOffers.setName(map2.get(key));
                     specialOffersList.add(specialOffers);
@@ -201,6 +221,11 @@ public class ActivityController {
         if(fullArray.length>0 && reduceArray.length>0 && fullArray.length == reduceArray.length){
             List<RegulationDTO> regulationDTOList = new ArrayList<>();
             for (int i = 0; i < fullArray.length; i++) {
+                if (fullArray[i]<reduceArray[i]) {
+                    map.put("code", -1);
+                    map.put("msg", "满金额小于减金额");
+                    return map;
+                }
                 RegulationDTO regulationDTO = new RegulationDTO();
                 regulationDTO.setMoney(fullArray[i]);regulationDTO.setReduceMoney(reduceArray[i]);
                 if(regulationDTOList.size()==0){
@@ -376,6 +401,7 @@ public class ActivityController {
     @ResponseBody
     public Map<String, Object> updateActivityById(Model model,HttpSession session,SpecialOffers specialOffers){
         Map<String, Object> map = new HashMap<>();
+        UserOperation userOperation = new UserOperation();
         if (specialOffers.getShopId()==null) {
             // 通过session获取shopId保存到活动表
             BigInteger shopId = (BigInteger) session.getAttribute("shopId");
@@ -384,10 +410,19 @@ public class ActivityController {
                 map.put("msg", "店铺ID获取失败，请重新登录");
                 return map;
             }
+            User user = (User)session.getAttribute("user");
+            
+            userOperation.setShopId(shopId);
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("修改活动");
             specialOffers.setShopId(shopId);
         }
         int result = activityService.updateActivityById(specialOffers);
+        
         if (result==1) {
+        	// 添加一条操作记录
+        	userOperationMapper.saveUserOperation(userOperation);
             map.put("code", 1);
             map.put("msg", "修改成功");
             return map;
@@ -421,10 +456,18 @@ public class ActivityController {
      */
     @RequestMapping("/deleteRegulationById")
     @ResponseBody
-    public Map<String, Object> deleteRegulationById(Model model,Regulation regulation){
+    public Map<String, Object> deleteRegulationById(Model model,Regulation regulation,HttpSession session){
         Map<String, Object> map = new HashMap<>();
         int result = activityService.deleteRegulationById(regulation);
         if (result==1) {
+        	// 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("删除满减规则");
+            userOperationMapper.saveUserOperation(userOperation);
             map.put("code", 1);
             map.put("msg", "删除成功");
             return map;    
@@ -444,10 +487,20 @@ public class ActivityController {
      */
     @RequestMapping("/insertOneRegulation")
     @ResponseBody
-    public Map<String, Object> insertOneRegulation(Model model,Regulation regulation){
+    public Map<String, Object> insertOneRegulation(Model model,Regulation regulation,HttpSession session){
         Map<String, Object> map = new HashMap<>();
         int result = activityService.insertOneRegulation(regulation);
         if (result==1) {
+        	// 添加一条操作记录
+            User user = (User)session.getAttribute("user");
+            UserOperation userOperation = new UserOperation();
+            userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+            userOperation.setUserName(user.getUsername());
+            userOperation.setName(user.getName());
+            userOperation.setOperatingContent("添加满减规则");
+            userOperationMapper.saveUserOperation(userOperation);
+            map.put("code", 1);
+            map.put("msg", "删除成功");
             map.put("code", 1);
             map.put("msg", "添加成功");
             return map;    
@@ -467,7 +520,15 @@ public class ActivityController {
      */
     @RequestMapping("/updateOneRegulation")
     @ResponseBody
-    public Map<String, Object> updateOneRegulation(Model model,Regulation regulation){
+    public Map<String, Object> updateOneRegulation(Model model,Regulation regulation,HttpSession session){
+    	// 添加一条操作记录
+        User user = (User)session.getAttribute("user");
+        UserOperation userOperation = new UserOperation();
+        userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+        userOperation.setUserName(user.getUsername());
+        userOperation.setName(user.getName());
+        userOperation.setOperatingContent("添加满减规则");
+        userOperationMapper.saveUserOperation(userOperation);
         return activityService.updateOneRegulation(regulation);
     }
     

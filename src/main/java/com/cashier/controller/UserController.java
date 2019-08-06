@@ -98,7 +98,7 @@ public class UserController {
 	 * @author zhou jiaxin
 	 * @createDate 2019年7月4日
 	 */
-	@RequiresPermissions("/userListVo")
+	//@RequiresPermissions("/userListVo")
 	@RequestMapping("/ZtselectAllUser")
 	public String ZtselectAllRole(Model model) {
 	    /** 获得各分店铺id和名称 */
@@ -167,34 +167,39 @@ public class UserController {
 	 */
 	//@RequiresPermissions("/userListVo")
 	@RequestMapping("/userListVo")
-	@ResponseBody
-	public Object userList(Model model, Integer page, Integer limit, UserVo userVo, HttpSession session) {		
+	@ResponseBody   // Integer userType  5区域经理
+	public Object userList(Model model, Integer page, Integer limit, UserVo userVo,Integer userType, HttpSession session) {		
 		BigInteger shopId = (BigInteger)session.getAttribute("shopId");
 		userVo.setPage((page-1)*limit);
 		userVo.setLimit(limit);
 		userVo.setShopId(shopId);
-		List<UserVo>  list = userService.listUserVo(userVo);
-		
-		if(list.size() > 0) {
-			for(int i = 0; i<list.size(); i++) {
-				list.get(i).setCount(0);
-			}
-		};
-		
-		UserVo uVo = userService.countUser(userVo);
-		int count = 0;
-		if(uVo.getCount() != 0) {
-			count = uVo.getCount();
-		};
-		
-		Map<String , Object> result = new HashMap<String , Object>();		
-		result.put("code", 1);
-		result.put("msg", "Success");
-		//JSONArray array = JSONArray.fromObject(list);
-		result.put("data", list);
-		result.put("count", count);
-		
-		return result;	
+		Map<String , Object> result = new HashMap<String , Object>(); 
+		if (userType == 5 ) {
+		    List<UserVo>  listManager = userService.listManagerUserVo(userVo);
+		    int count = userService.countManagerUser(userVo);
+		    result.put("code", 1);
+            result.put("msg", "Success");
+            result.put("data", listManager);
+            result.put("count", count);
+            return result;  
+        }else{
+            List<UserVo>  list = userService.listUserVo(userVo);
+            if(list.size() > 0) {
+                for(int i = 0; i<list.size(); i++) {
+                    list.get(i).setCount(0);
+                }
+            };
+            UserVo uVo = userService.countUser(userVo);
+            int count = 0;
+            if(uVo.getCount() != 0) {
+                count = uVo.getCount();
+            };
+            result.put("code", 1);
+            result.put("msg", "Success");
+            result.put("data", list);
+            result.put("count", count);
+            return result;  
+        }
 	}
 	
 	/**

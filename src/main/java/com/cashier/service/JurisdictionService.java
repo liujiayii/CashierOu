@@ -1,6 +1,9 @@
 package com.cashier.service;
 
+import java.math.BigInteger;
 import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
 
 import com.cashier.entity.Role;
 import com.cashier.entity.RolePermission;
@@ -65,4 +68,16 @@ public interface JurisdictionService {
 	
 	
 	public List<RolePermission> listRolePermissions(RolePermission rolePermission);
+	
+	/**
+	 * 
+	     * @Title: getRolePermission
+	     * @description 获得当前登陆角色所有权限（包含权限名称）
+	     * @param  店铺id，角色id
+	     * @return    
+	     * @author chenshuxian
+	     * @createDate 2019年8月5日
+	 */
+	public List<PermissionVo> getRolePermission(BigInteger shopId,BigInteger roleId);
+
 }

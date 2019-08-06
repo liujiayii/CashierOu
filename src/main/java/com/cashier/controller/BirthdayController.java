@@ -4,17 +4,24 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cashier.dao.UserOperationMapper;
 import com.cashier.entity.Birthday;
+import com.cashier.entity.User;
+import com.cashier.entity.UserOperation;
 import com.cashier.entityVo.BirthdayVo;
 import com.cashier.service.BirthdayService;
+
 import net.sf.json.JSONArray;
 
 
@@ -25,6 +32,8 @@ public class BirthdayController {
 	
 	@Resource
 	private BirthdayService birthdayService;
+	@Resource
+	private UserOperationMapper userOperationMapper;
 	
 	/**
 	 * @Title: saveBirthday
@@ -109,6 +118,14 @@ public class BirthdayController {
 		int num = birthdayService.removeBirthday(id);
 		Map<String , Object> map = new HashMap<String , Object>();
 		if(num == 1){
+			// 添加一条操作记录
+	        User user = (User)session.getAttribute("user");
+	        UserOperation userOperation = new UserOperation();
+	        userOperation.setShopId(new BigInteger(session.getAttribute("shopId")+""));
+	        userOperation.setUserName(user.getUsername());
+	        userOperation.setName(user.getName());
+	        userOperation.setOperatingContent("删除一条生日");
+	        userOperationMapper.saveUserOperation(userOperation);
 			map.put("code", 1);
 			map.put("msg", "Success");
 		} else {

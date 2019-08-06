@@ -72,7 +72,8 @@
         join    
             t_product p 
         on 
-            pt.id = p.product_type_id    
+            pt.id = p.product_type_id  
+        AND pt.can_use =1 AND p.can_use =1 
         order by 
             pt.id
     </select>    

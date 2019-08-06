@@ -1,7 +1,9 @@
 package com.cashier.util;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +52,52 @@ public class UpdateFile {
      * @author pangchong
      * @createDate 2018年11月22日
      */
-	public static synchronized Map<String,String> update(MultipartFile file) throws Exception{
+        public static synchronized Map<String, String> update(MultipartFile file) {
+            OSSClient ossClient = null;
+            // 获取要上传文件的输入流
+            InputStream is = null;
+            URL url = null;
+            Map<String, String> map = new HashMap<>();
+            try {
+                ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
+                // 距最后修改时间3650天后文件删除。
+                SetBucketLifecycleRequest request = new SetBucketLifecycleRequest(bucketName);
+                request.AddLifecycleRule(new LifecycleRule(ruleId0, matchPrefix0, RuleStatus.Enabled, 3650));
+                is = file.getInputStream();
+                // 获取文件类型
+                String originalFilename = file.getOriginalFilename();
+                String fileType = originalFilename.substring(originalFilename.lastIndexOf(".")).replace(".", "");
+                Key = picLocation + UUID.randomUUID().toString().toUpperCase().replace("-", "") + "." + fileType;
+                // 设置URL过期时间为10年。
+                Date date = new Date();
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);//设置起时间
+                cal.add(Calendar.YEAR, 1*10);//增加十年
+                Date expiration = cal.getTime();
+                // 生成以GET方法访问的签名URL，访客可以直接通过浏览器访问相关内容。
+                // 上传文件到阿里云
+                ossClient.putObject(bucketName, Key, is);
+                url = ossClient.generatePresignedUrl(bucketName, Key, expiration);
+                 
+                // // 返回路径文件格式
+                 map.put("Path", url.toString());
+                 map.put("suffix", fileType);
+                
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                ossClient.shutdown();
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return map;
+        }
+	/*public static synchronized Map<String,String> update(MultipartFile file) throws Exception{
     	
     	//System.out.println("filename"+file.getOriginalFilename());   	
     
@@ -79,19 +126,19 @@ public class UpdateFile {
 		map.put("suffix", fileType);
 	
 		//查看key
-	     /*
+	     
 		 ObjectListing objectListing = ossClient.listObjects(bucketName);
          List<OSSObjectSummary> objectSummary = objectListing.getObjectSummaries();
          System.out.println(objectSummary.size());
          System.out.println("您有以下Object：");
          for (OSSObjectSummary object : objectSummary) {
              System.out.println("\t" + object.getKey());
-         }*/
+         }
 		//关闭线程
 		 ossClient.shutdown();
     	return map;
     	
-    }
+    }*/
 	/**
 	 * 
 	*

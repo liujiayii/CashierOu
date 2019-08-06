@@ -18,11 +18,11 @@
     <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
         <property name="securityManager" ref="securityManager" />
         <!-- loginUrl认证提交地址，如果没有认证将会请求此地址进行认证，请求此地址将由formAuthenticationFilter进行表单认证 -->
-        <property name="loginUrl" value="/index.jsp" />
+        <!-- <property name="loginUrl" value="/index.html" /> -->
         <!-- 认证成功统一跳转到first.action，建议不配置，shiro认证成功自动到上一个请求路径 -->
-        <property name="successUrl" value="/index.action"/>
+        <!-- <property name="successUrl" value="/index.action"/> -->
         <!-- 通过unauthorizedUrl指定没有权限操作时跳转页面-->
-        <property name="unauthorizedUrl" value="/unauthorized.jsp" />
+        <property name="unauthorizedUrl" value="/unauthorized.html" />
         <property name="filters">
             <map>
                 <!--退出过滤器-->
@@ -37,63 +37,15 @@
                 /public/** = anon
                 /views/** = anon
                 
-                
                 <!-- 验证码，可匿名访问 -->
-                /login.jsp  = anon
+                /login.html  = anon
+                /index.html  = anon
                 /login.action = anon
                 /loginForAn.action = anon
                 /logout.action = logout
                 /validatecode.jsp = anon
                 
                 <!-- 设置一些路径登陆即可访问 -->
-                /deskCheckOut.action = authc
-                /calculatePreferentialPrice.action = authc
-                /orderShelve.action = authc
-                /listOrderShelve.action = authc
-                /saveCreditsExchangeRecord.action = authc
-                /listCategoryAndDesk.action = authc
-                /listDeskByState.action = authc
-                /dmArealist.action = authc
-                /dmAreatwolist.action = authc
-                /shopID.action = authc
-                /listUserName.action=authc
-                /listPriduct.action = authc
-                /MumberAllEFlist.action = authc
-                /saveRechargeConsumeRecord.action = authc
-                /selectAllProductByState.action = authc
-                /lectAllProductTwo.action = authc
-                /listPriduct.action = authc
-                /listpurchasecommodities.action = authc
-                /listAllMaterialTypes.action = authc
-                /saveReserve.action = authc
-                /updateReserve.action = authc
-                /deleteReserve.action = authc
-                /showReserves.action = authc
-                /getGeneralScopeById.action = authc
-                /getRewardPunishmentMoneyById.action = authc
-                /shopID.action = authc
-                /hangkong.action = authc
-                /listAllSpecificTaste.action = authc
-                /showReserves.action = authc
-                /showReserve.action = authc
-                /updateSupplierByCanUse.action = authc
-                /supplier.action = authc
-                /listPurchaseMaterials.action = authc
-                /listRecord.action = authc
-                /listMemberByNumberOrPhone.action = authc
-                /addMember.action = authc
-                /changeMember.action = authc
-                /listMemberByNumberOrPhone.action = authc
-                /listAllBonus.action = authc
-                
-                /tablesManagement.jsp = authc
-                /membersManagement.jsp = authc
-                /dataManage.jsp = authc
-                /preferentialActivityManage.jsp = authc
-                /storeManage.jsp = authc
-                /cashierManage.jsp = authc
-                /duringmonthManage.jsp = authc
-                /storesalesManage.jsp = authc
                 <!-- 请求 logout.action地址，shiro去清除session-->
                 <!--商品查询需要商品查询权限 ，取消url拦截配置，使用注解授权方式 -->
                 <!-- /items/queryItems.action = perms[item:query]
@@ -104,16 +56,15 @@
                 <!-- /** = authc 所有url都必须认证通过才可以访问-->
                 <!-- /** = authc -->
                 <!-- /** = anon所有url都可以匿名访问 -->
-                <!-- /*.action = authc -->
+                /*.action = authc
             </value>
         </property>
     </bean>
-
+    
     <!-- securityManager安全管理器 -->
     <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
             <property name="realm" ref="customRealm" />
     </bean>
-
     <bean id="customRealm" class="com.cashier.controller.CustomRealm">
         <property name="credentialsMatcher">
             <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
@@ -122,17 +73,6 @@
             </bean>
         </property>
     </bean>
-
-
-     <!-- <bean id="md5Matcher" class="org.apache.shiro.authc.credential.Md5CredentialsMatcher"></bean>   
-    <bean id="myRealm" class="com.demo.mongodb.realm.MongodbRealm">
-    <property name="userDao" ref="userDao"></property>
-    <property name="resourcePath" value="classpath:shiro.ini"/> 
-    <property name="authorizationCacheName" value="shiro.authorizationCache"/>
-    <property name="credentialsMatcher" ref="md5Matcher"></property>
-    
-    </bean>
-     -->
 
     <!-- 开启aop，对类代理 -->
     <aop:config proxy-target-class="true"></aop:config>

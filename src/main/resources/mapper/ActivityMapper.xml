@@ -11,7 +11,18 @@
 		FROM t_activities_active aa
 		WHERE aa.activity_id =#{id}
     </select>
-    
+    <!-- 992修改折扣或满减活动前先检验添加的商品其他活动添加过没有 -->
+    <select id="listActivitiesActiveNoAid" parameterType="com.cashier.entity.ActivitiesActive" resultType="com.cashier.entity.ActivitiesActive" >
+        SELECT 
+            aa.product_id productId,
+            aa.activity_id activityId,
+            so.name activityName
+        FROM t_activities_active aa ,t_special_offers so
+        WHERE so.id = aa.activity_id 
+        AND so.shop_id = #{shopId}
+        AND so.id != #{activityId}
+    </select>
+
     <!-- 99店铺ID查询出动态活动商品表中的商品ID -->
     <select id="listActivitiesActive" parameterType="com.cashier.entity.ActivitiesActive" resultType="com.cashier.entity.ActivitiesActive" >
         SELECT 
@@ -123,10 +134,10 @@
             t_special_offers so
         <where>
             so.shop_id = #{shopId}
-            <if test="type != 0">
+            <if test="type != null">
                 and so.type = #{type}
             </if>
-            <if test="state != 0">
+            <if test="state !=null">
                 and so.state = #{state} 
             </if>
             <if test="name != null and name != ''">
