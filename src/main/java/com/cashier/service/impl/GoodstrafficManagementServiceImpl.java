@@ -298,8 +298,8 @@ public class GoodstrafficManagementServiceImpl implements GoodstrafficManagement
         goodstrafficManagementVo.setId(goodstrafficManagement.getId());
         map.put("code", 1);
         map.put("msg", "显示成功");
-        map.put("data", goodstrafficManagementVo);
-        map.put("data2", goodstrafficOrdersProduct);
+        map.put("goodstrafficManagementVo", goodstrafficManagementVo);
+        map.put("goodstrafficOrdersProduct", goodstrafficOrdersProduct);
         
         return map;
     }

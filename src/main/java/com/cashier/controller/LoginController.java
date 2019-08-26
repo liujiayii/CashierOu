@@ -22,10 +22,12 @@ import com.cashier.entity.MySessionContex;
 import com.cashier.entity.Permission;
 import com.cashier.entity.Product;
 import com.cashier.entity.Regulation;
+import com.cashier.entity.Role;
 import com.cashier.entity.Shop;
 import com.cashier.entity.User;
 import com.cashier.entityDTO.PermissionDTO;
 import com.cashier.entityVo.PermissionVo;
+import com.cashier.service.JurisdictionService;
 import com.cashier.service.LoginService;
 import com.cashier.service.RoleService;
 import com.cashier.service.ShopService;
@@ -53,6 +55,8 @@ public class LoginController {
     private ShopService shopService;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private JurisdictionService jurisdictionService;
    /* @Autowired
     private SpecialOffersMapper specialOffersMapper;
     @Autowired
@@ -148,8 +152,13 @@ public class LoginController {
             
             // 存shopId username 到session
             User user = loginService.selectUserByUsername(username);
+            System.out.println(user);
+            Role r= new Role();
+            r.setId(user.getRoleId());
+            r.setShopId(user.getShopId());
             // 根据分店ID获取当前分店的权限信息
-    		List<PermissionVo> PermissionVolist = roleService.getPermissionListByShopId(user);
+    		List<PermissionVo> PermissionVolist = jurisdictionService.listPermissionByRoleIdAndShopId(r);
+    		System.out.println(PermissionVolist);
     		List<PermissionDTO> listPermissionDTO = new ArrayList<>();
     		for(PermissionVo p : PermissionVolist){
     			PermissionDTO permissionDTO = new PermissionDTO();

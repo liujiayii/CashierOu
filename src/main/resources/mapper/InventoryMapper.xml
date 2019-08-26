@@ -36,6 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			i.quantity,
 			p.name productName,
 			p.pleased,
+			p.id productId,
 			pt.product_type productTypeName,
 			i.inventory_warning inventoryWarning
 		from
